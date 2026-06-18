@@ -11,9 +11,10 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = Number(process.env.API_PORT ?? 3333);
-  await app.listen(port);
-  new Logger("Bootstrap").log(`API Solen rodando em http://localhost:${port}/api`);
+  // Render/Heroku injetam PORT; em dev usamos API_PORT do .env.
+  const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3333);
+  await app.listen(port, "0.0.0.0");
+  new Logger("Bootstrap").log(`API Solen rodando na porta ${port} (prefixo /api)`);
 }
 
 bootstrap();

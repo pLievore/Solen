@@ -16,6 +16,11 @@ export async function apiGet<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** GET autenticado: envia o access token do Supabase no header Authorization. */
+export async function apiGetAuthed<T>(path: string, token: string): Promise<T> {
+  return apiGet<T>(path, { headers: { Authorization: `Bearer ${token}` } });
+}
+
 export type HealthResponse = {
   status: string;
   service: string;

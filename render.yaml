@@ -1,0 +1,28 @@
+# Render Blueprint — API do Solen (@solen/api).
+# Importar em: Render Dashboard > New > Blueprint (aponta para este repo).
+# As variaveis com sync:false sao preenchidas no painel do Render (segredos).
+services:
+  - type: web
+    name: solen-api
+    runtime: node
+    plan: free
+    region: ohio # us-east, proximo do Supabase us-east-2
+    branch: main
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @solen/shared build && pnpm --filter @solen/api exec prisma generate && pnpm --filter @solen/api build
+    startCommand: pnpm --filter @solen/api exec prisma migrate deploy && node apps/api/dist/main.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false # ex.: https://solen.vercel.app
+      - key: WHATSAPP_PHONE
+        sync: false
