@@ -7,6 +7,28 @@ import { computeQuote, type BreakdownItem } from "./pricing.engine";
 export class QuoteService {
   constructor(private readonly prisma: PrismaService) {}
 
+  private validateCompleteAnswers(
+    label: string,
+    expectedIds: string[],
+    answers: QuoteRequest["knockoutAnswers"],
+  ): void {
+    const answerIds = answers.map((answer) => answer.questionId);
+    const uniqueAnswerIds = new Set(answerIds);
+    const expectedIdSet = new Set(expectedIds);
+
+    if (uniqueAnswerIds.size !== answerIds.length) {
+      throw new BadRequestException(`${label}: respostas duplicadas.`);
+    }
+
+    const hasUnexpected = answerIds.some((id) => !expectedIdSet.has(id));
+    const hasMissing = expectedIds.some((id) => !uniqueAnswerIds.has(id));
+    if (hasUnexpected || hasMissing || answerIds.length !== expectedIds.length) {
+      throw new BadRequestException(
+        `${label}: responda todas as perguntas disponíveis.`,
+      );
+    }
+  }
+
   private async scrapDefault(): Promise<number> {
     const s = await this.prisma.setting.findUnique({
       where: { key: "scrap.defaultValue" },
@@ -15,8 +37,8 @@ export class QuoteService {
   }
 
   async quote(input: QuoteRequest): Promise<QuoteResponse> {
-    const variant = await this.prisma.variant.findUnique({
-      where: { id: input.variantId },
+    const variant = await this.prisma.variant.findFirst({
+      where: { id: input.variantId, active: true },
     });
     if (!variant) throw new NotFoundException("Versao nao encontrada");
 
@@ -24,6 +46,12 @@ export class QuoteService {
     const knockouts = await this.prisma.knockoutQuestion.findMany({
       where: { active: true },
     });
+    this.validateCompleteAnswers(
+      "Perguntas eliminatorias",
+      knockouts.map((question) => question.id),
+      input.knockoutAnswers,
+    );
+
     const triggered = input.knockoutAnswers.some((a) => {
       const q = knockouts.find((k) => k.id === a.questionId);
       return q != null && q.triggerAnswer === a.answer;
@@ -52,9 +80,18 @@ export class QuoteService {
 
     // 3. Deltas dos estados detalhados atribuidos a esta versao
     const assigned = await this.prisma.variantDetailedState.findMany({
-      where: { variantId: input.variantId },
+      where: {
+        variantId: input.variantId,
+        detailedState: { active: true },
+      },
       include: { detailedState: true },
     });
+    this.validateCompleteAnswers(
+      "Estados detalhados",
+      assigned.map((item) => item.detailedStateId),
+      input.detailedAnswers,
+    );
+
     const deltas: BreakdownItem[] = [];
     for (const a of input.detailedAnswers) {
       const vds = assigned.find((x) => x.detailedStateId === a.questionId);

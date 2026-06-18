@@ -14,6 +14,7 @@ import { z } from "zod";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
 import { PrismaService } from "../prisma/prisma.service";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
+import { sanitizePostHtml } from "./sanitize-post-html";
 
 const createPostSchema = z.object({
   title: z.string().min(1, "Título obrigatório"),
@@ -57,7 +58,7 @@ export class AdminBlogController {
   async detail(@Param("id") id: string) {
     const post = await this.prisma.post.findUnique({ where: { id } });
     if (!post) throw new NotFoundException("Post não encontrado");
-    return post;
+    return { ...post, content: sanitizePostHtml(post.content) };
   }
 
   @Post()
@@ -67,6 +68,7 @@ export class AdminBlogController {
     return this.prisma.post.create({
       data: {
         ...dto,
+        content: sanitizePostHtml(dto.content),
         coverImageUrl: dto.coverImageUrl || null,
         publishedAt:
           dto.status === "PUBLISHED" ? new Date() : null,
@@ -92,6 +94,10 @@ export class AdminBlogController {
       where: { id },
       data: {
         ...dto,
+        content:
+          dto.content !== undefined
+            ? sanitizePostHtml(dto.content)
+            : undefined,
         coverImageUrl:
           dto.coverImageUrl !== undefined
             ? dto.coverImageUrl || null

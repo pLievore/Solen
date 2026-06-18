@@ -2,6 +2,7 @@ import { Controller, Get, NotFoundException, Param, Query } from "@nestjs/common
 import { z } from "zod";
 import { PrismaService } from "../prisma/prisma.service";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
+import { sanitizePostHtml } from "./sanitize-post-html";
 
 const listQuerySchema = z.object({
   skip: z.coerce.number().int().min(0).default(0),
@@ -43,6 +44,6 @@ export class PublicBlogController {
       where: { slug, status: "PUBLISHED" },
     });
     if (!post) throw new NotFoundException("Post não encontrado");
-    return post;
+    return { ...post, content: sanitizePostHtml(post.content) };
   }
 }

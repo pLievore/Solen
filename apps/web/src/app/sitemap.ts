@@ -8,8 +8,22 @@ type CategoryRow = { slug: string; updatedAt?: string };
 
 async function getBlogSlugs(): Promise<PostRow[]> {
   try {
-    const data = await apiGet<{ items: PostRow[] }>("/blog?take=500");
-    return data.items;
+    const take = 50;
+    const posts: PostRow[] = [];
+    let skip = 0;
+
+    while (true) {
+      const data = await apiGet<{
+        total: number;
+        items: PostRow[];
+      }>(`/blog?skip=${skip}&take=${take}`);
+      posts.push(...data.items);
+      skip += data.items.length;
+
+      if (data.items.length === 0 || skip >= data.total) {
+        return posts;
+      }
+    }
   } catch {
     return [];
   }
