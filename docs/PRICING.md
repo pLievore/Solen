@@ -79,17 +79,18 @@ value                =  20000  → R$ 200,00
 
 ---
 
-## 4. Sucata (valor a definir — questão aberta)
+## 4. Sucata (decidido)
 
-O briefing cita "avaliação de sucata" mas **não define o valor**. Opções de modelagem (escolher na validação):
+✅ **Valor fixo por versão** (`Variant.scrapPrice`), com **fallback global** quando a versão não tiver valor próprio:
 
-| Opção | Como funciona | Prós | Contras |
-|------|---------------|------|---------|
-| **A. Valor fixo por versão** (`Variant.scrapPrice`) | Admin define um valor de sucata por versão | Simples, previsível | Cadastro manual por versão |
-| **B. Percentual do menor preço base** | `scrap = base(USED_HEAVY) × fator` (ex.: 20%) | Sem cadastro extra | Menos controle |
-| **C. Valor único global** (Setting) | Um número para tudo | Mais simples | Pouco preciso |
+```
+scrapValue(variant):
+    return variant.scrapPrice ?? Setting("scrap.defaultValue")
+```
 
-> **Recomendação:** começar com **A** (`scrapPrice` por versão, já previsto no schema) e, se faltar valor, cair num **default global** (Setting `scrap.defaultValue`). Confirmar com o cliente (ver SPEC §10.1).
+- O admin define o valor de sucata por versão no painel (Precificação).
+- Se a versão não tiver `scrapPrice`, usa-se o default global (`Setting scrap.defaultValue`).
+- Acionado por qualquer pergunta eliminatória (knockout) — ver §2, passo 1.
 
 ---
 

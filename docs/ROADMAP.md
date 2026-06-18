@@ -50,7 +50,7 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 - [ ] Modelagem Prisma completa ([DATA-MODEL.md](DATA-MODEL.md)) + migrations + **seed** (8 categorias, 4 estados, perguntas do briefing, iPhone 11 de exemplo).
 - [ ] API CRUD: `categories`, `models`, `variants` (com ordenação e ativo/inativo).
 - [ ] Upload de ícones/imagens → Supabase Storage.
-- [ ] API: `VariantPrice` (preços base por Versão × Estado).
+- [ ] API: `VariantPrice` (preços base por Versão × Estado) + `scrapPrice` por versão e `Setting scrap.defaultValue`.
 - [ ] API: `DetailedState` (CRUD) + atribuição a versões (`VariantDetailedState`, com override).
 - [ ] API: `KnockoutQuestion` (CRUD).
 - [ ] Painel `/admin`: telas de Categorias, Modelos, Versões, Preços, Estados Detalhados, Perguntas eliminatórias.
@@ -82,9 +82,10 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 - [ ] **Formulário do vendedor:** Nome, WhatsApp, CEP (**auto-preenchimento ViaCEP**), Cidade, Bairro, Rua, Número — com validação (Zod).
 - [ ] API `POST /proposals`: gera **Token**, persiste a proposta (snapshot de respostas/breakdown/valor).
 - [ ] **Redirecionamento WhatsApp:** link `wa.me` com mensagem personalizada + Token (template em Configurações).
+- [ ] **Notificação por e-mail ao operador** a cada nova proposta (RF-16) — serviço gratuito (Resend/SMTP).
 - [ ] Rate-limiting anti-spam nos endpoints públicos.
 
-**Critério de aceite:** concluir uma avaliação gera um Token, grava o lead no banco e abre o WhatsApp com a mensagem certa.
+**Critério de aceite:** concluir uma avaliação gera um Token, grava o lead no banco, dispara e-mail ao operador e abre o WhatsApp com a mensagem certa.
 
 ---
 
@@ -147,11 +148,12 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 
 ---
 
-## Antes de começar a Fase 0 — validar
-Itens de [SPEC §10](SPEC.md) que afetam a modelagem:
-1. Regra de **valor de sucata** (ver [PRICING §4](PRICING.md)).
-2. Deltas **globais vs. por versão**.
-3. Impacto da pergunta "já aberto para manutenção?".
-4. Notificação ao operador a cada lead (e-mail/WhatsApp)?
-5. Nome/domínio/identidade (provisório: "Solen").
-6. Confirmar que os 4 estados base são fixos.
+## Decisões travadas (ver [SPEC §10](SPEC.md))
+1. ✅ **Sucata:** valor fixo por versão (`scrapPrice`) + fallback global.
+2. ✅ **Deltas:** globais no MVP (override por versão fica para o futuro).
+3. ✅ **"Já aberto para manutenção?":** desconta (Estado Detalhado com delta).
+4. ✅ **Notificação:** e-mail ao operador a cada nova proposta (RF-16, Fase 3).
+5. ⏳ **Nome/domínio:** "Solen" provisório até a identidade final (não bloqueia).
+6. ✅ **Estados base:** 4 fixos, só preço editável.
+
+> Nada pendente bloqueia o início. A definição final de nome/domínio só é necessária na **Fase 6** (lançamento).

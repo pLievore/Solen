@@ -123,8 +123,9 @@ Câmeras perfeitas?        Sim  0    | Não  -250
 Face ID funciona?         Sim  0    | Não  -250
 Tem restrição?            Sim -150  | Não   0
 Mensagem peça desconhec.? Sim -150  | Não   0
-Já aberto p/ manutenção?  (definir — ver SPEC §10.3)
+Já aberto p/ manutenção?  Sim  -X   | Não   0   (desconta; X definido no painel)
 ```
+> **Globais no MVP:** os deltas vivem no `DetailedState` e valem para todas as versões. As colunas de _override_ em `VariantDetailedState` ficam para evolução futura — **não usadas no MVP** (SPEC §10.2).
 
 ### VariantDetailedState (atribuição N:N + override)
 | Campo | Tipo | Notas |
@@ -192,7 +193,7 @@ Exemplos:
 ### Setting (Configurações)
 | Campo | Tipo | Notas |
 |------|------|-------|
-| key | string (PK) | "whatsapp_phone", "theme.tokens", "home.headline", "whatsapp_message_template" |
+| key | string (PK) | "whatsapp_phone", "theme.tokens", "home.headline", "whatsapp_message_template", "scrap.defaultValue", "notify_email" |
 | value | json | |
 
 ---

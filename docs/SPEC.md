@@ -139,6 +139,7 @@ Caminho alternativo acionado por uma pergunta eliminatória. Mostra uma avaliaç
 | RF-13 | Blog/CMS gerenciável via painel para conteúdo de SEO | Pág. 1 |
 | RF-14 | Autenticação do painel administrativo | Implícito |
 | RF-15 | Tema configurável (design tokens) para retematização | Pág. 1 |
+| RF-16 | Notificar o operador por e-mail a cada nova proposta | Decisão §10.4 |
 
 ---
 
@@ -190,6 +191,7 @@ O painel é o que dá autonomia ao operador. Áreas:
 | **WhatsApp** (`wa.me` / link de clique-para-conversar) | Encaminhar lead com mensagem + Token | Grátis |
 | **ViaCEP** | Auto-preencher endereço a partir do CEP | Grátis, sem chave |
 | **Vercel** | Hospedagem do frontend | Free tier |
+| **E-mail transacional** (Resend ou SMTP do Supabase) | Notificar operador a cada nova proposta (RF-16) | Free tier |
 
 ---
 
@@ -204,11 +206,11 @@ O painel é o que dá autonomia ao operador. Áreas:
 
 ---
 
-## 10. Questões em aberto (a validar com o cliente)
+## 10. Decisões (validadas com o cliente)
 
-1. **Valor de sucata:** valor fixo por versão? Percentual do preço base? Valor único global? → ver [PRICING.md](PRICING.md).
-2. **Deltas por versão:** os descontos dos estados detalhados são globais (mesmo −R$250 de tela para todos) ou podem variar por versão? (Modelagem já prevê _override_ opcional por versão.)
-3. **"Já foi aberto para manutenção?"** — tem impacto no preço (delta) ou é só informativo para o lead?
-4. **Notificação ao operador:** ao registrar uma proposta, enviar alerta (e-mail/WhatsApp) além de gravar no dashboard?
-5. **Domínio e identidade:** nome final, domínio e marca (o repositório usa "Solen" como provisório).
-6. **Estados base configuráveis?** O briefing diz que só o preço muda; confirmamos que os 4 estados são fixos?
+1. **Valor de sucata:** ✅ **Valor fixo por versão** (`Variant.scrapPrice`), com _fallback_ para um default global (`Setting scrap.defaultValue`) quando a versão não tiver valor. → ver [PRICING §4](PRICING.md).
+2. **Deltas:** ✅ **Globais por enquanto** — os descontos vivem no `DetailedState` e valem para todas as versões. O _override_ por versão fica na modelagem como evolução futura (não usado no MVP).
+3. **"Já foi aberto para manutenção?":** ✅ **Desconta** — é um Estado Detalhado com delta (valor configurável no painel).
+4. **Notificação ao operador:** ✅ **Sim** — ao registrar uma proposta, enviar **alerta por e-mail** (serviço gratuito) além de gravar no dashboard. (Ver RF-16, §8.)
+5. **Domínio e identidade:** ⏳ "Solen" segue como **nome provisório** até a identidade final.
+6. **Estados base:** ✅ **Fixos** (4 estados) — só o preço é editável; não se criam novos estados base.
