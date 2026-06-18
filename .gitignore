@@ -28,6 +28,10 @@ Thumbs.db
 # Test / coverage
 coverage/
 
+# TS build info
+*.tsbuildinfo
+next-env.d.ts
+
 # Prisma
 prisma/*.db
 

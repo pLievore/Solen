@@ -1,0 +1,187 @@
+// Solen — schema do banco (Postgres/Supabase).
+// Valores monetários em CENTAVOS (Int). Ver docs/DATA-MODEL.md e docs/PRICING.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooler (runtime)
+  directUrl = env("DIRECT_URL") // session pooler (migrations)
+}
+
+// ─────────────────────────── Catálogo ───────────────────────────
+
+model Category {
+  id        String        @id @default(uuid())
+  name      String
+  slug      String        @unique
+  iconUrl   String?
+  order     Int           @default(0)
+  active    Boolean       @default(true)
+  models    DeviceModel[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@map("categories")
+}
+
+model DeviceModel {
+  id         String    @id @default(uuid())
+  categoryId String
+  category   Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  imageUrl   String?
+  order      Int       @default(0)
+  active     Boolean   @default(true)
+  variants   Variant[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([categoryId, slug])
+  @@map("device_models")
+}
+
+model Variant {
+  id             String                 @id @default(uuid())
+  modelId        String
+  model          DeviceModel            @relation(fields: [modelId], references: [id], onDelete: Cascade)
+  name           String
+  storage        String?
+  specs          Json?
+  slug           String
+  scrapPrice     Int? // centavos; fallback p/ Setting "scrap.defaultValue"
+  active         Boolean                @default(true)
+  prices         VariantPrice[]
+  detailedStates VariantDetailedState[]
+  proposals      Proposal[]
+  createdAt      DateTime               @default(now())
+  updatedAt      DateTime               @updatedAt
+
+  @@map("variants")
+}
+
+// ─────────────────────────── Precificação ───────────────────────────
+
+model ConditionState {
+  id     String         @id @default(uuid())
+  key    String         @unique // NEW | LIKE_NEW | USED_LIGHT | USED_HEAVY
+  label  String
+  order  Int            @default(0)
+  prices VariantPrice[]
+
+  @@map("condition_states")
+}
+
+model VariantPrice {
+  id               String         @id @default(uuid())
+  variantId        String
+  variant          Variant        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  conditionStateId String
+  conditionState   ConditionState @relation(fields: [conditionStateId], references: [id], onDelete: Cascade)
+  price            Int // centavos
+
+  @@unique([variantId, conditionStateId])
+  @@map("variant_prices")
+}
+
+model DetailedState {
+  id         String                 @id @default(uuid())
+  question   String
+  helpText   String?
+  answerType String                 @default("TOGGLE") // TOGGLE | CHECK | SELECT
+  yesDelta   Int                    @default(0) // centavos (normalmente <= 0)
+  noDelta    Int                    @default(0)
+  order      Int                    @default(0)
+  active     Boolean                @default(true)
+  variants   VariantDetailedState[]
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @updatedAt
+
+  @@map("detailed_states")
+}
+
+model VariantDetailedState {
+  id               String        @id @default(uuid())
+  variantId        String
+  variant          Variant       @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  detailedStateId  String
+  detailedState    DetailedState @relation(fields: [detailedStateId], references: [id], onDelete: Cascade)
+  // overrides ficam p/ evolução futura (MVP usa deltas globais do DetailedState)
+  yesDeltaOverride Int?
+  noDeltaOverride  Int?
+
+  @@unique([variantId, detailedStateId])
+  @@map("variant_detailed_states")
+}
+
+model KnockoutQuestion {
+  id            String   @id @default(uuid())
+  question      String
+  helpText      String?
+  triggerAnswer String // YES | NO -> resposta que leva à sucata
+  order         Int      @default(0)
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("knockout_questions")
+}
+
+// ─────────────────────────── Propostas / Leads ───────────────────────────
+
+model Proposal {
+  id               String   @id @default(uuid())
+  token            String   @unique
+  variantId        String
+  variant          Variant  @relation(fields: [variantId], references: [id])
+  conditionStateId String? // nulo se sucata
+  isScrap          Boolean  @default(false)
+  answers          Json // snapshot das respostas
+  calculatedValue  Int // centavos
+  breakdown        Json // composição do cálculo (auditoria)
+  sellerName       String
+  sellerWhatsapp   String
+  cep              String
+  city             String
+  neighborhood     String
+  street           String
+  number           String
+  status           String   @default("NEW") // NEW | CONTACTED | CLOSED | LOST
+  createdAt        DateTime @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("proposals")
+}
+
+// ─────────────────────────── Blog / SEO ───────────────────────────
+
+model Post {
+  id              String    @id @default(uuid())
+  title           String
+  slug            String    @unique
+  excerpt         String?
+  content         String // HTML/Markdown do editor
+  coverImageUrl   String?
+  seoTitle        String?
+  metaDescription String?
+  status          String    @default("DRAFT") // DRAFT | PUBLISHED
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+  @@map("posts")
+}
+
+// ─────────────────────────── Configurações ───────────────────────────
+
+model Setting {
+  key   String @id // whatsapp_phone | theme.tokens | home.headline | scrap.defaultValue | notify_email | whatsapp_message_template
+  value Json
+
+  @@map("settings")
+}

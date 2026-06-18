@@ -1,0 +1,31 @@
+/*
+ * DESIGN TOKENS — Solen
+ * Paleta provisoria: branco / preto / verde.
+ * A identidade visual final entra aqui (ou via painel de Configuracoes),
+ * sem precisar refatorar componentes.
+ */
+:root {
+  /* cores base */
+  --color-bg: #ffffff; /* branco */
+  --color-fg: #0a0a0a; /* preto */
+  --color-muted: #6b7280; /* cinza texto secundario */
+  --color-border: #e5e7eb;
+
+  /* marca */
+  --color-brand: #16a34a; /* verde */
+  --color-brand-fg: #ffffff;
+
+  /* forma / tipografia */
+  --radius: 0.75rem;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Suporte futuro a tema escuro (placeholder) */
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="auto"] {
+    --color-bg: #0a0a0a;
+    --color-fg: #fafafa;
+    --color-muted: #9ca3af;
+    --color-border: #1f2937;
+  }
+}
