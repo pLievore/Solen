@@ -1,9 +1,5 @@
 import type { Config } from "tailwindcss";
 
-/**
- * Cores mapeadas para CSS variables (design tokens) em src/styles/tokens.css.
- * Trocar a identidade visual = editar os tokens, sem mexer nos componentes.
- */
 const config: Config = {
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
@@ -14,16 +10,34 @@ const config: Config = {
         muted: "var(--color-muted)",
         brand: {
           DEFAULT: "var(--color-brand)",
+          dark: "var(--color-brand-dark)",
           fg: "var(--color-brand-fg)",
+          subtle: "var(--color-brand-subtle)",
+          "subtle-fg": "var(--color-brand-subtle-fg)",
         },
         border: "var(--color-border)",
+        surface: {
+          DEFAULT: "var(--color-surface)",
+          2: "var(--color-surface-2)",
+        },
       },
       borderRadius: {
         DEFAULT: "var(--radius)",
+        sm: "var(--radius-sm)",
+        lg: "var(--radius-lg)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        brand: "var(--shadow-brand)",
+      },
+      transitionTimingFunction: {
+        "out-expo": "var(--ease-out)",
       },
     },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
 };
 
 export default config;

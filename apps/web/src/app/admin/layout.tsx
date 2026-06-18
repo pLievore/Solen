@@ -7,11 +7,13 @@ import { supabase } from "@/lib/supabase";
 
 const NAV = [
   { href: "/admin", label: "Dashboard" },
+  { href: "/admin/proposals", label: "Propostas" },
   { href: "/admin/categories", label: "Categorias" },
   { href: "/admin/models", label: "Modelos" },
   { href: "/admin/variants", label: "Versoes" },
   { href: "/admin/detailed-states", label: "Estados detalhados" },
   { href: "/admin/knockout", label: "Perguntas knockout" },
+  { href: "/admin/blog", label: "Blog" },
   { href: "/admin/settings", label: "Configuracoes" },
 ];
 

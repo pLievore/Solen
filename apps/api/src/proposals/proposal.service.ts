@@ -1,0 +1,148 @@
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { randomBytes } from "crypto";
+import { Resend } from "resend";
+import type { CreateProposal, CreateProposalResponse, QuoteResponse } from "@solen/shared";
+import { PrismaService } from "../prisma/prisma.service";
+import { QuoteService } from "../evaluation/quote.service";
+
+@Injectable()
+export class ProposalService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly quoteService: QuoteService,
+    private readonly config: ConfigService,
+  ) {}
+
+  private generateToken(): string {
+    // 8 hex chars uppercase, ex: "A3F9B012"
+    return randomBytes(4).toString("hex").toUpperCase();
+  }
+
+  async create(input: CreateProposal): Promise<CreateProposalResponse> {
+    // 1. Calculate quote (reuses existing pricing engine)
+    const quote = await this.quoteService.quote(input.quote);
+
+    // 2. Fetch variant + model for display names
+    const variant = await this.prisma.variant.findUnique({
+      where: { id: input.quote.variantId },
+      include: { model: true },
+    });
+    const variantLabel = variant
+      ? `${variant.model.name} ${variant.name}`
+      : input.quote.variantId;
+
+    // 3. Generate token and build WhatsApp URL
+    const token = this.generateToken();
+    const whatsappUrl = await this.buildWhatsappUrl(token, input, quote, variantLabel);
+
+    // 4. Persist proposal
+    await this.prisma.proposal.create({
+      data: {
+        token,
+        variantId: input.quote.variantId,
+        conditionStateId: input.quote.conditionStateId ?? null,
+        isScrap: quote.isScrap,
+        answers: {
+          knockout: input.quote.knockoutAnswers,
+          detailed: input.quote.detailedAnswers,
+        },
+        calculatedValue: quote.value,
+        breakdown: quote.breakdown as object[],
+        sellerName: input.seller.name,
+        sellerWhatsapp: input.seller.whatsapp,
+        cep: input.seller.cep,
+        city: input.seller.city,
+        neighborhood: input.seller.neighborhood,
+        street: input.seller.street,
+        number: input.seller.number,
+        status: "NEW",
+      },
+    });
+
+    // 5. Send email notification (fire-and-forget; errors are silenced)
+    this.sendEmailNotification(token, input, quote, variantLabel).catch(() => {/* silent */});
+
+    return {
+      token,
+      value: quote.value,
+      valueFormatted: quote.valueFormatted,
+      whatsappUrl,
+    };
+  }
+
+  private async buildWhatsappUrl(
+    token: string,
+    input: CreateProposal,
+    quote: QuoteResponse,
+    variantLabel: string,
+  ): Promise<string> {
+    const [phoneSetting, templateSetting] = await Promise.all([
+      this.prisma.setting.findUnique({ where: { key: "whatsapp_phone" } }),
+      this.prisma.setting.findUnique({ where: { key: "whatsapp_message_template" } }),
+    ]);
+
+    const phone =
+      typeof phoneSetting?.value === "string" ? phoneSetting.value : "";
+    const defaultTemplate =
+      "Olá! Quero vender {variant}. Proposta nº {token} — Valor: {value}. Nome: {name}.";
+    const template =
+      typeof templateSetting?.value === "string"
+        ? templateSetting.value
+        : defaultTemplate;
+
+    const message = template
+      .replace("{token}", token)
+      .replace("{variant}", variantLabel)
+      .replace("{value}", quote.valueFormatted)
+      .replace("{name}", input.seller.name)
+      .replace("{whatsapp}", input.seller.whatsapp);
+
+    const cleanPhone = phone.replace(/\D/g, "");
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
+  }
+
+  private async sendEmailNotification(
+    token: string,
+    input: CreateProposal,
+    quote: QuoteResponse,
+    variantLabel: string,
+  ): Promise<void> {
+    const apiKey = this.config.get<string>("RESEND_API_KEY");
+    const notifyEmailSetting = await this.prisma.setting.findUnique({
+      where: { key: "notify_email" },
+    });
+    const notifyEmail =
+      typeof notifyEmailSetting?.value === "string"
+        ? notifyEmailSetting.value
+        : null;
+
+    if (!apiKey || !notifyEmail) return;
+
+    const from =
+      this.config.get<string>("RESEND_FROM_EMAIL") ?? "propostas@solen.com.br";
+    const resend = new Resend(apiKey);
+
+    await resend.emails.send({
+      from,
+      to: notifyEmail,
+      subject: `[Solen] Nova proposta ${token} — ${variantLabel}`,
+      text: [
+        `Nova proposta recebida!`,
+        ``,
+        `Token:    ${token}`,
+        `Aparelho: ${variantLabel}`,
+        `Valor:    ${quote.valueFormatted}`,
+        `Sucata:   ${quote.isScrap ? "Sim" : "Não"}`,
+        ``,
+        `Vendedor:`,
+        `  Nome:      ${input.seller.name}`,
+        `  WhatsApp:  ${input.seller.whatsapp}`,
+        `  CEP:       ${input.seller.cep}`,
+        `  Cidade:    ${input.seller.city}`,
+        `  Bairro:    ${input.seller.neighborhood}`,
+        `  Endereço:  ${input.seller.street}, ${input.seller.number}`,
+      ].join("\n"),
+    });
+  }
+}

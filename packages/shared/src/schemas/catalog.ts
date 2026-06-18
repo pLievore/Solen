@@ -17,7 +17,7 @@ export type CategoryUpdate = z.infer<typeof categoryUpdateSchema>;
 
 // ─────────────────────────── Modelo ───────────────────────────
 export const modelCreateSchema = z.object({
-  categoryId: z.string().uuid(),
+  categoryId: z.string().min(1),
   name: z.string().min(1),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
   imageUrl: z.string().url().nullish(),
@@ -30,7 +30,7 @@ export type ModelUpdate = z.infer<typeof modelUpdateSchema>;
 
 // ─────────────────────────── Versao ───────────────────────────
 export const variantCreateSchema = z.object({
-  modelId: z.string().uuid(),
+  modelId: z.string().min(1),
   name: z.string().min(1),
   storage: z.string().nullish(),
   specs: z.record(z.string(), z.unknown()).nullish(),
@@ -46,7 +46,7 @@ export type VariantUpdate = z.infer<typeof variantUpdateSchema>;
 export const variantPricesSchema = z.object({
   prices: z.array(
     z.object({
-      conditionStateId: z.string().uuid(),
+      conditionStateId: z.string().min(1),
       price: z.number().int().nonnegative(), // centavos
     }),
   ),
@@ -71,7 +71,7 @@ export type DetailedStateUpdate = z.infer<typeof detailedStateUpdateSchema>;
 export const variantDetailedStatesSchema = z.object({
   items: z.array(
     z.object({
-      detailedStateId: z.string().uuid(),
+      detailedStateId: z.string().min(1),
       yesDeltaOverride: z.number().int().nullish(),
       noDeltaOverride: z.number().int().nullish(),
     }),

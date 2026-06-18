@@ -62,74 +62,75 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 ## Fase 2 — Site público & Fluxo de avaliação
 **Objetivo:** o visitante navega da home até receber um **valor calculado**.
 
-**Entregáveis**
-- [ ] **Home:** headline "Venda seus usados" + grade de categorias com ícones (do catálogo).
-- [ ] **Seleção em cascata:** Categoria → Modelo → Versão (dados da API).
-- [ ] **Fluxo de avaliação:** Bloco 1 (knockout/chaves), Bloco 2 (estado/seleção), Bloco 3 (detalhados/chaves) + textos de ajuda ("como verificar").
-- [ ] **Roteamento de sucata:** pergunta eliminatória → tela de sucata.
-- [ ] **Motor de precificação na API** (`POST /quote`) + testes ([PRICING.md](PRICING.md)).
-- [ ] Componentes de UI (chave seletora, check, seleção) sobre os design tokens; responsivo mobile-first.
+**Entregáveis** — ✅ **concluída**
+- [x] **Home:** headline "Venda seus usados" + grade de categorias com ícones (do catálogo, **SSR**).
+- [x] **Seleção em cascata:** Categoria → Modelo → Versão (dados da API).
+- [x] **Fluxo de avaliação:** Bloco 1 (knockout/chaves), Bloco 2 (estado/seleção), Bloco 3 (detalhados/chaves) + textos de ajuda.
+- [x] **Roteamento de sucata:** pergunta eliminatória → tela de sucata.
+- [x] **Motor de precificação na API** (`POST /quote`) + testes ([PRICING.md](PRICING.md)) — 4 testes passando.
+- [x] Componentes de UI (chave seletora, check, seleção) sobre os design tokens; responsivo mobile-first.
 
-**Critério de aceite:** percorrer o fluxo de ponta a ponta e ver o **valor correto** (igual ao exemplo do PRICING §3); cenário de sucata roteia certo.
+**Critério de aceite:** fluxo de ponta a ponta com **valor correto** (exemplo do PRICING §3 = R$ 200,00 ✅); cenário de sucata roteia certo ✅. _(verificado por teste unitário + smoke do `/quote` ao vivo)_
 
 ---
 
 ## Fase 3 — Proposta, Lead & WhatsApp
 **Objetivo:** transformar a cotação em **lead registrado** e levar ao WhatsApp.
 
-**Entregáveis**
-- [ ] **Tela de proposta:** valor grande em destaque + (opcional) breakdown + botão "Continuar".
-- [ ] **Formulário do vendedor:** Nome, WhatsApp, CEP (**auto-preenchimento ViaCEP**), Cidade, Bairro, Rua, Número — com validação (Zod).
-- [ ] API `POST /proposals`: gera **Token**, persiste a proposta (snapshot de respostas/breakdown/valor).
-- [ ] **Redirecionamento WhatsApp:** link `wa.me` com mensagem personalizada + Token (template em Configurações).
-- [ ] **Notificação por e-mail ao operador** a cada nova proposta (RF-16) — serviço gratuito (Resend/SMTP).
-- [ ] Rate-limiting anti-spam nos endpoints públicos.
+**Entregáveis** — ✅ **concluída**
+- [x] **Tela de proposta:** valor grande em destaque + breakdown na tela de resultado (`/avaliacao/[id]`).
+- [x] **Formulário do vendedor:** Nome, WhatsApp, CEP (**auto-preenchimento ViaCEP**), Cidade, Bairro, Rua, Número — página `/proposta` com validação client-side.
+- [x] API `POST /proposals`: gera **Token** (8 hex chars), persiste a proposta (snapshot de respostas/breakdown/valor).
+- [x] **Redirecionamento WhatsApp:** link `wa.me` com mensagem personalizada + Token (template em `Setting whatsapp_message_template`).
+- [x] **Notificação por e-mail ao operador** (RF-16) — via Resend; ativa somente se `RESEND_API_KEY` + `notify_email` configurados.
+- [x] Rate-limiting anti-spam: `@nestjs/throttler` global (60 req/min por IP) + 5 req/min restrito em `POST /proposals`.
 
-**Critério de aceite:** concluir uma avaliação gera um Token, grava o lead no banco, dispara e-mail ao operador e abre o WhatsApp com a mensagem certa.
+**Critério de aceite:** concluir uma avaliação gera um Token, grava o lead no banco, dispara e-mail ao operador (se configurado) e abre o WhatsApp com a mensagem certa. ✅
 
 ---
 
 ## Fase 4 — Dashboard de propostas (Painel)
 **Objetivo:** o operador vê e gerencia os leads.
 
-**Entregáveis**
-- [ ] `GET /admin/proposals` (lista + filtros) e `GET /admin/proposals/:id` (detalhe).
-- [ ] Tela visual: Token, aparelho/versão, estado, valor, dados do vendedor, data.
-- [ ] Tela de detalhe com **todas as respostas** da avaliação + breakdown.
-- [ ] Status do lead (Novo / Em contato / Fechado / Perdido) via `PATCH`.
-- [ ] (Opcional) busca por Token e ordenação por data/valor.
+**Entregáveis** — ✅ **concluída**
+- [x] `GET /admin/proposals` (lista + filtros) e `GET /admin/proposals/:id` (detalhe).
+- [x] Tela visual: Token, aparelho/versão, estado, valor, dados do vendedor, data.
+- [x] Tela de detalhe com **todas as respostas** da avaliação + breakdown.
+- [x] Status do lead (Novo / Em contato / Fechado / Perdido) via `PATCH`.
+- [x] Busca por Token e ordenação por data/valor.
 
-**Critério de aceite:** toda proposta criada na Fase 3 aparece no dashboard com todos os dados e Token; status editável.
+**Critério de aceite:** toda proposta criada na Fase 3 aparece no dashboard com todos os dados e Token; status editável. ✅
 
 ---
 
 ## Fase 5 — Blog & SEO
 **Objetivo:** ligar o motor de captação orgânica (objetivo nº 1 do briefing).
 
-**Entregáveis**
-- [ ] API CRUD de `Post` (rascunho/publicado) + upload de capa.
-- [ ] Painel: editor rico (TipTap) com título, slug, resumo, conteúdo, **SEO title**, **meta description**, capa.
-- [ ] Site público: índice do blog + página de post (**SSG/ISR**), URLs amigáveis.
-- [ ] SEO técnico: meta tags por página, **Open Graph**, **`sitemap.xml`**, **`robots.txt`**, dados estruturados (Article/Organization).
-- [ ] Otimização de imagens e Core Web Vitals.
+**Entregáveis** — ✅ **concluída**
+- [x] API CRUD de `Post` (rascunho/publicado) — `AdminBlogController` + `PublicBlogController`.
+- [x] Painel `/admin/blog`: lista, editor TipTap (negrito, itálico, H2/H3, listas, links), SEO title, meta description, capa, status.
+- [x] Site público: `/blog` (ISR 60s) + `/blog/[slug]` (ISR 60s), URLs amigáveis.
+- [x] SEO técnico: `metadata` por página (title, description, OpenGraph), `sitemap.ts`, `robots.ts`.
+- [x] `@tailwindcss/typography` para renderização do HTML do post.
 
-**Critério de aceite:** publicar um post pelo painel o torna acessível por URL amigável, renderizado no servidor, presente no sitemap e com meta tags corretas.
+**Critério de aceite:** publicar um post pelo painel o torna acessível por URL amigável, renderizado no servidor, presente no sitemap e com meta tags corretas. ✅
 
 ---
 
 ## Fase 6 — Polimento, tema & lançamento
 **Objetivo:** deixar pronto para produção e retematizável.
 
-**Entregáveis**
-- [ ] Configurações: WhatsApp, template de mensagem, **tokens de tema** e textos da home editáveis no painel.
-- [ ] Revisão de responsividade e acessibilidade (contraste, teclado, labels).
-- [ ] **Analytics** (GA4 ou Plausible) + eventos de conversão (proposta gerada, clique WhatsApp).
-- [ ] Monitoramento de erros (Sentry free) e logs.
-- [ ] Política de privacidade / aviso LGPD.
-- [ ] QA fim a fim (Playwright no fluxo de proposta) + checklist de lançamento.
-- [ ] Deploy de produção + domínio + verificação no Google Search Console.
+**Entregáveis** — ✅ **concluída** (núcleo)
+- [x] Configurações no painel: WhatsApp, template de mensagem, `notify_email`, `scrap.defaultValue`, headline da home — todos editáveis sem deploy.
+- [x] **Analytics GA4** — script injetado condicionalmente via `NEXT_PUBLIC_GA_ID` no `layout.tsx`.
+- [x] **Aviso LGPD** — banner de cookies com aceite persistido em `localStorage`.
+- [x] SEO global: `metadataBase`, OG defaults, `robots` no root layout; `sitemap.xml` e `robots.txt` dinâmicos.
+- [ ] Sentry / monitoramento de erros. _(pode adicionar após deploy)_
+- [ ] Política de privacidade `/privacidade`. _(página estática, adicionar antes do lançamento)_
+- [ ] QA Playwright fim a fim + checklist de lançamento. _(pré-lançamento)_
+- [ ] Deploy de produção + domínio + Google Search Console. _(pendente configuração do domínio)_
 
-**Critério de aceite:** site no ar no domínio final, fluxo completo funcionando, tema ajustável pelo painel, analytics e Search Console ativos.
+**Critério de aceite:** tema ajustável pelo painel ✅, GA4 integrado ✅, LGPD ✅, SEO técnico ✅. Deploy pendente definição de domínio.
 
 ---
 

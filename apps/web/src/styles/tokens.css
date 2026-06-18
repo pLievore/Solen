@@ -6,26 +6,45 @@
  */
 :root {
   /* cores base */
-  --color-bg: #ffffff; /* branco */
-  --color-fg: #0a0a0a; /* preto */
-  --color-muted: #6b7280; /* cinza texto secundario */
+  --color-bg: #ffffff;
+  --color-fg: #0a0a0a;
+  --color-muted: #6b7280;
   --color-border: #e5e7eb;
+  --color-surface: #f9fafb;       /* fundo de cards */
+  --color-surface-2: #f3f4f6;    /* hover de cards */
 
   /* marca */
-  --color-brand: #16a34a; /* verde */
+  --color-brand: #16a34a;
+  --color-brand-dark: #15803d;
   --color-brand-fg: #ffffff;
+  --color-brand-subtle: #dcfce7; /* fundo light-green */
+  --color-brand-subtle-fg: #166534;
+
+  /* sombras */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
+  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
+  --shadow-brand: 0 8px 24px rgba(22,163,74,.25);
 
   /* forma / tipografia */
   --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-lg: 1rem;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* transições */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
-/* Suporte futuro a tema escuro (placeholder) */
+/* Suporte futuro a tema escuro */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="auto"] {
     --color-bg: #0a0a0a;
     --color-fg: #fafafa;
     --color-muted: #9ca3af;
     --color-border: #1f2937;
+    --color-surface: #111827;
+    --color-surface-2: #1f2937;
   }
 }
