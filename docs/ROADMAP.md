@@ -28,34 +28,34 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 ## Fase 0 — Fundação & Setup
 **Objetivo:** esqueleto rodando local e em deploy, com tema configurável.
 
-**Entregáveis**
-- [ ] Monorepo pnpm (`apps/web`, `apps/api`, `packages/shared`).
-- [ ] `apps/api`: NestJS + Prisma + conexão Supabase Postgres (migration inicial vazia ok).
-- [ ] `apps/web`: Next.js (App Router) + Tailwind + **design tokens** (branco/preto/verde) em `tokens.css`.
-- [ ] `packages/shared`: setup do Zod e exports de tipos.
-- [ ] Projeto Supabase criado (DB + Auth + bucket `catalog`).
-- [ ] Auth: scaffold de login do admin (Supabase Auth) + Guard na API.
-- [ ] CI básico: lint + typecheck.
-- [ ] Deploy: web na **Vercel**, API em **Render/Fly** (health check respondendo).
-- [ ] `.env.example` preenchido e documentado.
+**Entregáveis** — ✅ **concluída** (exceto deploy, adiado)
+- [x] Monorepo pnpm (`apps/web`, `apps/api`, `packages/shared`).
+- [x] `apps/api`: NestJS + Prisma + conexão Supabase Postgres. _(Fizemos o schema completo já aqui, não vazio.)_
+- [x] `apps/web`: Next.js (App Router) + Tailwind + **design tokens** (branco/preto/verde) em `tokens.css`.
+- [x] `packages/shared`: setup do Zod e exports de tipos.
+- [x] Projeto Supabase criado (DB + Auth + bucket `catalog`).
+- [x] Auth: scaffold de login do admin (Supabase Auth) + Guard na API. _(Testado ponta a ponta.)_
+- [~] CI básico: lint + typecheck. _(workflow `.github/workflows/ci.yml` e eslint configurados; falta validar verde no GitHub.)_
+- [ ] Deploy: web na **Vercel**, API em **Render/Fly**. _(Adiado por decisão — configs `vercel.json`/`render.yaml`/`DEPLOY.md` já prontos.)_
+- [x] `.env.example` preenchido e documentado.
 
-**Critério de aceite:** `pnpm dev:web` e `pnpm dev:api` sobem; home placeholder na Vercel consome `GET /health` da API; login admin autentica.
+**Critério de aceite:** `pnpm dev:web` e `pnpm dev:api` sobem; home consome `GET /health`; login admin autentica. ✅
 
 ---
 
 ## Fase 1 — Catálogo & Precificação (Painel)
 **Objetivo:** operador cadastra todo o catálogo e os preços **sem tocar no código**. (Pré-requisito do site público.)
 
-**Entregáveis**
-- [ ] Modelagem Prisma completa ([DATA-MODEL.md](DATA-MODEL.md)) + migrations + **seed** (8 categorias, 4 estados, perguntas do briefing, iPhone 11 de exemplo).
-- [ ] API CRUD: `categories`, `models`, `variants` (com ordenação e ativo/inativo).
-- [ ] Upload de ícones/imagens → Supabase Storage.
-- [ ] API: `VariantPrice` (preços base por Versão × Estado) + `scrapPrice` por versão e `Setting scrap.defaultValue`.
-- [ ] API: `DetailedState` (CRUD) + atribuição a versões (`VariantDetailedState`, com override).
-- [ ] API: `KnockoutQuestion` (CRUD).
-- [ ] Painel `/admin`: telas de Categorias, Modelos, Versões, Preços, Estados Detalhados, Perguntas eliminatórias.
+**Entregáveis** — ✅ **concluída**
+- [x] Modelagem Prisma completa ([DATA-MODEL.md](DATA-MODEL.md)) + migrations + **seed** (7 categorias, 4 estados, perguntas do briefing, iPhone 11 de exemplo).
+- [x] API CRUD: `categories`, `models`, `variants` (com ordenação e ativo/inativo) + leitura pública.
+- [x] Upload de ícones/imagens → Supabase Storage.
+- [x] API: `VariantPrice` (preços base por Versão × Estado) + `scrapPrice` por versão e `Setting scrap.defaultValue`.
+- [x] API: `DetailedState` (CRUD) + atribuição a versões (`VariantDetailedState`). _(override existe no schema; UI usa deltas globais.)_
+- [x] API: `KnockoutQuestion` (CRUD).
+- [x] Painel `/admin`: telas de Categorias, Modelos, Versões, Preços, Estados Detalhados, Perguntas eliminatórias, Configurações.
 
-**Critério de aceite:** dá para criar uma categoria → modelo → versão, definir os 4 preços, criar uma pergunta de desconto e atribuí-la à versão — tudo pela UI, refletindo no banco.
+**Critério de aceite:** dá para criar categoria → modelo → versão, definir os 4 preços, criar pergunta de desconto e atribuí-la à versão — tudo pela UI, refletindo no banco. ✅ _(verificado por smoke tests contra o Supabase)_
 
 ---
 
