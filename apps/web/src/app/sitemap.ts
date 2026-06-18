@@ -31,7 +31,7 @@ async function getBlogSlugs(): Promise<PostRow[]> {
 
 async function getCategorySlugs(): Promise<CategoryRow[]> {
   try {
-    return apiGet<CategoryRow[]>("/catalog/categories");
+    return await apiGet<CategoryRow[]>("/catalog/categories");
   } catch {
     return [];
   }
