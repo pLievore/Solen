@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import PublicShell from "@/components/PublicShell";
+import CategoryIcon from "@/components/CategoryIcon";
 import { fadeUp, stagger, ease } from "@/components/motion";
 
 type Category = { id: string; name: string; slug: string; iconUrl: string | null };
@@ -113,21 +114,32 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
               <motion.div key={c.id} variants={fadeUp} transition={ease}>
                 <Link
                   href={`/vender/${c.slug}`}
-                  className="group flex flex-col items-center gap-3 rounded-xl border border-border bg-surface px-4 py-7 text-center text-sm font-medium shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-brand hover:shadow-md active:scale-[0.98]"
+                  className="group flex flex-col items-center rounded-2xl border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand hover:shadow-[0_8px_32px_rgba(22,163,74,0.15)] active:scale-[0.98] overflow-hidden"
                 >
-                  {c.iconUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={c.iconUrl}
-                      alt=""
-                      className="h-12 w-12 object-contain transition group-hover:scale-110"
-                    />
-                  ) : (
-                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-subtle text-2xl font-bold text-brand-subtle-fg transition group-hover:scale-110">
-                      {c.name.charAt(0)}
+                  {/* Device illustration area */}
+                  <div className="relative flex w-full items-center justify-center bg-gradient-to-b from-surface-2 to-surface pt-6 pb-3 px-4">
+                    {c.iconUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={c.iconUrl}
+                        alt=""
+                        className="h-24 w-auto max-w-[80%] object-contain drop-shadow-lg transition duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <CategoryIcon
+                        slug={c.slug}
+                        className="h-24 w-auto max-w-[80%] drop-shadow-lg transition duration-300 group-hover:scale-105"
+                      />
+                    )}
+                  </div>
+
+                  {/* Label */}
+                  <div className="w-full border-t border-border px-3 py-3 text-center">
+                    <span className="text-sm font-semibold transition-colors duration-200 group-hover:text-brand">
+                      {c.name}
                     </span>
-                  )}
-                  <span>{c.name}</span>
+                    <p className="mt-0.5 text-xs text-muted">Avaliar agora →</p>
+                  </div>
                 </Link>
               </motion.div>
             ))}

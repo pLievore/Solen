@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiGet } from "@/lib/api";
 import PublicShell from "@/components/PublicShell";
+import CategoryIcon from "@/components/CategoryIcon";
 import { fadeUp, scaleIn, stagger, ease, easeFast } from "@/components/motion";
 
 type Model = { id: string; name: string; slug: string };
@@ -71,14 +72,23 @@ export default function SelectPage() {
           })}
         </div>
 
-        <motion.h1
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={ease}
-          className="text-2xl font-bold"
+          className="flex items-center gap-5 rounded-2xl border border-border bg-gradient-to-br from-surface-2 to-surface p-5 shadow-sm"
         >
-          Selecione seu aparelho
-        </motion.h1>
+          {/* Device illustration */}
+          <div className="shrink-0">
+            <CategoryIcon slug={slug} className="h-20 w-auto drop-shadow-xl" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold leading-tight">Selecione seu aparelho</h1>
+            <p className="mt-1 text-sm text-muted">
+              Escolha o modelo e versão para receber sua proposta.
+            </p>
+          </div>
+        </motion.div>
         {error && (
           <p className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {error}
@@ -104,19 +114,25 @@ export default function SelectPage() {
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => pickModel(m.id)}
-                className={`rounded-xl border px-4 py-3.5 text-sm font-medium text-left shadow-sm transition-all duration-200 ${
+                className={`group flex flex-col items-center rounded-xl border pt-4 pb-3 px-3 text-center shadow-sm transition-all duration-200 ${
                   modelId === m.id
                     ? "border-brand bg-brand-subtle text-brand-subtle-fg shadow-brand/30"
                     : "border-border bg-surface hover:border-brand hover:shadow-md"
                 }`}
               >
-                {m.name}
+                <CategoryIcon
+                  slug={slug}
+                  className={`mb-2 h-10 w-auto transition duration-300 group-hover:scale-105 ${
+                    modelId === m.id ? "opacity-100" : "opacity-60"
+                  }`}
+                />
+                <span className="text-xs font-semibold leading-tight">{m.name}</span>
               </motion.button>
             ))}
             {models.length === 0 && !error && (
               <div className="col-span-3 flex gap-2 py-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-12 flex-1 animate-pulse rounded-xl bg-surface" />
+                  <div key={i} className="h-20 flex-1 animate-pulse rounded-xl bg-surface" />
                 ))}
               </div>
             )}
