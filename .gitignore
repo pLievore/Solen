@@ -32,6 +32,9 @@ coverage/
 *.tsbuildinfo
 next-env.d.ts
 
+# Scripts temporarios de teste/smoke
+tmp-*.js
+
 # Prisma
 prisma/*.db
 
