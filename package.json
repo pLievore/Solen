@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Site de captacao de leads para compra de eletronicos usados (iPhones, iPads, consoles, etc.)",
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@9.15.9",
   "engines": {
     "node": ">=20"
   },
