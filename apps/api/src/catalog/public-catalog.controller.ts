@@ -34,7 +34,7 @@ export class PublicCatalogController {
     return this.prisma.variant.findMany({
       where: { modelId: id, active: true },
       orderBy: { name: "asc" },
-      select: { id: true, name: true, storage: true, slug: true },
+      select: { id: true, name: true, storage: true, slug: true, specs: true },
     });
   }
 }

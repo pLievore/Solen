@@ -7,11 +7,19 @@ import { QuoteService } from "./quote.service";
 function createService() {
   const prisma = {
     variant: {
-      findFirst: async () => ({ id: "variant-1", scrapPrice: 5000 }),
+      findFirst: async () => ({
+        id: "variant-1",
+        scrapPrice: 5000,
+        model: { category: { slug: "iphones" } },
+      }),
     },
     knockoutQuestion: {
       findMany: async () => [
-        { id: "knockout-1", triggerAnswer: "NO" },
+        {
+          id: "knockout-1",
+          triggerAnswer: "NO",
+          categorySlugs: ["iphones"],
+        },
       ],
     },
     variantPrice: {

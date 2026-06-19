@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import type { QuoteRequest, QuoteResponse } from "@solen/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { computeQuote, type BreakdownItem } from "./pricing.engine";
+import { appliesToCategory } from "./question-scope";
 
 @Injectable()
 export class QuoteService {
@@ -39,13 +40,17 @@ export class QuoteService {
   async quote(input: QuoteRequest): Promise<QuoteResponse> {
     const variant = await this.prisma.variant.findFirst({
       where: { id: input.variantId, active: true },
+      include: { model: { include: { category: true } } },
     });
     if (!variant) throw new NotFoundException("Versao nao encontrada");
 
     // 1. Knockout tem prioridade absoluta
-    const knockouts = await this.prisma.knockoutQuestion.findMany({
+    const allKnockouts = await this.prisma.knockoutQuestion.findMany({
       where: { active: true },
     });
+    const knockouts = allKnockouts.filter((question) =>
+      appliesToCategory(question, variant.model.category.slug),
+    );
     this.validateCompleteAnswers(
       "Perguntas eliminatorias",
       knockouts.map((question) => question.id),

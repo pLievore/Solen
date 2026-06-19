@@ -9,7 +9,12 @@ import CategoryIcon from "@/components/CategoryIcon";
 import { fadeUp, scaleIn, stagger, ease, easeFast } from "@/components/motion";
 
 type Model = { id: string; name: string; slug: string };
-type Variant = { id: string; name: string; storage: string | null };
+type Variant = {
+  id: string;
+  name: string;
+  storage: string | null;
+  specs: { manualReview?: boolean; reviewMessage?: string } | null;
+};
 
 export default function SelectPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -43,6 +48,7 @@ export default function SelectPage() {
   }
 
   const step = variantId ? 3 : modelId ? 2 : 1;
+  const selectedVariant = variants.find((variant) => variant.id === variantId);
 
   return (
     <PublicShell>
@@ -203,6 +209,12 @@ export default function SelectPage() {
               transition={ease}
               className="mt-10"
             >
+              {selectedVariant?.specs?.manualReview && (
+                <p className="mb-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  {selectedVariant.specs.reviewMessage ??
+                    "A estimativa inicial sera revisada com fotos e detalhes do item."}
+                </p>
+              )}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
@@ -219,4 +231,3 @@ export default function SelectPage() {
     </PublicShell>
   );
 }
-

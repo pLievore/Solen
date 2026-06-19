@@ -5,7 +5,9 @@
  */
 import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
+});
 
 const CATEGORIES = [
   "iPhones",
@@ -25,25 +27,65 @@ const CONDITION_STATES = [
 ];
 
 const KNOCKOUT = [
-  { question: "O aparelho liga?", triggerAnswer: "NO", order: 0 },
-  { question: "O aparelho e bloqueado?", triggerAnswer: "YES", order: 1 },
+  {
+    question: "O aparelho liga?",
+    triggerAnswer: "NO",
+    categorySlugs: [
+      "iphones",
+      "apple-watches",
+      "ipads",
+      "airpods",
+      "consoles",
+    ],
+    order: 0,
+  },
+  {
+    question: "O aparelho e bloqueado?",
+    triggerAnswer: "YES",
+    categorySlugs: ["iphones", "apple-watches", "ipads"],
+    order: 1,
+  },
 ];
 
 // deltas em centavos (descontos negativos)
 const DETAILED = [
-  { question: "A bateria esta acima de 85%?", yesDelta: 0, noDelta: -10000, order: 0 },
-  { question: "A tela do aparelho esta em perfeito funcionamento?", yesDelta: 0, noDelta: -25000, order: 1 },
-  { question: "As cameras funcionam perfeitamente?", yesDelta: 0, noDelta: -25000, order: 2 },
-  { question: "O Face ID funciona?", yesDelta: 0, noDelta: -25000, order: 3 },
-  { question: "O aparelho tem alguma restricao?", yesDelta: -15000, noDelta: 0, order: 4 },
+  { key: "battery", question: "A bateria esta acima de 85%?", yesDelta: 0, noDelta: -10000, order: 0 },
+  { key: "screen", question: "A tela do aparelho esta em perfeito funcionamento?", yesDelta: 0, noDelta: -25000, order: 1 },
+  { key: "cameras", question: "As cameras funcionam perfeitamente?", yesDelta: 0, noDelta: -25000, order: 2 },
+  { key: "face-id", question: "O Face ID funciona?", yesDelta: 0, noDelta: -25000, order: 3 },
+  { key: "restriction", question: "O aparelho tem alguma restricao?", yesDelta: -15000, noDelta: 0, order: 4 },
   {
+    key: "unknown-part",
     question: "O aparelho possui alguma mensagem de peca desconhecida?",
     helpText: "Como verificar: Ajustes > Geral > Sobre.",
     yesDelta: -15000,
     noDelta: 0,
     order: 5,
   },
-  { question: "O aparelho ja foi aberto para manutencao?", yesDelta: -10000, noDelta: 0, order: 6 },
+  { key: "opened", question: "O aparelho ja foi aberto para manutencao?", yesDelta: -10000, noDelta: 0, order: 6 },
+  { key: "charging", question: "O carregamento funciona normalmente?", yesDelta: 0, noDelta: -18000, order: 10 },
+  { key: "audio-pair", question: "Os dois lados reproduzem audio normalmente?", yesDelta: 0, noDelta: -18000, order: 11 },
+  { key: "case", question: "O estojo de carregamento funciona corretamente?", yesDelta: 0, noDelta: -15000, order: 12 },
+  { key: "authentic", question: "O item e original e autentico?", yesDelta: 0, noDelta: -30000, order: 13 },
+  { key: "complete", question: "Acompanha os acessorios essenciais originais?", yesDelta: 0, noDelta: -12000, order: 14 },
+  { key: "ports", question: "Portas, botoes e conexoes funcionam corretamente?", yesDelta: 0, noDelta: -25000, order: 15 },
+  { key: "video", question: "O aparelho transmite imagem e audio normalmente?", yesDelta: 0, noDelta: -35000, order: 16 },
+  { key: "disc", question: "O leitor de discos funciona normalmente?", yesDelta: 0, noDelta: -30000, order: 17 },
+  { key: "overheat", question: "O aparelho apresenta superaquecimento ou desligamentos?", yesDelta: -30000, noDelta: 0, order: 18 },
+  { key: "box", question: "Possui caixa ou embalagem original?", yesDelta: 0, noDelta: -8000, order: 30 },
+  { key: "collectible-auth", question: "A autenticidade pode ser comprovada?", yesDelta: 0, noDelta: -20000, order: 31 },
+  { key: "collectible-complete", question: "O item esta completo, sem pecas ou componentes faltando?", yesDelta: 0, noDelta: -15000, order: 32 },
+  { key: "collectible-damage", question: "Ha rasgos, trincas, manchas, restauracoes ou danos relevantes?", yesDelta: -20000, noDelta: 0, order: 33 },
+];
+
+const PHONE_DETAIL_KEYS = [
+  "battery",
+  "screen",
+  "cameras",
+  "face-id",
+  "restriction",
+  "unknown-part",
+  "opened",
 ];
 
 // ─── Catálogo de iPhones ───────────────────────────────────────────────────
@@ -210,6 +252,192 @@ const IPHONE_MODELS = [
   },
 ];
 
+const WATCH_DETAIL_KEYS = ["battery", "screen", "charging", "restriction", "opened"];
+const IPAD_DETAIL_KEYS = ["battery", "screen", "cameras", "charging", "restriction", "opened"];
+const AIRPODS_DETAIL_KEYS = ["audio-pair", "case", "charging", "authentic", "complete"];
+const ACCESSORY_DETAIL_KEYS = ["charging", "ports", "authentic", "complete"];
+const CONSOLE_DETAIL_KEYS = ["video", "ports", "overheat", "opened", "complete"];
+const COLLECTIBLE_DETAIL_KEYS = [
+  "box",
+  "collectible-auth",
+  "collectible-complete",
+  "collectible-damage",
+];
+
+const OTHER_CATALOG = [
+  {
+    category: "Apple Watches",
+    detailKeys: WATCH_DETAIL_KEYS,
+    models: [
+      { name: "Apple Watch Series 5", slug: "apple-watch-series-5", variants: [
+        { name: "Series 5 GPS 40mm", slug: "series-5-gps-40mm", scrap: 10000, prices: [110000, 90000, 72000, 50000] },
+        { name: "Series 5 GPS 44mm", slug: "series-5-gps-44mm", scrap: 12000, prices: [120000, 98000, 79000, 55000] },
+      ] },
+      { name: "Apple Watch Series 6", slug: "apple-watch-series-6", variants: [
+        { name: "Series 6 GPS 40mm", slug: "series-6-gps-40mm", scrap: 12000, prices: [135000, 110000, 90000, 63000] },
+        { name: "Series 6 GPS 44mm", slug: "series-6-gps-44mm", scrap: 14000, prices: [145000, 120000, 98000, 69000] },
+      ] },
+      { name: "Apple Watch Series 7", slug: "apple-watch-series-7", variants: [
+        { name: "Series 7 GPS 41mm", slug: "series-7-gps-41mm", scrap: 16000, prices: [170000, 138000, 112000, 80000] },
+        { name: "Series 7 GPS 45mm", slug: "series-7-gps-45mm", scrap: 18000, prices: [180000, 148000, 120000, 85000] },
+      ] },
+      { name: "Apple Watch SE 2", slug: "apple-watch-se-2", variants: [
+        { name: "SE 2 GPS 40mm", slug: "se-2-gps-40mm", scrap: 16000, prices: [175000, 145000, 118000, 84000] },
+        { name: "SE 2 GPS 44mm", slug: "se-2-gps-44mm", scrap: 18000, prices: [190000, 157000, 128000, 91000] },
+      ] },
+      { name: "Apple Watch Series 8", slug: "apple-watch-series-8", variants: [
+        { name: "Series 8 GPS 41mm", slug: "series-8-gps-41mm", scrap: 20000, prices: [220000, 180000, 145000, 104000] },
+        { name: "Series 8 GPS 45mm", slug: "series-8-gps-45mm", scrap: 22000, prices: [235000, 192000, 156000, 112000] },
+      ] },
+      { name: "Apple Watch Series 9", slug: "apple-watch-series-9", variants: [
+        { name: "Series 9 GPS 41mm", slug: "series-9-gps-41mm", scrap: 24000, prices: [270000, 220000, 178000, 128000] },
+        { name: "Series 9 GPS 45mm", slug: "series-9-gps-45mm", scrap: 27000, prices: [290000, 238000, 193000, 138000] },
+      ] },
+      { name: "Apple Watch Ultra", slug: "apple-watch-ultra", variants: [
+        { name: "Ultra 1 GPS + Cellular 49mm", slug: "ultra-1-49mm", scrap: 40000, prices: [440000, 360000, 295000, 220000] },
+        { name: "Ultra 2 GPS + Cellular 49mm", slug: "ultra-2-49mm", scrap: 52000, prices: [580000, 480000, 395000, 295000] },
+      ] },
+    ],
+  },
+  {
+    category: "iPads",
+    detailKeys: IPAD_DETAIL_KEYS,
+    models: [
+      { name: "iPad 8a geracao", slug: "ipad-8", variants: [
+        { name: "iPad 8 Wi-Fi 32GB", storage: "32GB", slug: "ipad-8-wifi-32gb", scrap: 18000, prices: [185000, 150000, 122000, 88000] },
+        { name: "iPad 8 Wi-Fi 128GB", storage: "128GB", slug: "ipad-8-wifi-128gb", scrap: 22000, prices: [230000, 188000, 153000, 110000] },
+      ] },
+      { name: "iPad 9a geracao", slug: "ipad-9", variants: [
+        { name: "iPad 9 Wi-Fi 64GB", storage: "64GB", slug: "ipad-9-wifi-64gb", scrap: 24000, prices: [245000, 200000, 163000, 118000] },
+        { name: "iPad 9 Wi-Fi 256GB", storage: "256GB", slug: "ipad-9-wifi-256gb", scrap: 32000, prices: [330000, 270000, 220000, 160000] },
+      ] },
+      { name: "iPad 10a geracao", slug: "ipad-10", variants: [
+        { name: "iPad 10 Wi-Fi 64GB", storage: "64GB", slug: "ipad-10-wifi-64gb", scrap: 32000, prices: [350000, 285000, 232000, 168000] },
+        { name: "iPad 10 Wi-Fi 256GB", storage: "256GB", slug: "ipad-10-wifi-256gb", scrap: 42000, prices: [460000, 375000, 305000, 222000] },
+      ] },
+      { name: "iPad Mini 6", slug: "ipad-mini-6", variants: [
+        { name: "iPad Mini 6 Wi-Fi 64GB", storage: "64GB", slug: "ipad-mini-6-64gb", scrap: 34000, prices: [390000, 320000, 260000, 190000] },
+        { name: "iPad Mini 6 Wi-Fi 256GB", storage: "256GB", slug: "ipad-mini-6-256gb", scrap: 44000, prices: [500000, 410000, 335000, 245000] },
+      ] },
+      { name: "iPad Air 4", slug: "ipad-air-4", variants: [
+        { name: "iPad Air 4 Wi-Fi 64GB", storage: "64GB", slug: "ipad-air-4-64gb", scrap: 32000, prices: [370000, 300000, 245000, 178000] },
+        { name: "iPad Air 4 Wi-Fi 256GB", storage: "256GB", slug: "ipad-air-4-256gb", scrap: 42000, prices: [480000, 392000, 320000, 232000] },
+      ] },
+      { name: "iPad Air 5 M1", slug: "ipad-air-5", variants: [
+        { name: "iPad Air 5 Wi-Fi 64GB", storage: "64GB", slug: "ipad-air-5-64gb", scrap: 42000, prices: [480000, 390000, 318000, 232000] },
+        { name: "iPad Air 5 Wi-Fi 256GB", storage: "256GB", slug: "ipad-air-5-256gb", scrap: 54000, prices: [610000, 500000, 408000, 298000] },
+      ] },
+      { name: "iPad Pro 11 M1", slug: "ipad-pro-11-m1", variants: [
+        { name: "iPad Pro 11 M1 Wi-Fi 128GB", storage: "128GB", slug: "ipad-pro-11-m1-128gb", scrap: 50000, prices: [560000, 455000, 372000, 270000] },
+        { name: "iPad Pro 11 M1 Wi-Fi 256GB", storage: "256GB", slug: "ipad-pro-11-m1-256gb", scrap: 58000, prices: [650000, 530000, 433000, 315000] },
+      ] },
+    ],
+  },
+  {
+    category: "AirPods",
+    detailKeys: AIRPODS_DETAIL_KEYS,
+    models: [
+      { name: "AirPods 2a geracao", slug: "airpods-2", variants: [
+        { name: "AirPods 2 com estojo Lightning", slug: "airpods-2-lightning", scrap: 5000, prices: [75000, 56000, 40000, 24000] },
+      ] },
+      { name: "AirPods 3a geracao", slug: "airpods-3", variants: [
+        { name: "AirPods 3 com estojo Lightning", slug: "airpods-3-lightning", scrap: 7000, prices: [110000, 83000, 62000, 37000] },
+        { name: "AirPods 3 com estojo MagSafe", slug: "airpods-3-magsafe", scrap: 8000, prices: [125000, 94000, 70000, 42000] },
+      ] },
+      { name: "AirPods Pro", slug: "airpods-pro", variants: [
+        { name: "AirPods Pro 1a geracao", slug: "airpods-pro-1", scrap: 7000, prices: [105000, 78000, 58000, 34000] },
+        { name: "AirPods Pro 2 Lightning", slug: "airpods-pro-2-lightning", scrap: 10000, prices: [145000, 110000, 84000, 50000] },
+        { name: "AirPods Pro 2 USB-C", slug: "airpods-pro-2-usbc", scrap: 12000, prices: [165000, 125000, 95000, 57000] },
+      ] },
+      { name: "AirPods Max", slug: "airpods-max", variants: [
+        { name: "AirPods Max Lightning", slug: "airpods-max-lightning", scrap: 28000, prices: [360000, 285000, 230000, 165000] },
+        { name: "AirPods Max USB-C", slug: "airpods-max-usbc", scrap: 35000, prices: [450000, 355000, 288000, 205000] },
+      ] },
+    ],
+  },
+  {
+    category: "Acessorios e perifericos",
+    detailKeys: ACCESSORY_DETAIL_KEYS,
+    models: [
+      { name: "Apple Pencil", slug: "apple-pencil", variants: [
+        { name: "Apple Pencil 1a geracao", slug: "apple-pencil-1", scrap: 3000, prices: [48000, 35000, 25000, 14000] },
+        { name: "Apple Pencil 2a geracao", slug: "apple-pencil-2", scrap: 5000, prices: [68000, 50000, 37000, 21000] },
+        { name: "Apple Pencil Pro", slug: "apple-pencil-pro", scrap: 7000, prices: [88000, 65000, 49000, 28000] },
+      ] },
+      { name: "Teclados Apple", slug: "teclados-apple", variants: [
+        { name: "Magic Keyboard para Mac", slug: "magic-keyboard-mac", scrap: 5000, prices: [65000, 48000, 35000, 20000] },
+        { name: "Magic Keyboard para iPad 11", slug: "magic-keyboard-ipad-11", scrap: 12000, prices: [150000, 115000, 85000, 52000] },
+        { name: "Magic Keyboard para iPad 12.9", slug: "magic-keyboard-ipad-129", scrap: 15000, prices: [180000, 138000, 102000, 62000] },
+      ] },
+      { name: "Mouses Apple", slug: "mouses-apple", variants: [
+        { name: "Magic Mouse 2", slug: "magic-mouse-2", scrap: 3000, prices: [48000, 35000, 25000, 14000] },
+      ] },
+      { name: "Controles de videogame", slug: "controles-videogame", variants: [
+        { name: "DualSense PS5", slug: "dualsense-ps5", scrap: 4000, prices: [48000, 35000, 25000, 14000] },
+        { name: "Controle Xbox Series", slug: "controle-xbox-series", scrap: 3500, prices: [43000, 31000, 22000, 12500] },
+        { name: "Par Joy-Con Nintendo Switch", slug: "joy-con-switch", scrap: 4500, prices: [52000, 38000, 27000, 15000] },
+      ] },
+    ],
+  },
+  {
+    category: "Consoles",
+    detailKeys: CONSOLE_DETAIL_KEYS,
+    models: [
+      { name: "PlayStation 4", slug: "playstation-4", variants: [
+        { name: "PS4 Slim 1TB", storage: "1TB", slug: "ps4-slim-1tb", scrap: 18000, prices: [175000, 140000, 110000, 76000], detailKeys: [...CONSOLE_DETAIL_KEYS, "disc"] },
+        { name: "PS4 Pro 1TB", storage: "1TB", slug: "ps4-pro-1tb", scrap: 24000, prices: [235000, 190000, 150000, 104000], detailKeys: [...CONSOLE_DETAIL_KEYS, "disc"] },
+      ] },
+      { name: "PlayStation 5", slug: "playstation-5", variants: [
+        { name: "PS5 Digital", slug: "ps5-digital", scrap: 36000, prices: [350000, 285000, 232000, 170000] },
+        { name: "PS5 com leitor", slug: "ps5-leitor", scrap: 42000, prices: [410000, 330000, 270000, 198000], detailKeys: [...CONSOLE_DETAIL_KEYS, "disc"] },
+        { name: "PS5 Slim com leitor", slug: "ps5-slim-leitor", scrap: 46000, prices: [450000, 365000, 298000, 218000], detailKeys: [...CONSOLE_DETAIL_KEYS, "disc"] },
+      ] },
+      { name: "Xbox", slug: "xbox", variants: [
+        { name: "Xbox One S 1TB", storage: "1TB", slug: "xbox-one-s-1tb", scrap: 18000, prices: [175000, 140000, 110000, 76000], detailKeys: [...CONSOLE_DETAIL_KEYS, "disc"] },
+        { name: "Xbox Series S 512GB", storage: "512GB", slug: "xbox-series-s-512gb", scrap: 24000, prices: [245000, 198000, 160000, 116000] },
+        { name: "Xbox Series X 1TB", storage: "1TB", slug: "xbox-series-x-1tb", scrap: 42000, prices: [440000, 355000, 290000, 212000], detailKeys: [...CONSOLE_DETAIL_KEYS, "disc"] },
+      ] },
+      { name: "Nintendo Switch", slug: "nintendo-switch", variants: [
+        { name: "Nintendo Switch Lite", slug: "switch-lite", scrap: 12000, prices: [135000, 105000, 80000, 54000] },
+        { name: "Nintendo Switch V2", slug: "switch-v2", scrap: 18000, prices: [210000, 168000, 132000, 92000] },
+        { name: "Nintendo Switch OLED", storage: "64GB", slug: "switch-oled", scrap: 22000, prices: [250000, 200000, 160000, 114000] },
+      ] },
+    ],
+  },
+  {
+    category: "Colecionaveis",
+    detailKeys: COLLECTIBLE_DETAIL_KEYS,
+    manualReview: true,
+    models: [
+      { name: "Funko Pop", slug: "funko-pop", variants: [
+        { name: "Funko Pop comum", slug: "funko-pop-comum", scrap: 1000, prices: [15000, 10500, 7000, 3500] },
+        { name: "Funko Pop exclusivo ou importado", slug: "funko-pop-exclusivo", scrap: 2500, prices: [38000, 26000, 17000, 8500] },
+        { name: "Funko Pop Chase ou raro", slug: "funko-pop-raro", scrap: 5000, prices: [85000, 56000, 36000, 18000] },
+      ] },
+      { name: "Action figures e estatuas", slug: "action-figures", variants: [
+        { name: "Figura basica ou articulada", slug: "figura-basica", scrap: 2000, prices: [32000, 22000, 14500, 7500] },
+        { name: "Figura premium ou importada", slug: "figura-premium", scrap: 6000, prices: [95000, 65000, 43000, 23000] },
+        { name: "Estatua limitada ou numerada", slug: "estatua-limitada", scrap: 12000, prices: [220000, 145000, 95000, 50000] },
+      ] },
+      { name: "Cards e TCG", slug: "cards-tcg", variants: [
+        { name: "Carta graduada ou individual relevante", slug: "card-graduado", scrap: 1000, prices: [55000, 32000, 19000, 9000] },
+        { name: "Produto selado", slug: "tcg-selado", scrap: 4000, prices: [120000, 82000, 54000, 28000] },
+        { name: "Colecao ou lote", slug: "tcg-lote", scrap: 3000, prices: [90000, 58000, 36000, 18000] },
+      ] },
+      { name: "Games retro", slug: "games-retro", variants: [
+        { name: "Jogo comum sem caixa", slug: "game-retro-solto", scrap: 1000, prices: [16000, 10000, 6500, 3000] },
+        { name: "Jogo completo com caixa e manual", slug: "game-retro-completo", scrap: 2500, prices: [38000, 24000, 15000, 7500] },
+        { name: "Jogo raro ou edicao especial", slug: "game-retro-raro", scrap: 6000, prices: [110000, 68000, 40000, 18000] },
+      ] },
+      { name: "Consoles retro", slug: "consoles-retro", variants: [
+        { name: "Console 8 ou 16 bits", slug: "console-retro-16bit", scrap: 5000, prices: [75000, 48000, 30000, 16000] },
+        { name: "Console 32 ou 64 bits", slug: "console-retro-64bit", scrap: 8000, prices: [130000, 82000, 52000, 27000] },
+        { name: "Edicao especial ou console raro", slug: "console-retro-raro", scrap: 15000, prices: [280000, 170000, 100000, 50000] },
+      ] },
+    ],
+  },
+];
+
 function slugify(s: string): string {
   return s
     .normalize("NFKD")
@@ -255,62 +483,130 @@ async function main() {
   }
 
   // Estados detalhados (perguntas de desconto)
-  const detailedIds: string[] = [];
+  const detailedIdByKey: Record<string, string> = {};
   for (const d of DETAILED) {
+    const { key, ...data } = d;
     const existing = await prisma.detailedState.findFirst({
-      where: { question: d.question },
+      where: { question: data.question },
     });
     const row = existing
-      ? await prisma.detailedState.update({ where: { id: existing.id }, data: d })
-      : await prisma.detailedState.create({ data: d });
-    detailedIds.push(row.id);
+      ? await prisma.detailedState.update({ where: { id: existing.id }, data })
+      : await prisma.detailedState.create({ data });
+    detailedIdByKey[key] = row.id;
   }
 
-  // Modelos iPhone com variantes e precos
-  const iphonesId = categoryBySlug[slugify("iPhones")];
   const states = await prisma.conditionState.findMany();
   const stateOrder = ["NEW", "LIKE_NEW", "USED_LIGHT", "USED_HEAVY"];
 
-  for (const m of IPHONE_MODELS) {
-    const model = await prisma.deviceModel.upsert({
-      where: { categoryId_slug: { categoryId: iphonesId, slug: m.slug } },
-      update: { name: m.name, order: m.order },
-      create: { categoryId: iphonesId, name: m.name, slug: m.slug, order: m.order },
-    });
+  async function seedModels(
+    categoryName: string,
+    models: Array<{
+      name: string;
+      slug: string;
+      order?: number;
+      variants: Array<{
+        name: string;
+        slug: string;
+        storage?: string;
+        scrap: number;
+        prices: number[];
+        detailKeys?: string[];
+      }>;
+    }>,
+    defaultDetailKeys: string[],
+    manualReview = false,
+  ) {
+    const categoryId = categoryBySlug[slugify(categoryName)];
 
-    for (const v of m.variants) {
-      const variantId = `${model.id}-${v.slug}`;
-      const variant = await prisma.variant.upsert({
-        where: { id: variantId },
-        update: { name: v.name, storage: v.storage, scrapPrice: v.scrap },
+    for (let modelIndex = 0; modelIndex < models.length; modelIndex++) {
+      const modelData = models[modelIndex];
+      const model = await prisma.deviceModel.upsert({
+        where: {
+          categoryId_slug: { categoryId, slug: modelData.slug },
+        },
+        update: {
+          name: modelData.name,
+          order: modelData.order ?? modelIndex,
+          active: true,
+        },
         create: {
-          id: variantId,
-          modelId: model.id,
-          name: v.name,
-          storage: v.storage,
-          slug: v.slug,
-          scrapPrice: v.scrap,
+          categoryId,
+          name: modelData.name,
+          slug: modelData.slug,
+          order: modelData.order ?? modelIndex,
         },
       });
 
-      for (const st of states) {
-        const priceIndex = stateOrder.indexOf(st.key);
-        const price = priceIndex >= 0 ? v.prices[priceIndex] : 0;
-        await prisma.variantPrice.upsert({
-          where: { variantId_conditionStateId: { variantId: variant.id, conditionStateId: st.id } },
-          update: { price },
-          create: { variantId: variant.id, conditionStateId: st.id, price },
+      await Promise.all(modelData.variants.map(async (variantData) => {
+        const variantId = `${model.id}-${variantData.slug}`;
+        const specs = manualReview
+          ? {
+              manualReview: true,
+              reviewMessage:
+                "Estimativa inicial. A oferta final depende de fotos, autenticidade, raridade e conservacao.",
+            }
+          : undefined;
+        const variant = await prisma.variant.upsert({
+          where: { id: variantId },
+          update: {
+            name: variantData.name,
+            storage: variantData.storage,
+            scrapPrice: variantData.scrap,
+            specs,
+            active: true,
+          },
+          create: {
+            id: variantId,
+            modelId: model.id,
+            name: variantData.name,
+            storage: variantData.storage,
+            slug: variantData.slug,
+            scrapPrice: variantData.scrap,
+            specs,
+          },
         });
-      }
 
-      for (const dsId of detailedIds) {
-        await prisma.variantDetailedState.upsert({
-          where: { variantId_detailedStateId: { variantId: variant.id, detailedStateId: dsId } },
-          update: {},
-          create: { variantId: variant.id, detailedStateId: dsId },
+        const detailKeys = variantData.detailKeys ?? defaultDetailKeys;
+        const detailedStateIds = detailKeys.map(
+          (key) => detailedIdByKey[key],
+        );
+        const prices = states.map((state) => {
+          const priceIndex = stateOrder.indexOf(state.key);
+          return {
+            variantId: variant.id,
+            conditionStateId: state.id,
+            price: priceIndex >= 0 ? variantData.prices[priceIndex] ?? 0 : 0,
+          };
         });
-      }
+        await prisma.$transaction([
+          prisma.variantPrice.deleteMany({
+            where: { variantId: variant.id },
+          }),
+          prisma.variantPrice.createMany({ data: prices }),
+          prisma.variantDetailedState.deleteMany({
+            where: { variantId: variant.id },
+          }),
+          prisma.variantDetailedState.createMany({
+            data: detailedStateIds.map((detailedStateId) => ({
+              variantId: variant.id,
+              detailedStateId,
+            })),
+          }),
+        ]);
+      }));
     }
+  }
+
+  for (const catalog of OTHER_CATALOG) {
+    await seedModels(
+      catalog.category,
+      catalog.models,
+      catalog.detailKeys,
+      catalog.manualReview ?? false,
+    );
+  }
+  if (process.env.SEED_SKIP_IPHONES !== "true") {
+    await seedModels("iPhones", IPHONE_MODELS, PHONE_DETAIL_KEYS);
   }
 
   // Configuracoes iniciais
@@ -330,8 +626,17 @@ async function main() {
     });
   }
 
-  const totalModels = IPHONE_MODELS.length;
-  const totalVariants = IPHONE_MODELS.reduce((s, m) => s + m.variants.length, 0);
+  let totalModels = IPHONE_MODELS.length;
+  let totalVariants = IPHONE_MODELS.reduce(
+    (sum, model) => sum + model.variants.length,
+    0,
+  );
+  for (const catalog of OTHER_CATALOG) {
+    totalModels += catalog.models.length;
+    for (const model of catalog.models) {
+      totalVariants += model.variants.length;
+    }
+  }
   console.log(`Seed concluido: ${totalModels} modelos, ${totalVariants} variantes, categorias, estados e settings.`);
 }
 

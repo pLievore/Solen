@@ -1,5 +1,6 @@
 import { Controller, Get, NotFoundException, Param } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { appliesToCategory } from "./question-scope";
 
 /**
  * Perguntas do fluxo de avaliacao para uma versao (publico).
@@ -21,7 +22,14 @@ export class EvaluationController {
       this.prisma.knockoutQuestion.findMany({
         where: { active: true },
         orderBy: { order: "asc" },
-        select: { id: true, question: true, helpText: true, triggerAnswer: true, order: true },
+        select: {
+          id: true,
+          question: true,
+          helpText: true,
+          triggerAnswer: true,
+          categorySlugs: true,
+          order: true,
+        },
       }),
       this.prisma.conditionState.findMany({
         orderBy: { order: "asc" },
@@ -47,8 +55,18 @@ export class EvaluationController {
         name: variant.name,
         model: variant.model.name,
         category: variant.model.category.name,
+        categorySlug: variant.model.category.slug,
+        manualReview:
+          typeof variant.specs === "object" &&
+          variant.specs !== null &&
+          !Array.isArray(variant.specs) &&
+          variant.specs.manualReview === true,
       },
-      knockout,
+      knockout: knockout
+        .filter((question) =>
+          appliesToCategory(question, variant.model.category.slug),
+        )
+        .map(({ categorySlugs: _categorySlugs, ...question }) => question),
       conditionStates,
       detailedStates,
     };

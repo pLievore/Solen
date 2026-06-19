@@ -15,7 +15,14 @@ type Knockout = { id: string; question: string; helpText: string | null; trigger
 type ConditionState = { id: string; key: string; label: string };
 type Detailed = { id: string; question: string; helpText: string | null };
 type Questions = {
-  variant: { id: string; name: string; model: string; category: string };
+  variant: {
+    id: string;
+    name: string;
+    model: string;
+    category: string;
+    categorySlug: string;
+    manualReview: boolean;
+  };
   knockout: Knockout[];
   conditionStates: ConditionState[];
   detailedStates: Detailed[];
@@ -236,6 +243,17 @@ export default function EvaluationPage() {
             {result.isScrap && (
               <motion.p variants={fadeUp} transition={ease} className="text-sm text-muted">
                 Pelas respostas, o aparelho entra como sucata.
+              </motion.p>
+            )}
+            {data.variant.manualReview && (
+              <motion.p
+                variants={fadeUp}
+                transition={ease}
+                className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+              >
+                Este valor e uma estimativa inicial. A oferta final sera
+                confirmada apos analise de fotos, autenticidade, raridade e
+                conservacao.
               </motion.p>
             )}
 
