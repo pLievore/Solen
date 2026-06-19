@@ -8,45 +8,11 @@ import { fadeUp, stagger, ease } from "@/components/motion";
 
 type Category = { id: string; name: string; slug: string; iconUrl: string | null };
 
-const CATEGORY_VISUALS: Record<
-  string,
-  { background: string; halo: string; icon: string }
-> = {
-  iphones: {
-    background: "from-slate-100 via-slate-50 to-white",
-    halo: "bg-slate-300/35",
-    icon: "h-28 sm:h-32",
-  },
-  "apple-watches": {
-    background: "from-zinc-100 via-slate-50 to-white",
-    halo: "bg-zinc-300/40",
-    icon: "h-28 sm:h-32",
-  },
-  ipads: {
-    background: "from-blue-50 via-slate-50 to-white",
-    halo: "bg-blue-200/40",
-    icon: "h-28 sm:h-32",
-  },
-  airpods: {
-    background: "from-sky-50 via-white to-slate-50",
-    halo: "bg-sky-200/50",
-    icon: "h-28 sm:h-32",
-  },
-  "acessorios-e-perifericos": {
-    background: "from-emerald-50 via-white to-slate-50",
-    halo: "bg-emerald-200/50",
-    icon: "h-28 sm:h-32",
-  },
-  consoles: {
-    background: "from-violet-50 via-slate-50 to-white",
-    halo: "bg-violet-200/45",
-    icon: "h-28 sm:h-32",
-  },
-  colecionaveis: {
-    background: "from-slate-100 via-slate-50 to-white",
-    halo: "bg-emerald-200/40",
-    icon: "h-28 sm:h-32",
-  },
+// Visual unico para todos os cards (consistencia entre categorias).
+const CARD_VISUAL = {
+  background: "from-slate-100 via-slate-50 to-white",
+  halo: "bg-emerald-200/25",
+  icon: "h-28 sm:h-32",
 };
 
 const STEPS = [
@@ -167,11 +133,7 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
             variants={stagger(0.05)}
           >
             {categories.map((c) => {
-              const visual = CATEGORY_VISUALS[c.slug] ?? {
-                background: "from-surface-2 via-surface to-white",
-                halo: "bg-brand/10",
-                icon: "h-28 sm:h-32",
-              };
+              const visual = CARD_VISUAL;
               return (
               <motion.div
                 key={c.id}
