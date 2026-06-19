@@ -29,12 +29,31 @@ export class ProposalService {
       include: { model: true },
     });
     const variantLabel = variant
-      ? `${variant.model.name} ${variant.name}`
+      ? variant.name.startsWith(variant.model.name)
+        ? variant.name
+        : `${variant.model.name} ${variant.name}`
       : input.quote.variantId;
+
+    const conditionLabel = quote.isScrap
+      ? "Sucata"
+      : input.quote.conditionStateId
+        ? (
+            await this.prisma.conditionState.findUnique({
+              where: { id: input.quote.conditionStateId },
+              select: { label: true },
+            })
+          )?.label ?? ""
+        : "";
 
     // 3. Generate token and build WhatsApp URL
     const token = this.generateToken();
-    const whatsappUrl = await this.buildWhatsappUrl(token, input, quote, variantLabel);
+    const whatsappUrl = await this.buildWhatsappUrl(
+      token,
+      input,
+      quote,
+      variantLabel,
+      conditionLabel,
+    );
 
     // 4. Persist proposal
     await this.prisma.proposal.create({
@@ -76,6 +95,7 @@ export class ProposalService {
     input: CreateProposal,
     quote: QuoteResponse,
     variantLabel: string,
+    conditionLabel: string,
   ): Promise<string> {
     const [phoneSetting, templateSetting] = await Promise.all([
       this.prisma.setting.findUnique({ where: { key: "whatsapp_phone" } }),
@@ -92,11 +112,12 @@ export class ProposalService {
         : defaultTemplate;
 
     const message = template
-      .replace("{token}", token)
-      .replace("{variant}", variantLabel)
-      .replace("{value}", quote.valueFormatted)
-      .replace("{name}", input.seller.name)
-      .replace("{whatsapp}", input.seller.whatsapp);
+      .replaceAll("{token}", token)
+      .replaceAll("{variant}", variantLabel)
+      .replaceAll("{condition}", conditionLabel)
+      .replaceAll("{value}", quote.valueFormatted)
+      .replaceAll("{name}", input.seller.name)
+      .replaceAll("{whatsapp}", input.seller.whatsapp);
 
     const cleanPhone = phone.replace(/\D/g, "");
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;

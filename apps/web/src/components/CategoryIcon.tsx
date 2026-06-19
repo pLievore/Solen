@@ -281,12 +281,12 @@ export function ConsolesIcon({ className }: P) {
       <text x="136" y="72" textAnchor="middle" fontSize="7" fill="#a855f7" fontFamily="sans-serif">□</text>
 
       {/* Left analog stick */}
-      <circle cx="45" cy="95" r="12" fill="#2a2a2c" stroke="#4a4a4c" strokeWidth="1" />
-      <circle cx="45" cy="95" r="7" fill="#333" />
+      <circle cx="72" cy="104" r="12" fill="#2a2a2c" stroke="#4a4a4c" strokeWidth="1" />
+      <circle cx="72" cy="104" r="7" fill="#333" />
 
       {/* Right analog stick */}
-      <circle cx="115" cy="95" r="12" fill="#2a2a2c" stroke="#4a4a4c" strokeWidth="1" />
-      <circle cx="115" cy="95" r="7" fill="#333" />
+      <circle cx="128" cy="104" r="12" fill="#2a2a2c" stroke="#4a4a4c" strokeWidth="1" />
+      <circle cx="128" cy="104" r="7" fill="#333" />
 
       {/* L1/R1 bumpers */}
       <path d="M 15 55 Q 40 42 70 48" stroke="#4a4a4c" strokeWidth="8" strokeLinecap="round" fill="none" />
