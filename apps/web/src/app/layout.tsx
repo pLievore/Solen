@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LgpdBanner from "./_components/LgpdBanner";
+import { Analytics } from "@vercel/analytics/next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendy-shop.vercel.app";
 
@@ -47,6 +48,7 @@ export default function RootLayout({
       <body>
         {children}
         <LgpdBanner />
+        <Analytics />
       </body>
     </html>
   );
