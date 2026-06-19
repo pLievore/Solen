@@ -8,6 +8,47 @@ import { fadeUp, stagger, ease } from "@/components/motion";
 
 type Category = { id: string; name: string; slug: string; iconUrl: string | null };
 
+const CATEGORY_VISUALS: Record<
+  string,
+  { background: string; halo: string; icon: string }
+> = {
+  iphones: {
+    background: "from-slate-100 via-slate-50 to-white",
+    halo: "bg-slate-300/35",
+    icon: "h-28 sm:h-32",
+  },
+  "apple-watches": {
+    background: "from-zinc-100 via-slate-50 to-white",
+    halo: "bg-zinc-300/40",
+    icon: "h-28 sm:h-32",
+  },
+  ipads: {
+    background: "from-blue-50 via-slate-50 to-white",
+    halo: "bg-blue-200/40",
+    icon: "h-28 sm:h-32",
+  },
+  airpods: {
+    background: "from-sky-50 via-white to-slate-50",
+    halo: "bg-sky-200/50",
+    icon: "h-28 sm:h-32",
+  },
+  "acessorios-e-perifericos": {
+    background: "from-emerald-50 via-white to-slate-50",
+    halo: "bg-emerald-200/50",
+    icon: "h-28 sm:h-32",
+  },
+  consoles: {
+    background: "from-violet-50 via-slate-50 to-white",
+    halo: "bg-violet-200/45",
+    icon: "h-28 sm:h-32",
+  },
+  colecionaveis: {
+    background: "from-amber-50 via-orange-50/60 to-white",
+    halo: "bg-amber-200/55",
+    icon: "h-28 sm:h-32",
+  },
+};
+
 const STEPS = [
   {
     n: "01",
@@ -125,7 +166,13 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
             viewport={{ once: true }}
             variants={stagger(0.05)}
           >
-            {categories.map((c) => (
+            {categories.map((c) => {
+              const visual = CATEGORY_VISUALS[c.slug] ?? {
+                background: "from-surface-2 via-surface to-white",
+                halo: "bg-brand/10",
+                icon: "h-28 sm:h-32",
+              };
+              return (
               <motion.div
                 key={c.id}
                 variants={fadeUp}
@@ -137,22 +184,28 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
                   className="group flex h-full min-h-[220px] flex-col items-center overflow-hidden rounded-2xl border border-border/80 bg-bg shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand/70 hover:shadow-[0_16px_40px_rgba(22,163,74,0.14)] active:scale-[0.98]"
                 >
                   {/* Device illustration area */}
-                  <div className="relative flex min-h-[145px] w-full flex-1 items-center justify-center bg-gradient-to-b from-surface-2/80 to-surface px-4 pb-4 pt-7">
+                  <div
+                    className={`relative flex min-h-[160px] w-full flex-1 items-center justify-center overflow-hidden bg-gradient-to-b ${visual.background} px-4 pb-4 pt-7`}
+                  >
                     <div
                       aria-hidden
-                      className="absolute inset-x-8 bottom-4 h-8 rounded-full bg-brand/5 blur-xl transition duration-300 group-hover:bg-brand/10"
+                      className={`absolute h-32 w-32 rounded-full ${visual.halo} blur-2xl transition duration-500 group-hover:scale-125`}
+                    />
+                    <div
+                      aria-hidden
+                      className="absolute bottom-5 h-5 w-28 rounded-[100%] bg-slate-900/10 blur-md transition duration-300 group-hover:w-32 group-hover:bg-brand/15"
                     />
                     {c.iconUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={c.iconUrl}
                         alt=""
-                        className="relative h-24 w-auto max-w-[80%] object-contain drop-shadow-lg transition duration-300 group-hover:scale-110"
+                        className={`relative w-auto max-w-[86%] object-contain drop-shadow-xl transition duration-500 group-hover:-translate-y-1 group-hover:scale-110 ${visual.icon}`}
                       />
                     ) : (
                       <CategoryIcon
                         slug={c.slug}
-                        className="relative h-24 w-auto max-w-[80%] drop-shadow-lg transition duration-300 group-hover:scale-110"
+                        className={`relative w-auto max-w-[86%] drop-shadow-xl transition duration-500 group-hover:-translate-y-1 group-hover:scale-110 ${visual.icon}`}
                       />
                     )}
                   </div>
@@ -171,7 +224,8 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
                   </div>
                 </Link>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
         </div>

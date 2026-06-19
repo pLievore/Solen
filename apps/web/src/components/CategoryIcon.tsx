@@ -304,40 +304,59 @@ export function ConsolesIcon({ className }: P) {
 // ─── Colecionáveis ─────────────────────────────────────────────────────────
 export function CollectiblesIcon({ className }: P) {
   return (
-    <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
+    <svg viewBox="0 0 190 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
       <defs>
-        <linearGradient id="star1" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fbbf24" />
-          <stop offset="100%" stopColor="#d97706" />
+        <linearGradient id="collectBox" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fff7ed" />
+          <stop offset="100%" stopColor="#fed7aa" />
         </linearGradient>
-        <linearGradient id="gem" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id="collectCard" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#60a5fa" />
-          <stop offset="50%" stopColor="#3b82f6" />
           <stop offset="100%" stopColor="#1d4ed8" />
         </linearGradient>
+        <linearGradient id="collectFigure" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#fbbf24" />
+          <stop offset="100%" stopColor="#f97316" />
+        </linearGradient>
       </defs>
-      {/* Main star */}
-      <path d="M 80 12 L 92 52 L 135 52 L 102 76 L 114 116 L 80 92 L 46 116 L 58 76 L 25 52 L 68 52 Z"
-        fill="url(#star1)" stroke="#f59e0b" strokeWidth="1.5" strokeLinejoin="round" />
-      {/* Star shine */}
-      <path d="M 80 20 L 88 50 L 72 50 Z" fill="rgba(255,255,255,0.3)" />
-      {/* Gem diamond */}
-      <polygon points="80,28 100,48 80,78 60,48"
-        fill="url(#gem)" stroke="#60a5fa" strokeWidth="1" />
-      <polygon points="80,28 100,48 80,38" fill="rgba(255,255,255,0.25)" />
-      <line x1="80" y1="38" x2="60" y2="48" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-      <line x1="80" y1="38" x2="100" y2="48" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-      {/* Small sparkles */}
-      <path d="M 128 25 L 130 32 L 135 30 L 130 37 L 128 44 L 126 37 L 121 30 L 126 32 Z"
-        fill="#fbbf24" opacity="0.8" />
-      <path d="M 30 30 L 31.5 35 L 36 33.5 L 31.5 38 L 30 43 L 28.5 38 L 24 33.5 L 28.5 35 Z"
-        fill="#fbbf24" opacity="0.6" />
-      <path d="M 140 90 L 141 94 L 145 92 L 141 96 L 140 100 L 139 96 L 135 92 L 139 94 Z"
-        fill="#fbbf24" opacity="0.5" />
-      {/* Trophy base */}
-      <rect x="64" y="118" width="32" height="8" rx="3" fill="url(#star1)" />
-      <rect x="56" y="124" width="48" height="6" rx="3" fill="#d97706" />
-      <rect x="76" y="112" width="8" height="10" rx="2" fill="#d97706" />
+      {/* Display box */}
+      <rect x="42" y="18" width="106" height="126" rx="13" fill="url(#collectBox)" stroke="#fb923c" strokeWidth="2" />
+      <rect x="51" y="28" width="88" height="76" rx="8" fill="#fff" fillOpacity="0.75" stroke="#fdba74" />
+      <rect x="51" y="112" width="88" height="22" rx="6" fill="#fff7ed" stroke="#fdba74" />
+      <rect x="63" y="119" width="64" height="4" rx="2" fill="#fb923c" fillOpacity="0.45" />
+      <rect x="72" y="127" width="46" height="3" rx="1.5" fill="#fb923c" fillOpacity="0.25" />
+
+      {/* Collectible figure */}
+      <circle cx="94" cy="49" r="20" fill="url(#collectFigure)" stroke="#ea580c" strokeWidth="1.5" />
+      <circle cx="87" cy="47" r="3" fill="#422006" />
+      <circle cx="101" cy="47" r="3" fill="#422006" />
+      <path d="M87 58 Q94 63 101 58" stroke="#9a3412" strokeWidth="2" strokeLinecap="round" />
+      <path d="M75 82 Q77 66 94 66 Q111 66 113 82 L108 101 L80 101 Z" fill="url(#collectCard)" stroke="#1d4ed8" />
+      <path d="M82 78 L94 69 L106 78 L101 95 L87 95 Z" fill="#fbbf24" />
+      <rect x="68" y="98" width="52" height="6" rx="3" fill="#c2410c" fillOpacity="0.55" />
+
+      {/* Trading card behind box */}
+      <g transform="rotate(-12 34 80)">
+        <rect x="8" y="44" width="48" height="70" rx="6" fill="url(#collectCard)" stroke="#1e40af" strokeWidth="2" />
+        <rect x="14" y="50" width="36" height="35" rx="4" fill="#dbeafe" />
+        <path d="M32 56 L37 68 L49 69 L40 77 L43 85 L32 79 L21 85 L24 77 L15 69 L27 68 Z" fill="#fbbf24" />
+        <rect x="15" y="91" width="34" height="4" rx="2" fill="#bfdbfe" />
+        <rect x="15" y="99" width="25" height="3" rx="1.5" fill="#bfdbfe" />
+      </g>
+
+      {/* Retro cartridge */}
+      <g transform="rotate(10 158 94)">
+        <rect x="139" y="58" width="42" height="62" rx="6" fill="#334155" stroke="#0f172a" strokeWidth="2" />
+        <rect x="145" y="65" width="30" height="28" rx="3" fill="#16a34a" />
+        <circle cx="160" cy="77" r="8" fill="#dcfce7" />
+        <path d="M156 77 L160 72 L164 77 L160 82 Z" fill="#15803d" />
+        <rect x="148" y="101" width="24" height="4" rx="2" fill="#64748b" />
+        <path d="M147 119 H173 L169 127 H151 Z" fill="#0f172a" />
+      </g>
+
+      {/* Sparkles */}
+      <path d="M25 25 L28 34 L37 37 L28 40 L25 49 L22 40 L13 37 L22 34 Z" fill="#fbbf24" />
+      <path d="M166 20 L168 26 L174 28 L168 30 L166 36 L164 30 L158 28 L164 26 Z" fill="#60a5fa" />
     </svg>
   );
 }
