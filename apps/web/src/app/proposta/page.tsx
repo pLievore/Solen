@@ -28,7 +28,7 @@ type ViaCepResult = {
   erro?: boolean;
 };
 
-const STORAGE_KEY = "solen_quote";
+const STORAGE_KEY = "vendy_quote";
 
 // ── Input component ──────────────────────────────────────────────────────────
 function Field({

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put, UseGuards } from "@nestjs/common";
-import { variantPricesSchema, type VariantPrices } from "@solen/shared";
+import { variantPricesSchema, type VariantPrices } from "@vendy/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";

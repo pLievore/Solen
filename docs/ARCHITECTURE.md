@@ -1,4 +1,4 @@
-# ARCHITECTURE — Solen
+# ARCHITECTURE — Vendy
 
 > Decisões técnicas, topologia, deploy e segurança. Versão 0.1.
 

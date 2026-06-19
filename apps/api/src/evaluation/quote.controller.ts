@@ -1,5 +1,5 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { quoteRequestSchema, type QuoteRequest } from "@solen/shared";
+import { quoteRequestSchema, type QuoteRequest } from "@vendy/shared";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { QuoteService } from "./quote.service";
 

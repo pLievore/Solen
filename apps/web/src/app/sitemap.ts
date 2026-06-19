@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { apiGet } from "@/lib/api";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://solen.com.br";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendy.com.br";
 
 type PostRow = { slug: string; publishedAt: string };
 type CategoryRow = { slug: string; updatedAt?: string };

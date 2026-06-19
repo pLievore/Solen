@@ -1,4 +1,4 @@
-import { formatBRL } from "@solen/shared";
+import { formatBRL } from "@vendy/shared";
 
 export type BreakdownItem = {
   type: "base" | "delta" | "scrap";

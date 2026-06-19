@@ -1,7 +1,7 @@
 /**
  * Cria (ou atualiza) o usuario admin do painel no Supabase Auth.
  * Uso:
- *   pnpm --filter @solen/api create-admin -- email@dominio.com SenhaForte123
+ *   pnpm --filter @vendy/api create-admin -- email@dominio.com SenhaForte123
  * ou via env: ADMIN_EMAIL / ADMIN_PASSWORD
  */
 import { createClient } from "@supabase/supabase-js";

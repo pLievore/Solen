@@ -1,4 +1,4 @@
-# Solen — Site de compra de usados
+# Vendy — Site de compra de usados
 
 Site de captação de leads para **compra de eletrônicos usados** (iPhones, Apple Watch, iPads, AirPods, acessórios, consoles e colecionáveis — usados, quebrados ou seminovos).
 
@@ -25,7 +25,7 @@ O site funciona como uma **máquina de aquisição de leads**: o vendedor seleci
 ## 🏗️ Estrutura do repositório
 
 ```
-solen/
+vendy/
 ├── apps/
 │   ├── web/          # Frontend — Next.js (App Router). SEO/SSR + painel admin. Só consome a API.
 │   └── api/          # Backend — NestJS. Toda a regra de negócio (catálogo, preços, propostas).

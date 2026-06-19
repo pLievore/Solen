@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
-import type { CreateProposal, CreateProposalResponse, QuoteResponse } from "@solen/shared";
+import type { CreateProposal, CreateProposalResponse, QuoteResponse } from "@vendy/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { QuoteService } from "../evaluation/quote.service";
 
@@ -141,13 +141,13 @@ export class ProposalService {
     if (!apiKey || !notifyEmail) return;
 
     const from =
-      this.config.get<string>("RESEND_FROM_EMAIL") ?? "propostas@solen.com.br";
+      this.config.get<string>("RESEND_FROM_EMAIL") ?? "propostas@vendy.com.br";
     const resend = new Resend(apiKey);
 
     await resend.emails.send({
       from,
       to: notifyEmail,
-      subject: `[Solen] Nova proposta ${token} — ${variantLabel}`,
+      subject: `[Vendy] Nova proposta ${token} — ${variantLabel}`,
       text: [
         `Nova proposta recebida!`,
         ``,

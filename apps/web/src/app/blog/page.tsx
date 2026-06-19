@@ -4,7 +4,7 @@ import { apiGet } from "@/lib/api";
 import PublicShell from "@/components/PublicShell";
 
 export const metadata: Metadata = {
-  title: "Blog — Solen",
+  title: "Blog — Vendy",
   description: "Dicas e guias sobre como vender seus eletrônicos usados.",
 };
 

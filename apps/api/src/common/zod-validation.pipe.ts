@@ -2,7 +2,7 @@ import { PipeTransform, BadRequestException } from "@nestjs/common";
 import type { ZodSchema } from "zod";
 
 /**
- * Valida o payload contra um schema Zod (de @solen/shared) e retorna os dados
+ * Valida o payload contra um schema Zod (de @vendy/shared) e retorna os dados
  * tipados. Lanca 400 com a lista de problemas quando invalido.
  */
 export class ZodValidationPipe<T> implements PipeTransform {

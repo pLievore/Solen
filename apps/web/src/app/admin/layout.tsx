@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <aside className="w-56 shrink-0 border-r border-border bg-bg p-4">
         <div className="mb-6">
           <span className="rounded-full bg-brand px-3 py-1 text-sm font-medium text-brand-fg">
-            Solen
+            Vendy
           </span>
         </div>
         <nav className="space-y-1">

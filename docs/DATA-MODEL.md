@@ -1,4 +1,4 @@
-# DATA-MODEL — Solen
+# DATA-MODEL — Vendy
 
 > Entidades, relacionamentos e rascunho de schema. Versão 0.1.
 > Nomes em **inglês no código** / **PT-BR na UI** (mapeamento abaixo).

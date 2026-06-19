@@ -2,18 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 import LgpdBanner from "./_components/LgpdBanner";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://solen.com.br";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendy-shop.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Solen — Venda seus usados",
-    template: "%s — Solen",
+    default: "Vendy — Venda seus usados",
+    template: "%s — Vendy",
   },
   description:
     "Venda iPhones, iPads, Apple Watch, consoles e eletrônicos usados, quebrados ou seminovos. Avaliação rápida e proposta na hora.",
   openGraph: {
-    siteName: "Solen",
+    siteName: "Vendy",
     locale: "pt_BR",
     type: "website",
   },

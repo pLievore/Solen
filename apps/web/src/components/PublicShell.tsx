@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { fadeIn } from "@/components/motion";
 
-function SolenMark() {
+function VendyMark() {
   return (
     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-brand-fg shadow-[0_6px_18px_rgba(22,163,74,0.24)] transition-transform duration-300 group-hover:scale-105">
       <svg
@@ -45,10 +45,10 @@ export default function PublicShell({ children }: { children: React.ReactNode })
       {/* Header */}
       <header className="sticky top-0 z-40 isolate border-b border-border bg-bg shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
-          <Link href="/" className="group flex items-center gap-2.5" aria-label="Solen - início">
-            <SolenMark />
+          <Link href="/" className="group flex items-center gap-2.5" aria-label="Vendy - início">
+            <VendyMark />
             <span className="text-base font-bold tracking-tight text-fg">
-              Solen
+              Vendy
             </span>
           </Link>
 
@@ -103,7 +103,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
       <footer className="border-t border-border/60 bg-surface px-6 py-8">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold">Solen</p>
+            <p className="text-sm font-semibold">Vendy</p>
             <p className="text-xs text-muted">Compra de eletrônicos usados</p>
           </div>
           <nav className="flex flex-wrap gap-4 text-xs text-muted">
@@ -111,7 +111,7 @@ export default function PublicShell({ children }: { children: React.ReactNode })
             <Link href="/privacidade" className="hover:text-brand transition">Privacidade</Link>
           </nav>
           <p className="w-full text-center text-xs text-muted sm:w-auto sm:text-right">
-            © {new Date().getFullYear()} Solen
+            © {new Date().getFullYear()} Vendy
           </p>
         </div>
       </footer>

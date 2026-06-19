@@ -1,15 +1,15 @@
-# Render Blueprint — API do Solen (@solen/api).
+# Render Blueprint — API do Vendy (@vendy/api).
 # Importar em: Render Dashboard > New > Blueprint (aponta para este repo).
 # As variaveis com sync:false sao preenchidas no painel do Render (segredos).
 services:
   - type: web
-    name: solen-api
+    name: vendy-api
     runtime: node
     plan: free
     region: ohio # us-east, proximo do Supabase us-east-2
     branch: main
-    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @solen/shared build && pnpm --filter @solen/api exec prisma generate && pnpm --filter @solen/api build
-    startCommand: pnpm --filter @solen/api exec prisma migrate deploy && node apps/api/dist/main.js
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @vendy/shared build && pnpm --filter @vendy/api exec prisma generate && pnpm --filter @vendy/api build
+    startCommand: pnpm --filter @vendy/api exec prisma migrate deploy && node apps/api/dist/main.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
@@ -23,6 +23,6 @@ services:
       - key: SUPABASE_SECRET_KEY
         sync: false
       - key: CORS_ORIGIN
-        sync: false # ex.: https://solen.vercel.app
+        sync: false # ex.: https://vendy-shop.vercel.app
       - key: WHATSAPP_PHONE
         sync: false

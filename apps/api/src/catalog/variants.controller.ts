@@ -14,7 +14,7 @@ import {
   variantUpdateSchema,
   type VariantCreate,
   type VariantUpdate,
-} from "@solen/shared";
+} from "@vendy/shared";
 import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { SupabaseAuthGuard } from "../auth/auth.guard";

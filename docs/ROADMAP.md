@@ -154,7 +154,7 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 2. ✅ **Deltas:** globais no MVP (override por versão fica para o futuro).
 3. ✅ **"Já aberto para manutenção?":** desconta (Estado Detalhado com delta).
 4. ✅ **Notificação:** e-mail ao operador a cada nova proposta (RF-16, Fase 3).
-5. ⏳ **Nome/domínio:** "Solen" provisório até a identidade final (não bloqueia).
+5. ⏳ **Nome/domínio:** "Vendy" provisório até a identidade final (não bloqueia).
 6. ✅ **Estados base:** 4 fixos, só preço editável.
 
 > Nada pendente bloqueia o início. A definição final de nome/domínio só é necessária na **Fase 6** (lançamento).

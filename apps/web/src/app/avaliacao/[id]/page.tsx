@@ -8,7 +8,7 @@ import { apiGet, API_BASE_URL } from "@/lib/api";
 import PublicShell from "@/components/PublicShell";
 import { fadeUp, scaleIn, stagger, ease, easeFast } from "@/components/motion";
 
-const QUOTE_STORAGE_KEY = "solen_quote";
+const QUOTE_STORAGE_KEY = "vendy_quote";
 
 type Answer = "YES" | "NO";
 type Knockout = { id: string; question: string; helpText: string | null; triggerAnswer: Answer };

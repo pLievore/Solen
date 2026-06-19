@@ -1,5 +1,5 @@
 /**
- * Cliente HTTP minimo para a API do Solen.
+ * Cliente HTTP minimo para a API do Vendy.
  * O frontend NUNCA acessa o banco direto — sempre via API.
  */
 export const API_BASE_URL =

@@ -1,6 +1,6 @@
-# @solen/api — Backend (NestJS)
+# @vendy/api — Backend (NestJS)
 
-API REST do Solen. Concentra **toda a regra de negócio**: catálogo, precificação, propostas/leads e blog.
+API REST do Vendy. Concentra **toda a regra de negócio**: catálogo, precificação, propostas/leads e blog.
 
 - Stack: NestJS, TypeScript, Prisma.
 - Banco/Auth/Storage: Supabase (Postgres).
@@ -10,5 +10,5 @@ API REST do Solen. Concentra **toda a regra de negócio**: catálogo, precifica�
 
 ## Dev (após Fase 0)
 ```bash
-pnpm --filter @solen/api dev   # http://localhost:3333
+pnpm --filter @vendy/api dev   # http://localhost:3333
 ```

@@ -1,4 +1,4 @@
-// Solen — schema do banco (Postgres/Supabase).
+// Vendy — schema do banco (Postgres/Supabase).
 // Valores monetários em CENTAVOS (Int). Ver docs/DATA-MODEL.md e docs/PRICING.md.
 
 generator client {

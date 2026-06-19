@@ -28,7 +28,7 @@ export default function AdminLoginPage() {
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center gap-6 px-6">
       <div className="space-y-1 text-center">
         <span className="inline-block rounded-full bg-brand px-3 py-1 text-sm font-medium text-brand-fg">
-          Solen
+          Vendy
         </span>
         <h1 className="text-2xl font-bold">Painel administrativo</h1>
         <p className="text-sm text-muted">Entre para gerenciar o catalogo e as propostas.</p>

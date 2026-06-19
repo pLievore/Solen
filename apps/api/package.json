@@ -1,5 +1,5 @@
 {
-  "name": "@solen/api",
+  "name": "@vendy/api",
   "version": "0.0.0",
   "private": true,
   "scripts": {
@@ -23,7 +23,7 @@
     "@nestjs/platform-express": "^11.1.27",
     "@nestjs/throttler": "^6.5.0",
     "@prisma/client": "^5.22.0",
-    "@solen/shared": "workspace:*",
+    "@vendy/shared": "workspace:*",
     "@supabase/realtime-js": "^2.108.2",
     "@supabase/supabase-js": "^2.108.2",
     "reflect-metadata": "^0.2.2",

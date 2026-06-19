@@ -17,7 +17,7 @@ export class HealthController {
 
     return {
       status: db === "up" ? "ok" : "degraded",
-      service: "solen-api",
+      service: "vendy-api",
       db,
       timestamp: new Date().toISOString(),
     };

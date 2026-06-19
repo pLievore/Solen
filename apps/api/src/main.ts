@@ -28,7 +28,7 @@ async function bootstrap() {
   // Render/Heroku injetam PORT; em dev usamos API_PORT do .env.
   const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3333);
   await app.listen(port, "0.0.0.0");
-  new Logger("Bootstrap").log(`API Solen rodando na porta ${port} (prefixo /api)`);
+  new Logger("Bootstrap").log(`API Vendy rodando na porta ${port} (prefixo /api)`);
 }
 
 bootstrap();

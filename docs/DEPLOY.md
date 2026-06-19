@@ -1,4 +1,4 @@
-# DEPLOY — Solen
+# DEPLOY — Vendy
 
 > Frontend na **Vercel**, API no **Render**, banco no **Supabase**. Tudo em free tier.
 > Pré-requisito: repositório no GitHub (ver README/§GitHub).
@@ -22,9 +22,9 @@ Pegue no painel (Settings):
 2. Preencha as variáveis marcadas como `sync:false`:
    - `DATABASE_URL`, `DIRECT_URL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY`
    - `WHATSAPP_PHONE`
-   - `CORS_ORIGIN` = URL pública do site (ex.: `https://solen.vercel.app`)
+   - `CORS_ORIGIN` = URL pública do site (ex.: `https://vendy.vercel.app`)
 3. Deploy. O start roda `prisma migrate deploy` (aplica migrations) e sobe a API.
-4. Health: `https://solen-api.onrender.com/api/health` deve retornar `{"db":"up"}`.
+4. Health: `https://vendy-api.onrender.com/api/health` deve retornar `{"db":"up"}`.
 
 **Notas do free tier:** o serviço **hiberna** após ~15 min sem tráfego (cold start de ~30–50s na 1ª requisição). Aceitável para MVP; subir de plano quando houver volume.
 
@@ -34,9 +34,9 @@ Pegue no painel (Settings):
 
 1. Vercel → **Add New → Project** → importe o repo.
 2. **Root Directory:** `apps/web`.
-3. O [`apps/web/vercel.json`](../apps/web/vercel.json) já define install/build (compila o `@solen/shared` antes do Next).
+3. O [`apps/web/vercel.json`](../apps/web/vercel.json) já define install/build (compila o `@vendy/shared` antes do Next).
 4. **Environment Variables:**
-   - `NEXT_PUBLIC_API_BASE_URL` = URL da API no Render (ex.: `https://solen-api.onrender.com`)
+   - `NEXT_PUBLIC_API_BASE_URL` = URL da API no Render (ex.: `https://vendy-api.onrender.com`)
    - `NEXT_PUBLIC_SITE_URL` = URL final do site
    - `NEXT_PUBLIC_SUPABASE_URL` = `https://mkqukrnuutcmuenhewdh.supabase.co`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` = publishable key
@@ -50,7 +50,7 @@ Pegue no painel (Settings):
 Crie o primeiro admin (uma vez), localmente ou via Supabase Dashboard (Authentication → Add user):
 
 ```bash
-pnpm --filter @solen/api create-admin -- seu-email@dominio.com SuaSenhaForte
+pnpm --filter @vendy/api create-admin -- seu-email@dominio.com SuaSenhaForte
 ```
 
 Login do painel: `https://<site>/admin/login`.

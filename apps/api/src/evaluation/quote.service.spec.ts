@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { BadRequestException } from "@nestjs/common";
-import type { QuoteRequest } from "@solen/shared";
+import type { QuoteRequest } from "@vendy/shared";
 import { QuoteService } from "./quote.service";
 
 function createService() {

@@ -1,5 +1,5 @@
 /**
- * Seed inicial do Solen (Fase 0/1).
+ * Seed inicial do Vendy (Fase 0/1).
  * Idempotente: usa upsert por chaves estaveis (slug/key).
  * Valores em centavos.
  */

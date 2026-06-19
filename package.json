@@ -1,5 +1,5 @@
 {
-  "name": "solen",
+  "name": "vendy",
   "version": "0.0.0",
   "private": true,
   "description": "Site de captacao de leads para compra de eletronicos usados (iPhones, iPads, consoles, etc.)",
@@ -15,13 +15,13 @@
     }
   },
   "scripts": {
-    "dev:web": "pnpm --filter @solen/web dev",
-    "dev:api": "pnpm --filter @solen/api dev",
-    "build": "pnpm --filter @solen/shared build && pnpm -r build",
+    "dev:web": "pnpm --filter @vendy/web dev",
+    "dev:api": "pnpm --filter @vendy/api dev",
+    "build": "pnpm --filter @vendy/shared build && pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
-    "db:migrate": "pnpm --filter @solen/api prisma:migrate",
-    "db:seed": "pnpm --filter @solen/api db:seed",
-    "db:studio": "pnpm --filter @solen/api prisma:studio"
+    "db:migrate": "pnpm --filter @vendy/api prisma:migrate",
+    "db:seed": "pnpm --filter @vendy/api db:seed",
+    "db:studio": "pnpm --filter @vendy/api prisma:studio"
   }
 }

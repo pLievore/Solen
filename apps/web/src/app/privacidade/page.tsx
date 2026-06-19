@@ -3,7 +3,7 @@ import PublicShell from "@/components/PublicShell";
 
 export const metadata: Metadata = {
   title: "Política de Privacidade",
-  description: "Como a Solen coleta, usa e protege seus dados pessoais (LGPD).",
+  description: "Como a Vendy coleta, usa e protege seus dados pessoais (LGPD).",
   robots: { index: true, follow: true },
 };
 
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold">1. Quem somos</h2>
             <p>
-              A Solen realiza a compra de eletrônicos usados (celulares, tablets,
+              A Vendy realiza a compra de eletrônicos usados (celulares, tablets,
               consoles e similares). Esta política descreve como tratamos seus
               dados pessoais, em conformidade com a Lei Geral de Proteção de
               Dados (LGPD — Lei nº 13.709/2018).

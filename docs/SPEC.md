@@ -1,4 +1,4 @@
-# SPEC — Solen (Site de compra de usados)
+# SPEC — Vendy (Site de compra de usados)
 
 > Especificação funcional do produto. Derivada do `Briefing e Ux site.pdf`.
 > Versão: 0.1 · Status: rascunho para validação.
@@ -212,5 +212,5 @@ O painel é o que dá autonomia ao operador. Áreas:
 2. **Deltas:** ✅ **Globais por enquanto** — os descontos vivem no `DetailedState` e valem para todas as versões. O _override_ por versão fica na modelagem como evolução futura (não usado no MVP).
 3. **"Já foi aberto para manutenção?":** ✅ **Desconta** — é um Estado Detalhado com delta (valor configurável no painel).
 4. **Notificação ao operador:** ✅ **Sim** — ao registrar uma proposta, enviar **alerta por e-mail** (serviço gratuito) além de gravar no dashboard. (Ver RF-16, §8.)
-5. **Domínio e identidade:** ⏳ "Solen" segue como **nome provisório** até a identidade final.
+5. **Domínio e identidade:** ⏳ "Vendy" segue como **nome provisório** até a identidade final.
 6. **Estados base:** ✅ **Fixos** (4 estados) — só o preço é editável; não se criam novos estados base.

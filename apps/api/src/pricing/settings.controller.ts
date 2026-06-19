@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put, UseGuards } from "@nestjs/common";
-import { settingUpdateSchema, type SettingUpdate } from "@solen/shared";
+import { settingUpdateSchema, type SettingUpdate } from "@vendy/shared";
 import type { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { SupabaseAuthGuard } from "../auth/auth.guard";

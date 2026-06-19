@@ -13,7 +13,7 @@ import {
   knockoutUpdateSchema,
   type KnockoutCreate,
   type KnockoutUpdate,
-} from "@solen/shared";
+} from "@vendy/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";

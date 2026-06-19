@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-const KEY = "solen_lgpd_accepted";
+const KEY = "vendy_lgpd_accepted";
 
 export default function LgpdBanner() {
   const [visible, setVisible] = useState(false);

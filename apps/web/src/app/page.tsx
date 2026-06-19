@@ -3,7 +3,7 @@ import { apiGet } from "@/lib/api";
 import HomeContent from "./_components/HomeContent";
 
 export const metadata: Metadata = {
-  title: "Solen — Venda seus usados",
+  title: "Vendy — Venda seus usados",
   description:
     "Venda iPhones, iPads, Apple Watch, consoles e eletrônicos usados, quebrados ou seminovos. Avaliação gratuita e proposta na hora.",
 };

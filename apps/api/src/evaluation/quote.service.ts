@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import type { QuoteRequest, QuoteResponse } from "@solen/shared";
+import type { QuoteRequest, QuoteResponse } from "@vendy/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { computeQuote, type BreakdownItem } from "./pricing.engine";
 import { appliesToCategory } from "./question-scope";

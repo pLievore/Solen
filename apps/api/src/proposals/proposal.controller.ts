@@ -1,6 +1,6 @@
 import { Body, Controller, Post, UseGuards } from "@nestjs/common";
 import { ThrottlerGuard, Throttle } from "@nestjs/throttler";
-import { createProposalSchema, type CreateProposal } from "@solen/shared";
+import { createProposalSchema, type CreateProposal } from "@vendy/shared";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { ProposalService } from "./proposal.service";
 

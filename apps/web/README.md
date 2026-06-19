@@ -1,7 +1,7 @@
-# @solen/web — Frontend (Next.js)
+# @vendy/web — Frontend (Next.js)
 
-Camada de **apresentação** do Solen. Site público (SSR/SSG para SEO + blog) e painel `/admin`.
-**Não contém regra de negócio** — consome a API (`@solen/api`).
+Camada de **apresentação** do Vendy. Site público (SSR/SSG para SEO + blog) e painel `/admin`.
+**Não contém regra de negócio** — consome a API (`@vendy/api`).
 
 - Stack: Next.js (App Router), React, TypeScript, Tailwind + design tokens.
 - Deploy: Vercel.
@@ -11,5 +11,5 @@ Camada de **apresentação** do Solen. Site público (SSR/SSG para SEO + blog) e
 
 ## Dev (após Fase 0)
 ```bash
-pnpm --filter @solen/web dev   # http://localhost:3000
+pnpm --filter @vendy/web dev   # http://localhost:3000
 ```
