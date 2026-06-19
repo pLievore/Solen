@@ -131,7 +131,7 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
       {/* ── Categorias ───────────────────────────────────────────── */}
       <section
         id="categorias"
-        className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-bg via-surface/40 to-bg py-20"
+        className="relative scroll-mt-16 overflow-hidden border-b border-border/60 bg-gradient-to-b from-bg via-surface/40 to-bg py-20"
       >
         <div
           aria-hidden
