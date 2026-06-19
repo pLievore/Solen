@@ -43,8 +43,8 @@ const CATEGORY_VISUALS: Record<
     icon: "h-28 sm:h-32",
   },
   colecionaveis: {
-    background: "from-amber-50 via-orange-50/60 to-white",
-    halo: "bg-amber-200/55",
+    background: "from-slate-100 via-slate-50 to-white",
+    halo: "bg-emerald-200/40",
     icon: "h-28 sm:h-32",
   },
 };

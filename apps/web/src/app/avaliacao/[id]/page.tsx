@@ -105,6 +105,25 @@ function ConditionCard({
 }
 
 // ── Main page ────────────────────────────────────────────────────────────────
+// Anima o valor de 0 ate o total (efeito "contagem") para dar peso a proposta.
+function AnimatedPrice({ cents }: { cents: number }) {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const dur = 750;
+    const start = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min((t - start) / dur, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setN(Math.round(cents * eased));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [cents]);
+  return <>{(n / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</>;
+}
+
 export default function EvaluationPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
@@ -224,24 +243,61 @@ export default function EvaluationPage() {
           >
             <motion.div variants={fadeUp} transition={ease}>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-subtle px-3 py-1 text-xs font-medium text-brand-subtle-fg">
-                {result.isScrap ? "Avaliação de sucata" : "Sua proposta"}
+                <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+                {result.isScrap ? "Avaliação de sucata" : "Avaliação concluída"}
               </span>
             </motion.div>
 
-            <motion.p variants={fadeUp} transition={ease} className="mt-2 text-sm text-muted">
-              {data.variant.name}
-            </motion.p>
-
-            <motion.p
+            {/* Card de valor */}
+            <motion.div
               variants={scaleIn}
               transition={{ ...ease, delay: 0.1 }}
-              className="my-4 text-6xl font-bold tracking-tight text-brand"
+              className="relative mt-5 overflow-hidden rounded-2xl bg-gradient-to-br from-brand to-brand-dark px-6 py-8 text-brand-fg shadow-brand"
             >
-              {result.valueFormatted}
-            </motion.p>
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl"
+              />
+              <p className="text-sm font-medium text-brand-fg/80">
+                {result.isScrap ? "Oferta pela sucata" : "Sua proposta"}
+              </p>
+              <p className="mt-1 text-5xl font-extrabold tracking-tight sm:text-6xl">
+                <AnimatedPrice cents={result.value} />
+              </p>
+              <p className="mt-2 text-sm text-brand-fg/80">{data.variant.name}</p>
+            </motion.div>
+
+            {/* Selos de confiança */}
+            <motion.div
+              variants={fadeUp}
+              transition={ease}
+              className="mt-4 grid grid-cols-3 gap-2"
+            >
+              {[
+                { t: "Pagamento", s: "à vista" },
+                { t: "Resposta", s: "na hora" },
+                { t: "Sem", s: "compromisso" },
+              ].map((b) => (
+                <div
+                  key={b.t}
+                  className="rounded-xl border border-border bg-surface px-2 py-3 text-center"
+                >
+                  <svg
+                    viewBox="0 0 20 20"
+                    className="mx-auto mb-1 h-4 w-4 text-brand"
+                    fill="currentColor"
+                    aria-hidden
+                  >
+                    <path d="M16.7 5.3a1 1 0 0 1 0 1.4l-7 7a1 1 0 0 1-1.4 0l-3-3a1 1 0 1 1 1.4-1.4L9 11.6l6.3-6.3a1 1 0 0 1 1.4 0z" />
+                  </svg>
+                  <p className="text-xs font-semibold leading-tight">{b.t}</p>
+                  <p className="text-[11px] leading-tight text-muted">{b.s}</p>
+                </div>
+              ))}
+            </motion.div>
 
             {result.isScrap && (
-              <motion.p variants={fadeUp} transition={ease} className="text-sm text-muted">
+              <motion.p variants={fadeUp} transition={ease} className="mt-4 text-sm text-muted">
                 Pelas respostas, o aparelho entra como sucata.
               </motion.p>
             )}
@@ -249,11 +305,11 @@ export default function EvaluationPage() {
               <motion.p
                 variants={fadeUp}
                 transition={ease}
-                className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
+                className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700"
               >
-                Este valor e uma estimativa inicial. A oferta final sera
-                confirmada apos analise de fotos, autenticidade, raridade e
-                conservacao.
+                Este valor é uma estimativa inicial. A oferta final será
+                confirmada após análise de fotos, autenticidade, raridade e
+                conservação.
               </motion.p>
             )}
 
@@ -261,11 +317,11 @@ export default function EvaluationPage() {
             <motion.div
               variants={fadeUp}
               transition={ease}
-              className="mt-8 overflow-hidden rounded-xl border border-border bg-surface text-left text-sm"
+              className="mt-6 overflow-hidden rounded-xl border border-border bg-surface text-left text-sm"
             >
               <div className="border-b border-border px-4 py-2.5">
                 <span className="text-xs font-semibold uppercase tracking-wider text-muted">
-                  Composição do valor
+                  Como chegamos nesse valor
                 </span>
               </div>
               {result.breakdown.map((b, i) => (

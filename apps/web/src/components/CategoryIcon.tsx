@@ -159,19 +159,19 @@ export function AirPodsIcon({ className }: P) {
     <svg viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
       <defs>
         <linearGradient id="apcase" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#f2f2f4" />
-          <stop offset="100%" stopColor="#d8d8dc" />
+          <stop offset="0%" stopColor="#fbfbfd" />
+          <stop offset="100%" stopColor="#bcc2cc" />
         </linearGradient>
         <linearGradient id="apbud" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#f5f5f7" />
-          <stop offset="100%" stopColor="#e0e0e4" />
+          <stop offset="0%" stopColor="#fdfdff" />
+          <stop offset="100%" stopColor="#c6ccd6" />
         </linearGradient>
       </defs>
       {/* Case body */}
       <rect x="30" y="50" width="100" height="100" rx="24" fill="url(#apcase)" />
-      <rect x="30" y="50" width="100" height="100" rx="24" fill="none" stroke="#c0c0c4" strokeWidth="1.5" />
+      <rect x="30" y="50" width="100" height="100" rx="24" fill="none" stroke="#9098a6" strokeWidth="2" />
       {/* Case lid line */}
-      <line x1="30" y1="100" x2="130" y2="100" stroke="#c0c0c4" strokeWidth="1" />
+      <line x1="30" y1="100" x2="130" y2="100" stroke="#aab0bc" strokeWidth="1.25" />
       {/* Hinge */}
       <rect x="73" y="97" width="14" height="6" rx="3" fill="#d0d0d4" />
       {/* LED dot */}
@@ -307,56 +307,46 @@ export function CollectiblesIcon({ className }: P) {
     <svg viewBox="0 0 190 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
       <defs>
         <linearGradient id="collectBox" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fff7ed" />
-          <stop offset="100%" stopColor="#fed7aa" />
+          <stop offset="0%" stopColor="#f5f7fa" />
+          <stop offset="100%" stopColor="#dfe4ea" />
         </linearGradient>
         <linearGradient id="collectCard" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#60a5fa" />
-          <stop offset="100%" stopColor="#1d4ed8" />
+          <stop offset="0%" stopColor="#22c55e" />
+          <stop offset="100%" stopColor="#15803d" />
         </linearGradient>
         <linearGradient id="collectFigure" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#fbbf24" />
-          <stop offset="100%" stopColor="#f97316" />
+          <stop offset="0%" stopColor="#2c2c2e" />
+          <stop offset="100%" stopColor="#1c1c1e" />
         </linearGradient>
       </defs>
-      {/* Display box */}
-      <rect x="42" y="18" width="106" height="126" rx="13" fill="url(#collectBox)" stroke="#fb923c" strokeWidth="2" />
-      <rect x="51" y="28" width="88" height="76" rx="8" fill="#fff" fillOpacity="0.75" stroke="#fdba74" />
-      <rect x="51" y="112" width="88" height="22" rx="6" fill="#fff7ed" stroke="#fdba74" />
-      <rect x="63" y="119" width="64" height="4" rx="2" fill="#fb923c" fillOpacity="0.45" />
-      <rect x="72" y="127" width="46" height="3" rx="1.5" fill="#fb923c" fillOpacity="0.25" />
-
-      {/* Collectible figure */}
-      <circle cx="94" cy="49" r="20" fill="url(#collectFigure)" stroke="#ea580c" strokeWidth="1.5" />
-      <circle cx="87" cy="47" r="3" fill="#422006" />
-      <circle cx="101" cy="47" r="3" fill="#422006" />
-      <path d="M87 58 Q94 63 101 58" stroke="#9a3412" strokeWidth="2" strokeLinecap="round" />
-      <path d="M75 82 Q77 66 94 66 Q111 66 113 82 L108 101 L80 101 Z" fill="url(#collectCard)" stroke="#1d4ed8" />
-      <path d="M82 78 L94 69 L106 78 L101 95 L87 95 Z" fill="#fbbf24" />
-      <rect x="68" y="98" width="52" height="6" rx="3" fill="#c2410c" fillOpacity="0.55" />
-
-      {/* Trading card behind box */}
-      <g transform="rotate(-12 34 80)">
-        <rect x="8" y="44" width="48" height="70" rx="6" fill="url(#collectCard)" stroke="#1e40af" strokeWidth="2" />
-        <rect x="14" y="50" width="36" height="35" rx="4" fill="#dbeafe" />
-        <path d="M32 56 L37 68 L49 69 L40 77 L43 85 L32 79 L21 85 L24 77 L15 69 L27 68 Z" fill="#fbbf24" />
-        <rect x="15" y="91" width="34" height="4" rx="2" fill="#bfdbfe" />
-        <rect x="15" y="99" width="25" height="3" rx="1.5" fill="#bfdbfe" />
+      {/* Graded slab (display case) */}
+      <g transform="rotate(-7 96 82)">
+        <rect x="50" y="20" width="92" height="124" rx="12" fill="url(#collectBox)" stroke="#c3cad4" strokeWidth="2" />
+        {/* Label strip */}
+        <rect x="58" y="27" width="76" height="16" rx="4" fill="#fff" stroke="#d4dae2" />
+        <rect x="64" y="32" width="40" height="3" rx="1.5" fill="#9aa3b0" />
+        <rect x="64" y="37" width="28" height="2.5" rx="1.25" fill="#c0c7d0" />
+        {/* Card inside */}
+        <rect x="60" y="50" width="72" height="86" rx="8" fill="url(#collectCard)" stroke="#0f5132" />
+        {/* Holo shine */}
+        <path d="M60 96 L132 60 V72 L60 108 Z" fill="#fff" fillOpacity="0.12" />
+        {/* Star */}
+        <path d="M96 64 l5.5 11.2 12.3 1.8 -8.9 8.7 2.1 12.3 -11 -5.8 -11 5.8 2.1 -12.3 -8.9 -8.7 12.3 -1.8 Z"
+          fill="#fff" fillOpacity="0.92" />
       </g>
 
-      {/* Retro cartridge */}
-      <g transform="rotate(10 158 94)">
-        <rect x="139" y="58" width="42" height="62" rx="6" fill="#334155" stroke="#0f172a" strokeWidth="2" />
-        <rect x="145" y="65" width="30" height="28" rx="3" fill="#16a34a" />
-        <circle cx="160" cy="77" r="8" fill="#dcfce7" />
-        <path d="M156 77 L160 72 L164 77 L160 82 Z" fill="#15803d" />
-        <rect x="148" y="101" width="24" height="4" rx="2" fill="#64748b" />
-        <path d="M147 119 H173 L169 127 H151 Z" fill="#0f172a" />
+      {/* Retro cartridge accent */}
+      <g transform="rotate(9 150 96)">
+        <rect x="132" y="64" width="40" height="60" rx="6" fill="url(#collectFigure)" stroke="#0f172a" strokeWidth="2" />
+        <rect x="138" y="71" width="28" height="26" rx="3" fill="#22c55e" />
+        <circle cx="152" cy="84" r="7" fill="#dcfce7" />
+        <path d="M148 84 L152 79 L156 84 L152 89 Z" fill="#15803d" />
+        <rect x="141" y="104" width="22" height="4" rx="2" fill="#475569" />
       </g>
 
       {/* Sparkles */}
-      <path d="M25 25 L28 34 L37 37 L28 40 L25 49 L22 40 L13 37 L22 34 Z" fill="#fbbf24" />
-      <path d="M166 20 L168 26 L174 28 L168 30 L166 36 L164 30 L158 28 L164 26 Z" fill="#60a5fa" />
+      <path d="M30 30 l2.5 7 7 2.5 -7 2.5 -2.5 7 -2.5 -7 -7 -2.5 7 -2.5 Z" fill="#16a34a" />
+      <path d="M168 26 l1.8 5 5 1.8 -5 1.8 -1.8 5 -1.8 -5 -5 -1.8 5 -1.8 Z" fill="#94a3b8" />
     </svg>
   );
 }
