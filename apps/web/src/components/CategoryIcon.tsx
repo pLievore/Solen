@@ -243,7 +243,7 @@ export function AccessoriesIcon({ className }: P) {
 // ─── Consoles ──────────────────────────────────────────────────────────────
 export function ConsolesIcon({ className }: P) {
   return (
-    <svg viewBox="0 0 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
+    <svg viewBox="0 18 200 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden className={className}>
       <defs>
         <linearGradient id="ctrlbody" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#2c2c2e" />
