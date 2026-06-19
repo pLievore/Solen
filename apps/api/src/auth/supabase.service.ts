@@ -1,5 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import type { WebSocketLikeConstructor } from "@supabase/realtime-js";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import WebSocket from "ws";
+
+const serverWebSocket = WebSocket as unknown as WebSocketLikeConstructor;
 
 /**
  * Cliente Supabase no servidor (chave secreta = service role).
@@ -19,6 +23,7 @@ export class SupabaseService {
     }
     this.client = createClient(url, key, {
       auth: { persistSession: false, autoRefreshToken: false },
+      realtime: { transport: serverWebSocket },
     });
   }
 }
