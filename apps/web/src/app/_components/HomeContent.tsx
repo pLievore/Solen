@@ -88,63 +88,93 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
       </section>
 
       {/* ── Categorias ───────────────────────────────────────────── */}
-      <section id="categorias" className="mx-auto max-w-5xl px-6 py-16">
+      <section
+        id="categorias"
+        className="relative overflow-hidden border-b border-border/60 bg-gradient-to-b from-bg via-surface/40 to-bg py-20"
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-20 h-64 w-64 -translate-x-1/2 rounded-full bg-brand/5 blur-3xl"
+        />
+        <div className="relative mx-auto max-w-6xl px-6">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={ease}
-          className="mb-8 text-center"
+          className="mx-auto mb-10 max-w-xl text-center"
         >
-          <h2 className="text-2xl font-bold">O que você quer vender?</h2>
-          <p className="mt-1 text-muted">Escolha a categoria para começar</p>
+          <span className="inline-flex items-center rounded-full border border-brand/20 bg-brand-subtle px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand-subtle-fg">
+            Avaliação rápida
+          </span>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">
+            O que você quer vender?
+          </h2>
+          <p className="mt-3 text-base leading-relaxed text-muted">
+            Escolha uma categoria e descubra quanto seu item pode valer.
+          </p>
         </motion.div>
 
         {categories.length === 0 ? (
           <p className="text-center text-muted">Catálogo indisponível no momento.</p>
         ) : (
           <motion.div
-            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+            className="flex flex-wrap justify-center gap-4 sm:gap-5"
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
             variants={stagger(0.05)}
           >
             {categories.map((c) => (
-              <motion.div key={c.id} variants={fadeUp} transition={ease}>
+              <motion.div
+                key={c.id}
+                variants={fadeUp}
+                transition={ease}
+                className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.875rem)] lg:w-[calc(25%-0.95rem)]"
+              >
                 <Link
                   href={`/vender/${c.slug}`}
-                  className="group flex flex-col items-center rounded-2xl border border-border bg-surface shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand hover:shadow-[0_8px_32px_rgba(22,163,74,0.15)] active:scale-[0.98] overflow-hidden"
+                  className="group flex h-full min-h-[220px] flex-col items-center overflow-hidden rounded-2xl border border-border/80 bg-bg shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand/70 hover:shadow-[0_16px_40px_rgba(22,163,74,0.14)] active:scale-[0.98]"
                 >
                   {/* Device illustration area */}
-                  <div className="relative flex w-full items-center justify-center bg-gradient-to-b from-surface-2 to-surface pt-6 pb-3 px-4">
+                  <div className="relative flex min-h-[145px] w-full flex-1 items-center justify-center bg-gradient-to-b from-surface-2/80 to-surface px-4 pb-4 pt-7">
+                    <div
+                      aria-hidden
+                      className="absolute inset-x-8 bottom-4 h-8 rounded-full bg-brand/5 blur-xl transition duration-300 group-hover:bg-brand/10"
+                    />
                     {c.iconUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={c.iconUrl}
                         alt=""
-                        className="h-24 w-auto max-w-[80%] object-contain drop-shadow-lg transition duration-300 group-hover:scale-105"
+                        className="relative h-24 w-auto max-w-[80%] object-contain drop-shadow-lg transition duration-300 group-hover:scale-110"
                       />
                     ) : (
                       <CategoryIcon
                         slug={c.slug}
-                        className="h-24 w-auto max-w-[80%] drop-shadow-lg transition duration-300 group-hover:scale-105"
+                        className="relative h-24 w-auto max-w-[80%] drop-shadow-lg transition duration-300 group-hover:scale-110"
                       />
                     )}
                   </div>
 
                   {/* Label */}
-                  <div className="w-full border-t border-border px-3 py-3 text-center">
-                    <span className="text-sm font-semibold transition-colors duration-200 group-hover:text-brand">
+                  <div className="w-full border-t border-border/70 px-3 py-4 text-center">
+                    <span className="text-sm font-semibold tracking-tight transition-colors duration-200 group-hover:text-brand">
                       {c.name}
                     </span>
-                    <p className="mt-0.5 text-xs text-muted">Avaliar agora →</p>
+                    <p className="mt-1 text-xs font-medium text-muted transition-colors group-hover:text-brand">
+                      Avaliar agora{" "}
+                      <span className="inline-block transition-transform group-hover:translate-x-1">
+                        →
+                      </span>
+                    </p>
                   </div>
                 </Link>
               </motion.div>
             ))}
           </motion.div>
         )}
+        </div>
       </section>
 
       {/* ── Como funciona ────────────────────────────────────────── */}
