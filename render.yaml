@@ -23,6 +23,10 @@ services:
       - key: SUPABASE_SECRET_KEY
         sync: false
       - key: CORS_ORIGIN
-        sync: false # ex.: https://vendy-shop.vercel.app
+        sync: false # https://www.vendybrasil.com,https://vendybrasil.com
       - key: WHATSAPP_PHONE
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false # ex.: propostas@vendybrasil.com (dominio verificado no Resend)

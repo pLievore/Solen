@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { Request } from "express";
 
-export type AuthUser = { id: string; email?: string };
+export type AuthUser = { id: string; email?: string; role: "admin" };
 
 /** Injeta o usuario autenticado (definido pelo SupabaseAuthGuard). */
 export const CurrentUser = createParamDecorator(

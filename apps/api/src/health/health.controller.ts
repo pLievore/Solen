@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, ServiceUnavailableException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 
 @Controller("health")
@@ -15,11 +15,15 @@ export class HealthController {
       db = "down";
     }
 
-    return {
+    const result = {
       status: db === "up" ? "ok" : "degraded",
       service: "vendy-api",
       db,
       timestamp: new Date().toISOString(),
     };
+    if (db !== "up") {
+      throw new ServiceUnavailableException(result);
+    }
+    return result;
   }
 }

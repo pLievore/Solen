@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiPost } from "@/lib/api";
 import { PICKUP_POINTS, type PickupPointId } from "@vendy/shared";
 import PublicShell from "@/components/PublicShell";
 import { fadeUp, scaleIn, stagger, ease } from "@/components/motion";
+import { track } from "@/lib/analytics";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -168,6 +170,11 @@ export default function PropostaPage() {
     if (!quote || !validate()) return;
     setSubmitError(null);
     setPhase("pickup");
+    track("pickup_step_viewed", {
+      variant_id: quote.variantId,
+      value: quote.value / 100,
+      is_scrap: quote.isScrap,
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -195,6 +202,17 @@ export default function PropostaPage() {
         pickupPointId: pickupId,
       });
       sessionStorage.removeItem(STORAGE_KEY);
+      track("proposal_created", {
+        token: response.token,
+        variant_id: quote.variantId,
+        pickup_point: pickupId,
+        value: quote.value / 100,
+        is_scrap: quote.isScrap,
+      });
+      track("whatsapp_redirect", {
+        token: response.token,
+        pickup_point: pickupId,
+      });
       window.location.href = response.whatsappUrl;
     } catch (err: unknown) {
       const status = (err as { status?: number }).status;
@@ -372,6 +390,18 @@ export default function PropostaPage() {
                 Continuar
                 <span className="transition group-hover:translate-x-0.5">→</span>
               </motion.button>
+              <p className="mt-3 text-center text-xs leading-relaxed text-muted">
+                Ao continuar, seus dados serão usados para calcular a proposta,
+                entrar em contato e organizar a entrega. Consulte nossa{" "}
+                <Link
+                  href="/privacidade"
+                  target="_blank"
+                  className="underline hover:text-brand"
+                >
+                  Política de Privacidade
+                </Link>
+                .
+              </p>
             </motion.div>
           </form>
           </>

@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import LgpdBanner from "./_components/LgpdBanner";
+import AnalyticsConsent from "./_components/AnalyticsConsent";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendy-shop.vercel.app";
+const SITE_URL = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
+).replace(/\/+$/, "");
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -13,6 +16,7 @@ export const metadata: Metadata = {
   description:
     "Venda iPhones, iPads, Apple Watch, consoles e eletrônicos usados, quebrados ou seminovos. Avaliação rápida e proposta na hora.",
   openGraph: {
+    url: SITE_URL,
     siteName: "Vendy",
     locale: "pt_BR",
     type: "website",
@@ -27,25 +31,39 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${SITE_URL}/#organization`,
+        name: "Vendy",
+        url: SITE_URL,
+        logo: `${SITE_URL}/icon.svg`,
+      },
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: "Vendy",
+        publisher: { "@id": `${SITE_URL}/#organization` },
+        inLanguage: "pt-BR",
+      },
+    ],
+  };
   return (
     <html lang="pt-BR" data-theme="light">
       <head>
-        {gaId && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}',{page_path:window.location.pathname});`,
-              }}
-            />
-          </>
-        )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
       </head>
       <body>
         {children}
+        <AnalyticsConsent gaId={gaId} />
         <LgpdBanner />
       </body>
     </html>

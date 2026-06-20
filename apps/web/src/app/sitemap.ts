@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { apiGet } from "@/lib/api";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendy.com.br";
+const BASE = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
+).replace(/\/+$/, "");
 
 type PostRow = { slug: string; publishedAt: string };
 type CategoryRow = { slug: string; updatedAt?: string };
@@ -43,6 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: BASE, lastModified: new Date(), changeFrequency: "weekly", priority: 1.0 },
     { url: `${BASE}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
+    { url: `${BASE}/privacidade`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({

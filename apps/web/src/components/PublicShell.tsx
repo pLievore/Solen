@@ -89,14 +89,14 @@ export default function PublicShell({ children }: { children: React.ReactNode })
 
       {/* Page content */}
       <AnimatePresence mode="wait">
-        <motion.div
+        <motion.main
           key={pathname}
           className="flex-1"
           {...fadeIn}
           transition={{ duration: 0.2 }}
         >
           {children}
-        </motion.div>
+        </motion.main>
       </AnimatePresence>
 
       {/* Footer */}

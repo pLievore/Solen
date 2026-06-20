@@ -11,11 +11,15 @@ export default function LgpdBanner() {
 
   useEffect(() => {
     if (pathname.startsWith("/admin")) return;
-    if (!localStorage.getItem(KEY)) setVisible(true);
+    const choice = localStorage.getItem(KEY);
+    if (choice !== "accepted" && choice !== "rejected") setVisible(true);
   }, [pathname]);
 
-  function accept() {
-    localStorage.setItem(KEY, "1");
+  function choose(value: "accepted" | "rejected") {
+    localStorage.setItem(KEY, value);
+    window.dispatchEvent(
+      new CustomEvent("vendy-consent-changed", { detail: value }),
+    );
     setVisible(false);
   }
 
@@ -25,18 +29,26 @@ export default function LgpdBanner() {
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-bg px-4 py-3 shadow-lg sm:px-6">
       <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
-          Usamos cookies para melhorar sua experiência. Ao continuar, você concorda com nossa{" "}
+          Usamos cookies opcionais de analytics para melhorar sua experiência.{" "}
           <a href="/privacidade" className="underline hover:text-brand">
             política de privacidade
           </a>
           .
         </p>
-        <button
-          onClick={accept}
-          className="rounded bg-brand px-4 py-1.5 text-sm font-medium text-brand-fg hover:opacity-90"
-        >
-          Entendi
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => choose("rejected")}
+            className="rounded-lg border border-border px-4 py-1.5 text-sm font-medium transition hover:border-brand"
+          >
+            Recusar
+          </button>
+          <button
+            onClick={() => choose("accepted")}
+            className="rounded-lg bg-brand px-4 py-1.5 text-sm font-medium text-brand-fg hover:bg-brand-dark"
+          >
+            Aceitar
+          </button>
+        </div>
       </div>
     </div>
   );

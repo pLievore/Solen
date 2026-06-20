@@ -616,7 +616,7 @@ async function main() {
   // Configuracoes iniciais
   const settings: Record<string, unknown> = {
     whatsapp_phone: process.env.WHATSAPP_PHONE ?? "5599999999999",
-    "home.headline": "Venda seus usados",
+    "home.headline": "Venda seus usados na hora",
     "scrap.defaultValue": 10000,
     notify_email: "",
     whatsapp_message_template:

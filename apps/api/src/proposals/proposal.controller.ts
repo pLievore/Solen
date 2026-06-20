@@ -1,12 +1,11 @@
-import { Body, Controller, Post, UseGuards } from "@nestjs/common";
-import { ThrottlerGuard, Throttle } from "@nestjs/throttler";
+import { Body, Controller, Post } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { createProposalSchema, type CreateProposal } from "@vendy/shared";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { ProposalService } from "./proposal.service";
 
 /** Criação pública de propostas/leads — com rate limit por IP. */
 @Controller("proposals")
-@UseGuards(ThrottlerGuard)
 export class ProposalController {
   constructor(private readonly proposalService: ProposalService) {}
 

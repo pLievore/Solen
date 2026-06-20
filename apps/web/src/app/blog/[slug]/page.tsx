@@ -34,14 +34,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await getPost(slug);
   if (!post) return { title: "Post não encontrado" };
+  const title = (post.seoTitle ?? post.title).replace(
+    /\s*(?:\||—|-)\s*(?:Solen|Vendy)\s*$/i,
+    "",
+  );
   return {
-    title: post.seoTitle ?? post.title,
+    title,
     description: post.metaDescription ?? post.excerpt ?? undefined,
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
-      title: post.seoTitle ?? post.title,
+      title,
       description: post.metaDescription ?? post.excerpt ?? undefined,
       type: "article",
       publishedTime: post.publishedAt,
+      url: `/blog/${post.slug}`,
       ...(post.coverImageUrl ? { images: [post.coverImageUrl] } : {}),
     },
   };
@@ -57,10 +63,31 @@ export default async function BlogPostPage({
   if (!post) notFound();
 
   const readingTime = Math.max(1, Math.ceil(post.content.replace(/<[^>]+>/g, "").split(/\s+/).length / 200));
+  const siteUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
+  ).replace(/\/+$/, "");
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.metaDescription ?? post.excerpt ?? undefined,
+    datePublished: post.publishedAt,
+    mainEntityOfPage: `${siteUrl}/blog/${post.slug}`,
+    publisher: {
+      "@type": "Organization",
+      name: "Vendy",
+      url: siteUrl,
+    },
+    ...(post.coverImageUrl ? { image: [post.coverImageUrl] } : {}),
+  };
 
   return (
     <PublicShell>
       <article className="mx-auto max-w-2xl px-6 py-16">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
+        />
         {post.coverImageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img

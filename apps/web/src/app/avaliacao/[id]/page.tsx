@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { apiGet, API_BASE_URL } from "@/lib/api";
 import PublicShell from "@/components/PublicShell";
 import { fadeUp, scaleIn, stagger, ease, easeFast } from "@/components/motion";
+import { track } from "@/lib/analytics";
 
 const QUOTE_STORAGE_KEY = "vendy_quote";
 
@@ -191,7 +192,13 @@ export default function EvaluationPage() {
         }),
       });
       if (!res.ok) throw new Error("Falha no cálculo");
-      setResult(await res.json());
+      const quote = (await res.json()) as QuoteResult;
+      setResult(quote);
+      track("quote_generated", {
+        variant_id: id,
+        value: quote.value / 100,
+        is_scrap: quote.isScrap,
+      });
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -363,6 +370,11 @@ export default function EvaluationPage() {
                       breakdown: result.breakdown,
                     }),
                   );
+                  track("lead_form_started", {
+                    variant_id: id,
+                    value: result.value / 100,
+                    is_scrap: result.isScrap,
+                  });
                   router.push("/proposta");
                 }}
               >

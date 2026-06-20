@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://vendy.com.br";
+const BASE = (
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
+).replace(/\/+$/, "");
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/"],
+        disallow: ["/admin/", "/api/", "/avaliacao/", "/proposta"],
       },
     ],
     sitemap: `${BASE}/sitemap.xml`,

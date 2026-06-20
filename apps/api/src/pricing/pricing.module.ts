@@ -8,6 +8,7 @@ import {
 import { KnockoutController } from "./knockout.controller";
 import { SettingsController } from "./settings.controller";
 import { ModelDetailedStatesController } from "./model-detailed-states.controller";
+import { PublicSettingsController } from "./public-settings.controller";
 
 @Module({
   controllers: [
@@ -18,6 +19,7 @@ import { ModelDetailedStatesController } from "./model-detailed-states.controlle
     KnockoutController,
     SettingsController,
     ModelDetailedStatesController,
+    PublicSettingsController,
   ],
 })
 export class PricingModule {}

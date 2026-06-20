@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
@@ -13,6 +13,8 @@ import { QuoteService } from "../evaluation/quote.service";
 
 @Injectable()
 export class ProposalService {
+  private readonly logger = new Logger(ProposalService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly quoteService: QuoteService,
@@ -87,8 +89,17 @@ export class ProposalService {
       },
     });
 
-    // 5. Send email notification (fire-and-forget; errors are silenced)
-    this.sendEmailNotification(token, input, quote, variantLabel, pickupLabel).catch(() => {/* silent */});
+    // 5. Envia a notificação sem atrasar a resposta, mas registra falhas.
+    this.sendEmailNotification(
+      token,
+      input,
+      quote,
+      variantLabel,
+      pickupLabel,
+    ).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.warn(`Falha ao notificar a proposta ${token}: ${message}`);
+    });
 
     return {
       token,

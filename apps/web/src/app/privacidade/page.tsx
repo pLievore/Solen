@@ -4,16 +4,17 @@ import PublicShell from "@/components/PublicShell";
 export const metadata: Metadata = {
   title: "Política de Privacidade",
   description: "Como a Vendy coleta, usa e protege seus dados pessoais (LGPD).",
+  alternates: { canonical: "/privacidade" },
   robots: { index: true, follow: true },
 };
 
 export default function PrivacyPage() {
   return (
     <PublicShell>
-      <main className="mx-auto max-w-2xl px-6 py-16">
+      <div className="mx-auto max-w-2xl px-6 py-16">
         <h1 className="text-3xl font-bold">Política de Privacidade</h1>
         <p className="mt-2 text-sm text-muted">
-          Última atualização: {new Date().toLocaleDateString("pt-BR")}
+          Última atualização: 20 de junho de 2026
         </p>
 
         <div className="prose prose-sm mt-8 max-w-none space-y-6 text-sm leading-relaxed">
@@ -92,7 +93,7 @@ export default function PrivacyPage() {
             profissional jurídico antes do lançamento oficial.
           </p>
         </div>
-      </main>
+      </div>
     </PublicShell>
   );
 }

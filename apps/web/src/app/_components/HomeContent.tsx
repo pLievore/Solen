@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import PublicShell from "@/components/PublicShell";
 import CategoryIcon from "@/components/CategoryIcon";
 import { fadeUp, stagger, ease } from "@/components/motion";
+import { track } from "@/lib/analytics";
 
 type Category = { id: string; name: string; slug: string; iconUrl: string | null };
 
@@ -33,7 +34,20 @@ const STEPS = [
   },
 ];
 
-export default function HomeContent({ categories }: { categories: Category[] }) {
+export default function HomeContent({
+  categories,
+  headline,
+}: {
+  categories: Category[];
+  headline: string;
+}) {
+  const highlight = "na hora";
+  const highlightAt = headline.toLocaleLowerCase("pt-BR").lastIndexOf(highlight);
+  const headlineStart =
+    highlightAt >= 0 ? headline.slice(0, highlightAt) : headline;
+  const headlineEnd =
+    highlightAt >= 0 ? headline.slice(highlightAt + highlight.length) : "";
+
   return (
     <PublicShell>
       {/* ── Hero ─────────────────────────────────────────────────── */}
@@ -68,8 +82,11 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
               transition={ease}
               className="mt-2 text-5xl font-bold tracking-tight text-white sm:text-6xl"
             >
-              Venda seus usados{" "}
-              <span className="text-brand">na hora</span>
+              {headlineStart}
+              {highlightAt >= 0 && (
+                <span className="text-brand">{highlight}</span>
+              )}
+              {headlineEnd}
             </motion.h1>
 
             <motion.p
@@ -143,6 +160,12 @@ export default function HomeContent({ categories }: { categories: Category[] }) 
               >
                 <Link
                   href={`/vender/${c.slug}`}
+                  onClick={() =>
+                    track("category_selected", {
+                      category: c.slug,
+                      category_name: c.name,
+                    })
+                  }
                   className="group flex h-full min-h-[220px] flex-col items-center overflow-hidden rounded-2xl border border-border/80 bg-bg shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand/70 hover:shadow-[0_16px_40px_rgba(22,163,74,0.14)] active:scale-[0.98]"
                 >
                   {/* Device illustration area */}

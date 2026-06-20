@@ -28,7 +28,7 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 ## Fase 0 — Fundação & Setup
 **Objetivo:** esqueleto rodando local e em deploy, com tema configurável.
 
-**Entregáveis** — ✅ **concluída** (exceto deploy, adiado)
+**Entregáveis** — ✅ **concluída**
 - [x] Monorepo pnpm (`apps/web`, `apps/api`, `packages/shared`).
 - [x] `apps/api`: NestJS + Prisma + conexão Supabase Postgres. _(Fizemos o schema completo já aqui, não vazio.)_
 - [x] `apps/web`: Next.js (App Router) + Tailwind + **design tokens** (branco/preto/verde) em `tokens.css`.
@@ -36,7 +36,7 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 - [x] Projeto Supabase criado (DB + Auth + bucket `catalog`).
 - [x] Auth: scaffold de login do admin (Supabase Auth) + Guard na API. _(Testado ponta a ponta.)_
 - [~] CI básico: lint + typecheck. _(workflow `.github/workflows/ci.yml` e eslint configurados; falta validar verde no GitHub.)_
-- [ ] Deploy: web na **Vercel**, API em **Render/Fly**. _(Adiado por decisão — configs `vercel.json`/`render.yaml`/`DEPLOY.md` já prontos.)_
+- [x] Deploy: web na **Vercel**, API no **Render**.
 - [x] `.env.example` preenchido e documentado.
 
 **Critério de aceite:** `pnpm dev:web` e `pnpm dev:api` sobem; home consome `GET /health`; login admin autentica. ✅
@@ -63,7 +63,7 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 **Objetivo:** o visitante navega da home até receber um **valor calculado**.
 
 **Entregáveis** — ✅ **concluída**
-- [x] **Home:** headline "Venda seus usados" + grade de categorias com ícones (do catálogo, **SSR**).
+- [x] **Home:** headline "Venda seus usados na hora" + grade de categorias com ícones (do catálogo, **SSR**).
 - [x] **Seleção em cascata:** Categoria → Modelo → Versão (dados da API).
 - [x] **Fluxo de avaliação:** Bloco 1 (knockout/chaves), Bloco 2 (estado/seleção), Bloco 3 (detalhados/chaves) + textos de ajuda.
 - [x] **Roteamento de sucata:** pergunta eliminatória → tela de sucata.
@@ -122,15 +122,21 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 
 **Entregáveis** — ✅ **concluída** (núcleo)
 - [x] Configurações no painel: WhatsApp, template de mensagem, `notify_email`, `scrap.defaultValue`, headline da home — todos editáveis sem deploy.
-- [x] **Analytics GA4** — script injetado condicionalmente via `NEXT_PUBLIC_GA_ID` no `layout.tsx`.
-- [x] **Aviso LGPD** — banner de cookies com aceite persistido em `localStorage`.
+- [x] **Analytics GA4** — carregado somente após consentimento e quando
+  `NEXT_PUBLIC_GA_ID` estiver configurado.
+- [x] **Aviso LGPD** — banner com opções de aceitar ou recusar persistidas em
+  `localStorage`.
 - [x] SEO global: `metadataBase`, OG defaults, `robots` no root layout; `sitemap.xml` e `robots.txt` dinâmicos.
 - [ ] Sentry / monitoramento de erros. _(pode adicionar após deploy)_
-- [ ] Política de privacidade `/privacidade`. _(página estática, adicionar antes do lançamento)_
+- [x] Política de privacidade `/privacidade` publicada. _(revisão jurídica ainda recomendada)_
 - [ ] QA Playwright fim a fim + checklist de lançamento. _(pré-lançamento)_
-- [ ] Deploy de produção + domínio + Google Search Console. _(pendente configuração do domínio)_
+- [x] Deploy de produção + domínio `www.vendybrasil.com`.
+- [ ] Confirmar propagação do redirecionamento de `vendybrasil.com` para `www`.
+- [ ] Google Search Console e envio do sitemap.
+- [x] RLS/grants fechados no Supabase + autorização por papel administrativo.
 
-**Critério de aceite:** tema ajustável pelo painel ✅, GA4 integrado ✅, LGPD ✅, SEO técnico ✅. Deploy pendente definição de domínio.
+**Critério de aceite:** tema ajustável pelo painel ✅, consentimento de analytics
+✅, LGPD ✅, SEO técnico ✅, deploy e domínio ✅.
 
 ---
 
@@ -154,7 +160,8 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 2. ✅ **Deltas:** globais no MVP (override por versão fica para o futuro).
 3. ✅ **"Já aberto para manutenção?":** desconta (Estado Detalhado com delta).
 4. ✅ **Notificação:** e-mail ao operador a cada nova proposta (RF-16, Fase 3).
-5. ⏳ **Nome/domínio:** "Vendy" provisório até a identidade final (não bloqueia).
+5. ✅ **Nome/domínio:** Vendy em `vendybrasil.com`.
 6. ✅ **Estados base:** 4 fixos, só preço editável.
 
-> Nada pendente bloqueia o início. A definição final de nome/domínio só é necessária na **Fase 6** (lançamento).
+> O produto está publicado; os itens restantes são operação, monitoramento e
+> aquisição orgânica.

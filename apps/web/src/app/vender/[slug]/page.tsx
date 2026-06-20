@@ -7,6 +7,7 @@ import { apiGet } from "@/lib/api";
 import PublicShell from "@/components/PublicShell";
 import CategoryIcon from "@/components/CategoryIcon";
 import { fadeUp, scaleIn, stagger, ease, easeFast } from "@/components/motion";
+import { track } from "@/lib/analytics";
 
 type Model = { id: string; name: string; slug: string };
 type Variant = {
@@ -44,6 +45,12 @@ export default function SelectPage() {
   }, [modelId]);
 
   async function pickModel(id: string) {
+    const selectedModel = models.find((model) => model.id === id);
+    track("model_selected", {
+      category: slug,
+      model_id: id,
+      model_name: selectedModel?.name,
+    });
     setModelId(id);
     setVariantId(null);
     setVariants([]);
@@ -191,7 +198,15 @@ export default function SelectPage() {
                       transition={easeFast}
                       whileHover={{ y: -2 }}
                       whileTap={{ scale: 0.97 }}
-                      onClick={() => setVariantId(v.id)}
+                      onClick={() => {
+                        setVariantId(v.id);
+                        track("variant_selected", {
+                          category: slug,
+                          model_id: modelId ?? undefined,
+                          variant_id: v.id,
+                          variant_name: v.name,
+                        });
+                      }}
                       className={`rounded-xl border px-4 py-3.5 text-sm font-medium text-left shadow-sm transition-all duration-200 ${
                         variantId === v.id
                           ? "border-brand bg-brand-subtle text-brand-subtle-fg shadow-brand/30"
@@ -230,7 +245,14 @@ export default function SelectPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => router.push(`/avaliacao/${variantId}`)}
+                onClick={() => {
+                  track("evaluation_started", {
+                    category: slug,
+                    model_id: modelId ?? undefined,
+                    variant_id: variantId ?? undefined,
+                  });
+                  router.push(`/avaliacao/${variantId}`);
+                }}
                 className="group flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-base font-semibold text-brand-fg shadow-brand transition hover:bg-brand-dark"
               >
                 Avaliar meu aparelho
