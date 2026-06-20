@@ -7,6 +7,7 @@ import {
 } from "./detailed-states.controller";
 import { KnockoutController } from "./knockout.controller";
 import { SettingsController } from "./settings.controller";
+import { ModelDetailedStatesController } from "./model-detailed-states.controller";
 
 @Module({
   controllers: [
@@ -16,6 +17,7 @@ import { SettingsController } from "./settings.controller";
     VariantDetailedStatesController,
     KnockoutController,
     SettingsController,
+    ModelDetailedStatesController,
   ],
 })
 export class PricingModule {}
