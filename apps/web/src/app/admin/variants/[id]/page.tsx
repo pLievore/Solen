@@ -129,12 +129,12 @@ export default function VariantDetailPage() {
         <p className="font-medium">Precos base por estado (R$)</p>
         <div className="space-y-2">
           {states.map((s) => (
-            <div key={s.id} className="flex items-center gap-3">
+            <div key={s.id} className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3">
               <label className="flex-1 text-sm">{s.label}</label>
               <input
                 type="number"
                 step="0.01"
-                className={cls.input + " w-32"}
+                className={cls.input + " sm:w-32"}
                 value={priceMap[s.id] ?? ""}
                 onChange={(e) => setPriceMap((m) => ({ ...m, [s.id]: e.target.value }))}
               />
@@ -150,11 +150,11 @@ export default function VariantDetailPage() {
         <p className="text-xs text-muted">
           Usado quando uma pergunta eliminatoria e acionada. Vazio = usa o padrao global.
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <input
             type="number"
             step="0.01"
-            className={cls.input + " w-32"}
+            className={cls.input + " sm:w-32"}
             value={scrap}
             onChange={(e) => setScrap(e.target.value)}
           />

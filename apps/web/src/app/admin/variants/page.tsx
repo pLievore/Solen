@@ -79,7 +79,7 @@ export default function VariantsPage() {
 
       <div className={cls.card + " space-y-3"}>
         <p className="font-medium">Nova versao</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Modelo</label>
             <select
@@ -128,37 +128,39 @@ export default function VariantsPage() {
         </button>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className={cls.th}>Versao</th>
-            <th className={cls.th}>Modelo</th>
-            <th className={cls.th}>Sucata</th>
-            <th className={cls.th}>Ativa</th>
-            <th className={cls.th}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((v) => (
-            <tr key={v.id}>
-              <td className={cls.td}>{v.name}</td>
-              <td className={cls.td + " text-muted"}>{v.model?.name}</td>
-              <td className={cls.td}>
-                {v.scrapPrice != null ? `R$ ${(v.scrapPrice / 100).toFixed(2)}` : "—"}
-              </td>
-              <td className={cls.td}>{v.active ? "Sim" : "Nao"}</td>
-              <td className={cls.td}>
-                <div className="flex gap-2">
-                  <Link className={cls.btnGhost} href={`/admin/variants/${v.id}`}>
-                    Precos / Estados
-                  </Link>
-                  <button className={cls.btnDanger} onClick={() => remove(v.id)}>Excluir</button>
-                </div>
-              </td>
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+        <table className="w-full min-w-[680px] border-collapse">
+          <thead>
+            <tr className="bg-surface-2/70">
+              <th className={cls.th}>Versao</th>
+              <th className={cls.th}>Modelo</th>
+              <th className={cls.th}>Sucata</th>
+              <th className={cls.th}>Ativa</th>
+              <th className={cls.th}></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((v) => (
+              <tr key={v.id} className="hover:bg-surface-2/50">
+                <td className={cls.td}>{v.name}</td>
+                <td className={cls.td + " text-muted"}>{v.model?.name}</td>
+                <td className={cls.td}>
+                  {v.scrapPrice != null ? `R$ ${(v.scrapPrice / 100).toFixed(2)}` : "—"}
+                </td>
+                <td className={cls.td}>{v.active ? "Sim" : "Nao"}</td>
+                <td className={cls.td}>
+                  <div className="flex gap-2">
+                    <Link className={cls.btnGhost} href={`/admin/variants/${v.id}`}>
+                      Precos / Estados
+                    </Link>
+                    <button className={cls.btnDanger} onClick={() => remove(v.id)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

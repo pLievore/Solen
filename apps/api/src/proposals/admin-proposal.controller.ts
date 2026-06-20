@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -8,6 +9,7 @@ import {
   Query,
   UseGuards,
 } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
 import { PrismaService } from "../prisma/prisma.service";
@@ -18,15 +20,27 @@ const patchStatusSchema = z.object({
 });
 type PatchStatus = z.infer<typeof patchStatusSchema>;
 
-const listQuerySchema = z.object({
+const filtersQuerySchema = z.object({
   status: z.enum(["NEW", "CONTACTED", "CLOSED", "LOST"]).optional(),
   token: z.string().optional(),
+  category: z.string().optional(),
+  model: z.string().optional(),
+  pickup: z.string().optional(),
+  minValue: z.coerce.number().int().min(0).optional(),
+  maxValue: z.coerce.number().int().positive().optional(),
+  days: z
+    .union([z.coerce.number().int().positive(), z.literal("all")])
+    .default("all"),
   sort: z.enum(["createdAt", "calculatedValue"]).default("createdAt"),
   order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+const listQuerySchema = filtersQuerySchema.extend({
   skip: z.coerce.number().int().min(0).default(0),
   take: z.coerce.number().int().min(1).max(100).default(20),
 });
 type ListQuery = z.infer<typeof listQuerySchema>;
+type FiltersQuery = z.infer<typeof filtersQuerySchema>;
 
 @Controller("admin/proposals")
 @UseGuards(SupabaseAuthGuard)
@@ -36,11 +50,9 @@ export class AdminProposalController {
   /** GET /api/admin/proposals — lista paginada com filtros. */
   @Get()
   async list(@Query(new ZodValidationPipe(listQuerySchema)) q: ListQuery) {
-    const where: Record<string, unknown> = {};
-    if (q.status) where.status = q.status;
-    if (q.token) where.token = { contains: q.token.toUpperCase(), mode: "insensitive" };
+    const where = proposalWhere(q);
 
-    const [total, items] = await Promise.all([
+    const [total, items, aggregate, closed, categories, pickups] = await Promise.all([
       this.prisma.proposal.count({ where }),
       this.prisma.proposal.findMany({
         where,
@@ -49,13 +61,108 @@ export class AdminProposalController {
         take: q.take,
         include: {
           variant: {
-            include: { model: true },
+            include: { model: { include: { category: true } } },
           },
         },
       }),
+      this.prisma.proposal.aggregate({
+        where,
+        _sum: { calculatedValue: true },
+        _avg: { calculatedValue: true },
+      }),
+      this.prisma.proposal.count({ where: { AND: [where, { status: "CLOSED" }] } }),
+      this.prisma.category.findMany({
+        where: {
+          models: {
+            some: {
+              variants: {
+                some: { proposals: { some: {} } },
+              },
+            },
+          },
+        },
+        select: { name: true },
+        orderBy: [{ order: "asc" }, { name: "asc" }],
+      }),
+      this.prisma.proposal.findMany({
+        distinct: ["pickupPoint"],
+        select: { pickupPoint: true },
+        orderBy: { pickupPoint: "asc" },
+      }),
     ]);
 
-    return { total, skip: q.skip, take: q.take, items };
+    return {
+      total,
+      skip: q.skip,
+      take: q.take,
+      items,
+      summary: {
+        totalValue: aggregate._sum.calculatedValue ?? 0,
+        avgTicket: Math.round(aggregate._avg.calculatedValue ?? 0),
+        closed,
+        conversionRate: total ? closed / total : 0,
+      },
+      filters: {
+        categories: categories.map((category) => category.name),
+        pickupPoints: pickups.map(({ pickupPoint }) => ({
+          value: pickupPoint ?? "__none__",
+          label: pickupPoint ?? "Não informado",
+        })),
+      },
+    };
+  }
+
+  /** GET /api/admin/proposals/export — exporta todas as propostas filtradas. */
+  @Get("export")
+  async export(@Query(new ZodValidationPipe(filtersQuerySchema)) q: FiltersQuery) {
+    const items = await this.prisma.proposal.findMany({
+      where: proposalWhere(q),
+      orderBy: { [q.sort]: q.order },
+      include: {
+        variant: {
+          include: { model: { include: { category: true } } },
+        },
+      },
+    });
+
+    const header = [
+      "Token",
+      "Data",
+      "Status",
+      "Categoria",
+      "Modelo",
+      "Versão",
+      "Valor (R$)",
+      "Sucata",
+      "Vendedor",
+      "WhatsApp",
+      "Cidade",
+      "Bairro",
+      "CEP",
+      "Ponto de coleta",
+    ];
+    const rows = items.map((proposal) => [
+      proposal.token,
+      proposal.createdAt.toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }),
+      proposal.status,
+      proposal.variant.model.category.name,
+      proposal.variant.model.name,
+      proposal.variant.name,
+      (proposal.calculatedValue / 100).toFixed(2).replace(".", ","),
+      proposal.isScrap ? "Sim" : "Não",
+      proposal.sellerName,
+      proposal.sellerWhatsapp,
+      proposal.city,
+      proposal.neighborhood,
+      proposal.cep,
+      proposal.pickupPoint ?? "Não informado",
+    ]);
+    const csv = `\uFEFF${[header, ...rows]
+      .map((row) => row.map(csvCell).join(";"))
+      .join("\r\n")}`;
+    const date = new Date().toISOString().slice(0, 10);
+
+    return { csv, filename: `propostas-${date}.csv`, total: items.length };
   }
 
   /** GET /api/admin/proposals/:id — detalhe completo. */
@@ -89,4 +196,53 @@ export class AdminProposalController {
       select: { id: true, status: true },
     });
   }
+
+  /** DELETE /api/admin/proposals/:id — exclui uma proposta. */
+  @Delete(":id")
+  async remove(@Param("id") id: string) {
+    const exists = await this.prisma.proposal.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!exists) throw new NotFoundException("Proposta não encontrada");
+
+    await this.prisma.proposal.delete({ where: { id } });
+    return { id };
+  }
+}
+
+function proposalWhere(q: FiltersQuery): Prisma.ProposalWhereInput {
+  const where: Prisma.ProposalWhereInput = {};
+  if (q.status) where.status = q.status;
+  if (q.token) {
+    where.token = { contains: q.token.trim().toUpperCase(), mode: "insensitive" };
+  }
+  if (q.category || q.model) {
+    where.variant = {
+      model: {
+        ...(q.model ? { name: q.model } : {}),
+        ...(q.category ? { category: { name: q.category } } : {}),
+      },
+    };
+  }
+  if (q.pickup) {
+    where.pickupPoint = q.pickup === "__none__" ? null : q.pickup;
+  }
+  if (q.minValue !== undefined || q.maxValue !== undefined) {
+    where.calculatedValue = {
+      ...(q.minValue !== undefined ? { gte: q.minValue } : {}),
+      ...(q.maxValue !== undefined ? { lt: q.maxValue } : {}),
+    };
+  }
+  if (q.days !== "all") {
+    where.createdAt = {
+      gte: new Date(Date.now() - q.days * 86_400_000),
+    };
+  }
+  return where;
+}
+
+function csvCell(value: string): string {
+  const safe = /^[=+\-@]/.test(value) ? `'${value}` : value;
+  return `"${safe.replace(/"/g, '""')}"`;
 }

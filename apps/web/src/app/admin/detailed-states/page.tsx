@@ -93,7 +93,7 @@ export default function DetailedStatesPage() {
             onChange={(e) => setDraft((d) => ({ ...d, helpText: e.target.value }))}
           />
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div>
             <label className={cls.label}>Delta &quot;Sim&quot; (R$)</label>
             <input
@@ -130,46 +130,48 @@ export default function DetailedStatesPage() {
         </div>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className={cls.th}>Pergunta</th>
-            <th className={cls.th}>Sim</th>
-            <th className={cls.th}>Nao</th>
-            <th className={cls.th}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((d) => (
-            <tr key={d.id}>
-              <td className={cls.td}>{d.question}</td>
-              <td className={cls.td}>{reais(d.yesDelta)}</td>
-              <td className={cls.td}>{reais(d.noDelta)}</td>
-              <td className={cls.td}>
-                <div className="flex gap-2">
-                  <button
-                    className={cls.btnGhost}
-                    onClick={() =>
-                      setDraft({
-                        id: d.id,
-                        question: d.question,
-                        helpText: d.helpText ?? "",
-                        yesReais: reais(d.yesDelta),
-                        noReais: reais(d.noDelta),
-                        order: d.order,
-                        active: d.active,
-                      })
-                    }
-                  >
-                    Editar
-                  </button>
-                  <button className={cls.btnDanger} onClick={() => remove(d.id)}>Excluir</button>
-                </div>
-              </td>
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+        <table className="w-full min-w-[580px] border-collapse">
+          <thead>
+            <tr className="bg-surface-2/70">
+              <th className={cls.th}>Pergunta</th>
+              <th className={cls.th}>Sim</th>
+              <th className={cls.th}>Nao</th>
+              <th className={cls.th}></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((d) => (
+              <tr key={d.id} className="hover:bg-surface-2/50">
+                <td className={cls.td}>{d.question}</td>
+                <td className={cls.td}>{reais(d.yesDelta)}</td>
+                <td className={cls.td}>{reais(d.noDelta)}</td>
+                <td className={cls.td}>
+                  <div className="flex gap-2">
+                    <button
+                      className={cls.btnGhost}
+                      onClick={() =>
+                        setDraft({
+                          id: d.id,
+                          question: d.question,
+                          helpText: d.helpText ?? "",
+                          yesReais: reais(d.yesDelta),
+                          noReais: reais(d.noDelta),
+                          order: d.order,
+                          active: d.active,
+                        })
+                      }
+                    >
+                      Editar
+                    </button>
+                    <button className={cls.btnDanger} onClick={() => remove(d.id)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

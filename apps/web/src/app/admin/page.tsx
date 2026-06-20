@@ -22,8 +22,18 @@ type Analytics = {
   byCategory: { category: string; count: number; value: number }[];
   topModels: { model: string; category: string; count: number; value: number }[];
   byPickup: { label: string; count: number }[];
-  byValueBracket: { label: string; count: number; closed: number }[];
+  byValueBracket: {
+    label: string;
+    min: number;
+    max: number | null;
+    count: number;
+    closed: number;
+  }[];
 };
+
+const ANALYTICS_CACHE_TTL = 5 * 60_000;
+const ANALYTICS_INVALIDATED_AT_KEY = "vendy_admin_analytics_invalidated_at";
+const analyticsCache = new Map<string, { data: Analytics; cachedAt: number }>();
 
 const STATUS_LABELS: Record<string, string> = {
   NEW: "Novo",
@@ -62,16 +72,52 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
+    const cached = analyticsCache.get(days);
+    const invalidatedAt = Number(localStorage.getItem(ANALYTICS_INVALIDATED_AT_KEY) ?? 0);
+    if (
+      cached &&
+      cached.cachedAt > invalidatedAt &&
+      Date.now() - cached.cachedAt < ANALYTICS_CACHE_TTL
+    ) {
+      setData(cached.data);
+      setError(null);
+      setLoading(false);
+      return () => {
+        active = false;
+      };
+    }
+
     setLoading(true);
+    setData(null);
     setError(null);
     adminApi
       .get<Analytics>(`/admin/analytics?days=${days}`)
-      .then(setData)
-      .catch((e) => setError((e as Error).message))
-      .finally(() => setLoading(false));
+      .then((next) => {
+        if (!active) return;
+        analyticsCache.set(days, { data: next, cachedAt: Date.now() });
+        setData(next);
+      })
+      .catch((e) => {
+        if (active) setError((e as Error).message);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [days]);
 
   const k = data?.kpis;
+  const proposalsHref = (filters: Record<string, string | number>) => {
+    const params = new URLSearchParams({ days });
+    for (const [key, value] of Object.entries(filters)) {
+      params.set(key, String(value));
+    }
+    return `/admin/proposals?${params.toString()}`;
+  };
 
   return (
     <div className="space-y-6">
@@ -81,12 +127,12 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold tracking-tight">Visão geral</h1>
           <p className="text-sm text-muted">Desempenho das propostas e da operação.</p>
         </div>
-        <div className="flex rounded-lg border border-border bg-surface p-0.5">
+        <div className="flex max-w-full overflow-x-auto rounded-lg border border-border bg-surface p-0.5">
           {PERIODS.map((p) => (
             <button
               key={p.value}
               onClick={() => setDays(p.value)}
-              className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition ${
                 days === p.value
                   ? "bg-brand text-brand-fg shadow-sm"
                   : "text-muted hover:text-fg"
@@ -143,6 +189,7 @@ export default function AdminDashboard() {
                   label: STATUS_LABELS[s.status] ?? s.status,
                   value: s.count,
                   color: STATUS_COLOR[s.status] ?? "#64748b",
+                  href: proposalsHref({ status: s.status }),
                 }))}
               />
             </Panel>
@@ -156,6 +203,7 @@ export default function AdminDashboard() {
                   label: c.category,
                   value: c.count,
                   hint: `${c.count} · ${brl(c.value)}`,
+                  href: proposalsHref({ category: c.category }),
                 }))}
               />
             </Panel>
@@ -164,6 +212,7 @@ export default function AdminDashboard() {
                 rows={data!.topModels.map((m) => ({
                   label: m.model,
                   value: m.count,
+                  href: proposalsHref({ category: m.category, model: m.model }),
                 }))}
               />
             </Panel>
@@ -177,6 +226,9 @@ export default function AdminDashboard() {
                   label: p.label.replace(/ —.*$/, ""),
                   value: p.count,
                   color: PALETTE[i % PALETTE.length],
+                  href: proposalsHref({
+                    pickup: p.label === "Não informado" ? "__none__" : p.label,
+                  }),
                 }))}
               />
             </Panel>
@@ -186,6 +238,10 @@ export default function AdminDashboard() {
                   label: b.label,
                   value: b.count,
                   hint: `${b.count} · ${b.count ? pct(b.closed / b.count) : "0%"} fech.`,
+                  href: proposalsHref({
+                    minValue: b.min,
+                    ...(b.max !== null ? { maxValue: b.max } : {}),
+                  }),
                 }))}
               />
             </Panel>

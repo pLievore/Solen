@@ -49,10 +49,10 @@ export default function AdminBlogPage() {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <div className="overflow-x-auto rounded border border-border">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="bg-border/20">
+            <tr className="bg-surface-2/70">
               <th className={cls.th}>Título</th>
               <th className={cls.th}>Slug</th>
               <th className={cls.th}>Status</th>

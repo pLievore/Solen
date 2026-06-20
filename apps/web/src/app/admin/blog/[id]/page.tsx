@@ -106,7 +106,7 @@ export default function BlogEditPage() {
   );
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="max-w-4xl space-y-6">
       <div className="flex items-center gap-3">
         <Link href="/admin/blog" className="text-sm text-muted hover:text-brand">
           ← Blog
@@ -119,7 +119,7 @@ export default function BlogEditPage() {
       {msg && <p className="text-sm text-brand">{msg}</p>}
 
       {/* Título + Slug */}
-      <div className="space-y-3">
+      <div className={cls.card + " space-y-3"}>
         <div>
           <label className={cls.label + " mb-1 block"}>Título</label>
           {input("title")}
@@ -153,7 +153,7 @@ export default function BlogEditPage() {
       </div>
 
       {/* Conteúdo */}
-      <div>
+      <div className={cls.card}>
         <label className={cls.label + " mb-1 block"}>Conteúdo</label>
         <RichEditor
           content={form.content}
@@ -163,7 +163,7 @@ export default function BlogEditPage() {
       </div>
 
       {/* Capa */}
-      <div>
+      <div className={cls.card}>
         <label className={cls.label + " mb-1 block"}>URL da imagem de capa</label>
         {input("coverImageUrl")}
         {form.coverImageUrl && (
@@ -173,7 +173,7 @@ export default function BlogEditPage() {
       </div>
 
       {/* SEO */}
-      <div className="space-y-3 rounded border border-border p-4">
+      <div className={cls.card + " space-y-3"}>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">SEO</h2>
         <div>
           <label className={cls.label + " mb-1 block"}>SEO Title</label>

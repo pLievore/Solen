@@ -60,7 +60,7 @@ export default function SettingsPage() {
         {FIELDS.map((f) => (
           <div key={f.key} className={cls.card + " space-y-2"}>
             <label className={cls.label}>{f.label}</label>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 className={cls.input}
                 type={f.type === "money" ? "number" : f.type === "email" ? "email" : "text"}
@@ -68,7 +68,7 @@ export default function SettingsPage() {
                 value={values[f.key] ?? ""}
                 onChange={(e) => setValues((v) => ({ ...v, [f.key]: e.target.value }))}
               />
-              <button className={cls.btn} onClick={() => saveOne(f.key, f.type)}>
+              <button className={`${cls.btn} sm:self-start`} onClick={() => saveOne(f.key, f.type)}>
                 Salvar
               </button>
             </div>

@@ -91,7 +91,7 @@ export default function CategoriesPage() {
 
       <div className={cls.card + " space-y-3"}>
         <p className="font-medium">{draft.id ? "Editar categoria" : "Nova categoria"}</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Nome</label>
             <input
@@ -153,35 +153,37 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className={cls.th}>Ordem</th>
-            <th className={cls.th}>Nome</th>
-            <th className={cls.th}>Slug</th>
-            <th className={cls.th}>Modelos</th>
-            <th className={cls.th}>Ativa</th>
-            <th className={cls.th}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((c) => (
-            <tr key={c.id}>
-              <td className={cls.td}>{c.order}</td>
-              <td className={cls.td}>{c.name}</td>
-              <td className={cls.td + " text-muted"}>{c.slug}</td>
-              <td className={cls.td}>{c._count?.models ?? 0}</td>
-              <td className={cls.td}>{c.active ? "Sim" : "Nao"}</td>
-              <td className={cls.td}>
-                <div className="flex gap-2">
-                  <button className={cls.btnGhost} onClick={() => edit(c)}>Editar</button>
-                  <button className={cls.btnDanger} onClick={() => remove(c.id)}>Excluir</button>
-                </div>
-              </td>
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+        <table className="w-full min-w-[680px] border-collapse">
+          <thead>
+            <tr className="bg-surface-2/70">
+              <th className={cls.th}>Ordem</th>
+              <th className={cls.th}>Nome</th>
+              <th className={cls.th}>Slug</th>
+              <th className={cls.th}>Modelos</th>
+              <th className={cls.th}>Ativa</th>
+              <th className={cls.th}></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((c) => (
+              <tr key={c.id} className="hover:bg-surface-2/50">
+                <td className={cls.td}>{c.order}</td>
+                <td className={cls.td}>{c.name}</td>
+                <td className={cls.td + " text-muted"}>{c.slug}</td>
+                <td className={cls.td}>{c._count?.models ?? 0}</td>
+                <td className={cls.td}>{c.active ? "Sim" : "Nao"}</td>
+                <td className={cls.td}>
+                  <div className="flex gap-2">
+                    <button className={cls.btnGhost} onClick={() => edit(c)}>Editar</button>
+                    <button className={cls.btnDanger} onClick={() => remove(c.id)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

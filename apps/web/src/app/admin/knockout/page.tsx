@@ -81,7 +81,7 @@ export default function KnockoutPage() {
             onChange={(e) => setDraft((d) => ({ ...d, question: e.target.value }))}
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Aciona sucata quando a resposta for</label>
             <select
@@ -116,43 +116,45 @@ export default function KnockoutPage() {
         </div>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className={cls.th}>Pergunta</th>
-            <th className={cls.th}>Gatilho</th>
-            <th className={cls.th}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((k) => (
-            <tr key={k.id}>
-              <td className={cls.td}>{k.question}</td>
-              <td className={cls.td}>{k.triggerAnswer === "YES" ? "Sim" : "Nao"}</td>
-              <td className={cls.td}>
-                <div className="flex gap-2">
-                  <button
-                    className={cls.btnGhost}
-                    onClick={() =>
-                      setDraft({
-                        id: k.id,
-                        question: k.question,
-                        helpText: k.helpText ?? "",
-                        triggerAnswer: k.triggerAnswer,
-                        order: k.order,
-                        active: k.active,
-                      })
-                    }
-                  >
-                    Editar
-                  </button>
-                  <button className={cls.btnDanger} onClick={() => remove(k.id)}>Excluir</button>
-                </div>
-              </td>
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+        <table className="w-full min-w-[520px] border-collapse">
+          <thead>
+            <tr className="bg-surface-2/70">
+              <th className={cls.th}>Pergunta</th>
+              <th className={cls.th}>Gatilho</th>
+              <th className={cls.th}></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((k) => (
+              <tr key={k.id} className="hover:bg-surface-2/50">
+                <td className={cls.td}>{k.question}</td>
+                <td className={cls.td}>{k.triggerAnswer === "YES" ? "Sim" : "Nao"}</td>
+                <td className={cls.td}>
+                  <div className="flex gap-2">
+                    <button
+                      className={cls.btnGhost}
+                      onClick={() =>
+                        setDraft({
+                          id: k.id,
+                          question: k.question,
+                          helpText: k.helpText ?? "",
+                          triggerAnswer: k.triggerAnswer,
+                          order: k.order,
+                          active: k.active,
+                        })
+                      }
+                    >
+                      Editar
+                    </button>
+                    <button className={cls.btnDanger} onClick={() => remove(k.id)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

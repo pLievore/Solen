@@ -156,7 +156,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Conteúdo */}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/80 px-6 py-3 backdrop-blur">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-surface/80 px-4 py-3 backdrop-blur sm:px-6">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-muted">Painel</span>
             <span className="text-muted">/</span>
@@ -183,7 +183,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </select>
           </div>
         </header>
-        <main className="flex-1 px-6 py-6 lg:px-8">{children}</main>
+        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">{children}</main>
       </div>
     </div>
   );

@@ -78,7 +78,7 @@ export default function ModelsPage() {
 
       <div className={cls.card + " space-y-3"}>
         <p className="font-medium">{draft.id ? "Editar modelo" : "Novo modelo"}</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Categoria</label>
             <select
@@ -148,47 +148,49 @@ export default function ModelsPage() {
         </div>
       </div>
 
-      <table className="w-full border-collapse">
-        <thead>
-          <tr>
-            <th className={cls.th}>Nome</th>
-            <th className={cls.th}>Categoria</th>
-            <th className={cls.th}>Versoes</th>
-            <th className={cls.th}>Ativo</th>
-            <th className={cls.th}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((m) => (
-            <tr key={m.id}>
-              <td className={cls.td}>{m.name}</td>
-              <td className={cls.td + " text-muted"}>{m.category?.name}</td>
-              <td className={cls.td}>{m._count?.variants ?? 0}</td>
-              <td className={cls.td}>{m.active ? "Sim" : "Nao"}</td>
-              <td className={cls.td}>
-                <div className="flex gap-2">
-                  <button
-                    className={cls.btnGhost}
-                    onClick={() =>
-                      setDraft({
-                        id: m.id,
-                        categoryId: m.categoryId,
-                        name: m.name,
-                        slug: m.slug,
-                        order: m.order,
-                        active: m.active,
-                      })
-                    }
-                  >
-                    Editar
-                  </button>
-                  <button className={cls.btnDanger} onClick={() => remove(m.id)}>Excluir</button>
-                </div>
-              </td>
+      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+        <table className="w-full min-w-[620px] border-collapse">
+          <thead>
+            <tr className="bg-surface-2/70">
+              <th className={cls.th}>Nome</th>
+              <th className={cls.th}>Categoria</th>
+              <th className={cls.th}>Versoes</th>
+              <th className={cls.th}>Ativo</th>
+              <th className={cls.th}></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((m) => (
+              <tr key={m.id} className="hover:bg-surface-2/50">
+                <td className={cls.td}>{m.name}</td>
+                <td className={cls.td + " text-muted"}>{m.category?.name}</td>
+                <td className={cls.td}>{m._count?.variants ?? 0}</td>
+                <td className={cls.td}>{m.active ? "Sim" : "Nao"}</td>
+                <td className={cls.td}>
+                  <div className="flex gap-2">
+                    <button
+                      className={cls.btnGhost}
+                      onClick={() =>
+                        setDraft({
+                          id: m.id,
+                          categoryId: m.categoryId,
+                          name: m.name,
+                          slug: m.slug,
+                          order: m.order,
+                          active: m.active,
+                        })
+                      }
+                    >
+                      Editar
+                    </button>
+                    <button className={cls.btnDanger} onClick={() => remove(m.id)}>Excluir</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

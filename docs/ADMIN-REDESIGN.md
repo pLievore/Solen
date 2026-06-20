@@ -79,6 +79,43 @@ Implementação: `apps/api/src/proposals/admin-analytics.controller.ts`, registr
 `where: { createdAt: { gte } }`. Para timeseries, buscar `createdAt,calculatedValue`
 e agregar por dia em JS (volume baixo). Faixas de valor e pickup também em JS.
 
+> Implementação atual: o endpoint carrega apenas os campos necessários da janela
+> atual + anterior e agrega em memória. Isso é adequado para o volume atual. Se o
+> volume crescer bastante, migrar as agregações principais para `groupBy`/SQL.
+
+## Contrato da lista e exportação de propostas
+
+`GET /api/admin/proposals` aceita:
+
+- `status`, `token`, `category`, `model`, `pickup`;
+- `days=7|30|90|365|all`;
+- `minValue` e `maxValue` em centavos (`maxValue` é exclusivo);
+- `sort=createdAt|calculatedValue`, `order=asc|desc`, `skip`, `take`.
+
+Além de `items`, a resposta inclui:
+
+```ts
+{
+  summary: {
+    totalValue: number;
+    avgTicket: number;
+    closed: number;
+    conversionRate: number;
+  };
+  filters: {
+    categories: string[];
+    pickupPoints: { value: string; label: string }[];
+  };
+}
+```
+
+`GET /api/admin/proposals/export` aceita os mesmos filtros (sem paginação) e
+retorna `{ csv, filename, total }`. O CSV usa `;`, BOM UTF-8 e proteção básica
+contra CSV injection.
+
+`PATCH /api/admin/proposals/:id` altera o status e
+`DELETE /api/admin/proposals/:id` exclui definitivamente a proposta.
+
 ---
 
 ## Front: o que construir
@@ -132,16 +169,19 @@ Adicionar entrada de navegação só se criar página nova (o dashboard fica no 
 - [x] Shell: `layout.tsx` com sidebar agrupada + header com breadcrumb + nav mobile (select).
 - [x] Visual central: `cls` em `lib/ui.ts` elevado (rounded-xl, shadow, foco).
 - [x] Typecheck OK (api + web). Commit + push feitos.
+- [x] Revisão visual das telas densas: grids responsivos, tabelas com overflow/painel,
+  editor do blog em cards e ajustes mobile em variants/settings/import.
+- [x] Banner LGPD oculto somente no `/admin` para não cobrir controles em telas pequenas.
+- [x] `/admin/proposals` redesenhado com `Panel`, mini-KPIs, filtros por status,
+  categoria, pickup, período e ordenação.
+- [x] Drill-down do dashboard para status, categoria, modelo, pickup e faixa de valor.
+- [x] Exportação CSV respeitando todos os filtros ativos.
+- [x] Ações rápidas na lista: alterar status e excluir proposta sem abrir o detalhe.
+- [x] Cache client-side do analytics por período (TTL de 5 minutos).
+- [x] Validação real: builds API/web, typechecks, testes existentes e smoke test autenticado
+  dos filtros/lista/export/analytics.
 
-### Pendências / próximos passos sugeridos (para o próximo agente)
-1. **Revisar telas densas após mudança do `cls`**: `variants/page.tsx`, `models/page.tsx`,
-   `detailed-states`, `knockout`, `import`, `settings`, `blog` — confirmar que `card`/`th`/`td`
-   novos não quebraram layout (rodar `pnpm --filter @vendy/web dev` e olhar). Ajustar onde necessário.
-2. **Aplicar o visual novo na lista `/admin/proposals`**: trocar a tabela "crua" por `Panel`,
-   adicionar mini-KPIs no topo (reusar StatCard) e talvez filtro por categoria/pickup.
-3. **Drill-down**: clicar numa categoria/faixa no dashboard e cair na lista filtrada.
-4. **Exportar CSV** das propostas (botão na lista) — útil pro dono.
-5. **Cache leve** do analytics no client (evitar refetch ao alternar período já visto).
-6. Opcional: gráfico de **valor por dia** (já vem `timeseries[].value`) como segunda série.
+### Próximos passos opcionais
 
-> Próximo passo = item 1 (revisão visual das telas densas).
+1. Gráfico de **valor por dia** (o endpoint já fornece `timeseries[].value`).
+2. Migrar analytics para agregações SQL quando o volume justificar.

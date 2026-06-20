@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export function brl(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", {
@@ -115,7 +116,7 @@ export function Donut({
   segments,
   size = 150,
 }: {
-  segments: { label: string; value: number; color: string }[];
+  segments: { label: string; value: number; color: string; href?: string }[];
   size?: number;
 }) {
   const total = Math.max(1, segments.reduce((a, s) => a + s.value, 0));
@@ -123,8 +124,12 @@ export function Donut({
   const c = 2 * Math.PI * r;
   let offset = 0;
   return (
-    <div className="flex items-center gap-5">
-      <svg viewBox="0 0 150 150" style={{ width: size, height: size }} className="-rotate-90">
+    <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-5">
+      <svg
+        viewBox="0 0 150 150"
+        style={{ width: size, height: size }}
+        className="shrink-0 -rotate-90"
+      >
         {segments.map((s) => {
           const frac = s.value / total;
           const dash = frac * c;
@@ -149,13 +154,30 @@ export function Donut({
         <circle cx="75" cy="75" r={r} fill="none" stroke="currentColor" className="text-border" strokeWidth="0.5" />
       </svg>
       <ul className="space-y-1.5 text-sm">
-        {segments.map((s) => (
-          <li key={s.label} className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />
-            <span className="text-muted">{s.label}</span>
-            <span className="font-semibold">{s.value}</span>
-          </li>
-        ))}
+        {segments.map((s) => {
+          const content = (
+            <>
+              <span className="h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />
+              <span className="min-w-0 truncate text-muted">{s.label}</span>
+              <span className="font-semibold">{s.value}</span>
+            </>
+          );
+          return (
+            <li key={s.label}>
+              {s.href ? (
+                <Link
+                  href={s.href}
+                  className="flex max-w-full items-center gap-2 rounded px-1 py-0.5 transition hover:bg-surface-2 hover:text-brand"
+                  title={`Ver propostas: ${s.label}`}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <div className="flex max-w-full items-center gap-2">{content}</div>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -165,31 +187,47 @@ export function Donut({
 export function HBar({
   rows,
 }: {
-  rows: { label: string; value: number; hint?: string }[];
+  rows: { label: string; value: number; hint?: string; href?: string }[];
 }) {
   const max = Math.max(1, ...rows.map((r) => r.value));
   if (rows.length === 0)
     return <p className="text-sm text-muted">Sem dados no período.</p>;
   return (
     <div className="space-y-2.5">
-      {rows.map((r, i) => (
-        <div key={r.label} className="flex items-center gap-3">
-          <span className="w-36 shrink-0 truncate text-sm" title={r.label}>
-            {r.label}
-          </span>
-          <div className="relative h-6 flex-1 overflow-hidden rounded bg-surface-2">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${(r.value / max) * 100}%` }}
-              transition={{ delay: i * 0.04, duration: 0.45, ease: "easeOut" }}
-              className="h-full rounded bg-brand/80"
-            />
+      {rows.map((r, i) => {
+        const content = (
+          <>
+            <span className="w-24 shrink-0 truncate text-xs sm:w-36 sm:text-sm" title={r.label}>
+              {r.label}
+            </span>
+            <div className="relative h-6 min-w-12 flex-1 overflow-hidden rounded bg-surface-2">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(r.value / max) * 100}%` }}
+                transition={{ delay: i * 0.04, duration: 0.45, ease: "easeOut" }}
+                className="h-full rounded bg-brand/80"
+              />
+            </div>
+            <span className="w-16 shrink-0 text-right text-xs font-semibold tabular-nums sm:w-20 sm:text-sm">
+              {r.hint ?? r.value}
+            </span>
+          </>
+        );
+        return r.href ? (
+          <Link
+            key={r.label}
+            href={r.href}
+            className="-mx-1 flex items-center gap-2 rounded-lg px-1 py-1 transition hover:bg-surface-2 sm:gap-3"
+            title={`Ver propostas: ${r.label}`}
+          >
+            {content}
+          </Link>
+        ) : (
+          <div key={r.label} className="flex items-center gap-2 sm:gap-3">
+            {content}
           </div>
-          <span className="w-20 shrink-0 text-right text-sm font-semibold tabular-nums">
-            {r.hint ?? r.value}
-          </span>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -208,7 +246,7 @@ export function Panel({
 }) {
   return (
     <div className={`rounded-xl border border-border bg-surface p-5 shadow-sm ${className}`}>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold">{title}</h2>
         {action}
       </div>
