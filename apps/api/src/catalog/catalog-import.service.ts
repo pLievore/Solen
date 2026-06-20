@@ -105,6 +105,15 @@ function centsToCell(cents: number | null | undefined): string {
   return (cents / 100).toFixed(2).replace(".", ",");
 }
 
+/** "sim/s/1/true/x" -> true; "nao/n/0/false" -> false; vazio -> undefined. */
+function parseBool(raw: string): boolean | undefined {
+  const s = normName(raw);
+  if (!s) return undefined;
+  if (["sim", "s", "1", "true", "verdadeiro", "x", "ativo"].includes(s)) return true;
+  if (["nao", "n", "0", "false", "falso", "inativo"].includes(s)) return false;
+  return undefined;
+}
+
 type Row = {
   rowNum: number;
   catName: string;
@@ -115,6 +124,7 @@ type Row = {
   verNorm: string;
   storage: string | null | undefined;
   scrapCents: number | undefined;
+  active: boolean | undefined;
   prices: { key: string; cents: number }[];
 };
 
@@ -141,6 +151,7 @@ export class CatalogImportService {
       STATE_HEADERS.USED_LIGHT,
       STATE_HEADERS.USED_HEAVY,
       "Sucata",
+      "Ativo",
     ];
     const lines = [header.join(";")];
     for (const v of variants) {
@@ -157,6 +168,7 @@ export class CatalogImportService {
           priceFor("USED_LIGHT"),
           priceFor("USED_HEAVY"),
           centsToCell(v.scrapPrice),
+          v.active ? "Sim" : "Nao",
         ]
           .map((c) => (String(c).includes(";") ? `"${c}"` : c))
           .join(";"),
@@ -180,6 +192,7 @@ export class CatalogImportService {
       version: find((h) => h.includes("versao")),
       storage: find((h) => h.includes("armazenamento")),
       scrap: find((h) => h.includes("sucata")),
+      active: find((h) => h.includes("ativo")),
     };
     const stateCol: Record<string, number> = {
       NEW: find((h) => h.includes("novo") || h.includes("lacrado")),
@@ -223,6 +236,7 @@ export class CatalogImportService {
           verNorm: normName(verName),
           storage: col.storage >= 0 ? cell(cells, col.storage) || null : undefined,
           scrapCents: scrapRaw ? priceToCents(scrapRaw) : undefined,
+          active: col.active >= 0 ? parseBool(cell(cells, col.active)) : undefined,
           prices,
         };
         rowMap.set(`${row.catNorm}|${row.modelNorm}|${row.verNorm}`, row);
@@ -283,7 +297,7 @@ export class CatalogImportService {
     const vKey = (modelId: string, n: string) => `${modelId}|${n}`;
     const variantByKey = new Map(variants.map((v) => [vKey(v.modelId, normName(v.name)), v]));
 
-    const newVariants: { modelId: string; name: string; slug: string; storage: string | null; scrapPrice: number | null }[] = [];
+    const newVariants: { modelId: string; name: string; slug: string; storage: string | null; scrapPrice: number | null; active: boolean }[] = [];
     const updates: Promise<unknown>[] = [];
     let variantsUpdated = 0;
     for (const r of rows) {
@@ -297,11 +311,13 @@ export class CatalogImportService {
           slug: slugify(r.verName),
           storage: r.storage ?? null,
           scrapPrice: r.scrapCents ?? null,
+          active: r.active ?? true,
         });
       } else {
-        const data: { storage?: string | null; scrapPrice?: number } = {};
+        const data: { storage?: string | null; scrapPrice?: number; active?: boolean } = {};
         if (r.storage !== undefined && existing.storage !== r.storage) data.storage = r.storage;
         if (r.scrapCents !== undefined && existing.scrapPrice !== r.scrapCents) data.scrapPrice = r.scrapCents;
+        if (r.active !== undefined && existing.active !== r.active) data.active = r.active;
         if (Object.keys(data).length) updates.push(this.prisma.variant.update({ where: { id: existing.id }, data }));
         variantsUpdated++;
       }

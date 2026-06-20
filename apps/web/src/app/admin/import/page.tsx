@@ -133,12 +133,13 @@ export default function ImportPage() {
         <p className="mb-1 font-medium text-fg">Colunas da planilha</p>
         <p>
           <strong>Categoria; Modelo; Versao; Armazenamento; Novo/lacrado; Seminovo;
-          Usado leve; Usado forte; Sucata</strong>
+          Usado leve; Usado forte; Sucata; Ativo</strong>
         </p>
         <p className="mt-2">
-          Uma linha por versao. Precos em R$ (ex.: 2800 ou 2.800,00). Cada linha casa por
-          nome (Categoria &rarr; Modelo &rarr; Versao); o que nao existe e criado, o que
-          existe tem os precos atualizados. Nada e apagado.
+          Uma linha por versao. Precos em R$ (ex.: 2800 ou 2.800,00). A coluna{" "}
+          <strong>Ativo</strong> (Sim/Nao) liga ou desliga a versao no site. Cada linha
+          casa por nome (Categoria &rarr; Modelo &rarr; Versao); o que nao existe e criado,
+          o que existe e atualizado. Nada e apagado.
         </p>
       </div>
     </div>
