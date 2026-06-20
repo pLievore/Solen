@@ -4,6 +4,7 @@ const nextConfig = {
   // Permite consumir o pacote TS @vendy/shared sem build separado.
   transpilePackages: ["@vendy/shared"],
   async headers() {
+    const isProduction = process.env.NODE_ENV === "production";
     const contentSecurityPolicy = [
       "default-src 'self'",
       "base-uri 'self'",
@@ -22,7 +23,14 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: [
-          { key: "Content-Security-Policy", value: contentSecurityPolicy },
+          ...(isProduction
+            ? [
+                {
+                  key: "Content-Security-Policy",
+                  value: contentSecurityPolicy,
+                },
+              ]
+            : []),
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
