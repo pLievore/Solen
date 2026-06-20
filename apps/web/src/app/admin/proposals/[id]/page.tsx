@@ -24,6 +24,7 @@ type Proposal = {
   neighborhood: string;
   street: string;
   number: string;
+  pickupPoint: string | null;
   createdAt: string;
   conditionStateId: string | null;
   variant: {
@@ -170,6 +171,9 @@ export default function ProposalDetailPage() {
           <div><dt className="text-muted">Bairro</dt><dd>{proposal.neighborhood}</dd></div>
           <div className="col-span-2"><dt className="text-muted">Endereço</dt>
             <dd>{proposal.street}, {proposal.number}</dd>
+          </div>
+          <div className="col-span-2"><dt className="text-muted">Ponto de coleta</dt>
+            <dd>{proposal.pickupPoint ?? "—"}</dd>
           </div>
         </dl>
       </div>

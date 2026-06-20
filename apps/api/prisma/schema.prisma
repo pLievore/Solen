@@ -150,6 +150,7 @@ model Proposal {
   neighborhood     String
   street           String
   number           String
+  pickupPoint      String? // ponto de coleta escolhido (ou "Envio pelos Correios")
   status           String   @default("NEW") // NEW | CONTACTED | CLOSED | LOST
   createdAt        DateTime @default(now())
 

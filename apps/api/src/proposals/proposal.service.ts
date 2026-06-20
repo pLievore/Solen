@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { randomBytes } from "crypto";
 import { Resend } from "resend";
-import type { CreateProposal, CreateProposalResponse, QuoteResponse } from "@vendy/shared";
+import {
+  pickupPointLabel,
+  type CreateProposal,
+  type CreateProposalResponse,
+  type QuoteResponse,
+} from "@vendy/shared";
 import { PrismaService } from "../prisma/prisma.service";
 import { QuoteService } from "../evaluation/quote.service";
 
@@ -46,6 +51,7 @@ export class ProposalService {
         : "";
 
     // 3. Generate token and build WhatsApp URL
+    const pickupLabel = pickupPointLabel(input.pickupPointId);
     const token = this.generateToken();
     const whatsappUrl = await this.buildWhatsappUrl(
       token,
@@ -53,6 +59,7 @@ export class ProposalService {
       quote,
       variantLabel,
       conditionLabel,
+      pickupLabel,
     );
 
     // 4. Persist proposal
@@ -75,12 +82,13 @@ export class ProposalService {
         neighborhood: input.seller.neighborhood,
         street: input.seller.street,
         number: input.seller.number,
+        pickupPoint: pickupLabel,
         status: "NEW",
       },
     });
 
     // 5. Send email notification (fire-and-forget; errors are silenced)
-    this.sendEmailNotification(token, input, quote, variantLabel).catch(() => {/* silent */});
+    this.sendEmailNotification(token, input, quote, variantLabel, pickupLabel).catch(() => {/* silent */});
 
     return {
       token,
@@ -96,6 +104,7 @@ export class ProposalService {
     quote: QuoteResponse,
     variantLabel: string,
     conditionLabel: string,
+    pickupLabel: string,
   ): Promise<string> {
     const [phoneSetting, templateSetting] = await Promise.all([
       this.prisma.setting.findUnique({ where: { key: "whatsapp_phone" } }),
@@ -111,13 +120,19 @@ export class ProposalService {
         ? templateSetting.value
         : defaultTemplate;
 
-    const message = template
+    let message = template
       .replaceAll("{token}", token)
       .replaceAll("{variant}", variantLabel)
       .replaceAll("{condition}", conditionLabel)
       .replaceAll("{value}", quote.valueFormatted)
       .replaceAll("{name}", input.seller.name)
-      .replaceAll("{whatsapp}", input.seller.whatsapp);
+      .replaceAll("{whatsapp}", input.seller.whatsapp)
+      .replaceAll("{pickup}", pickupLabel);
+
+    // Garante o ponto de coleta na mensagem mesmo que o template não use {pickup}.
+    if (!template.includes("{pickup}")) {
+      message += `\nPonto de coleta: ${pickupLabel}`;
+    }
 
     const cleanPhone = phone.replace(/\D/g, "");
     return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
@@ -128,6 +143,7 @@ export class ProposalService {
     input: CreateProposal,
     quote: QuoteResponse,
     variantLabel: string,
+    pickupLabel: string,
   ): Promise<void> {
     const apiKey = this.config.get<string>("RESEND_API_KEY");
     const notifyEmailSetting = await this.prisma.setting.findUnique({
@@ -155,6 +171,7 @@ export class ProposalService {
         `Aparelho: ${variantLabel}`,
         `Valor:    ${quote.valueFormatted}`,
         `Sucata:   ${quote.isScrap ? "Sim" : "Não"}`,
+        `Coleta:   ${pickupLabel}`,
         ``,
         `Vendedor:`,
         `  Nome:      ${input.seller.name}`,
