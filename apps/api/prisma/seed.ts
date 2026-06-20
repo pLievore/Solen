@@ -4,6 +4,7 @@
  * Valores em centavos.
  */
 import { PrismaClient } from "@prisma/client";
+import { OLDER_IPHONE_MODELS } from "./older-iphones";
 
 const prisma = new PrismaClient({
   datasourceUrl: process.env.DIRECT_URL ?? process.env.DATABASE_URL,
@@ -92,6 +93,7 @@ const PHONE_DETAIL_KEYS = [
 // Preços em centavos [NEW, LIKE_NEW, USED_LIGHT, USED_HEAVY]
 // Levemente abaixo do mercado de usados (posição de compra competitiva)
 const IPHONE_MODELS = [
+  ...OLDER_IPHONE_MODELS,
   {
     name: "iPhone 11", slug: "iphone-11", order: 0,
     variants: [
@@ -504,6 +506,7 @@ async function main() {
       name: string;
       slug: string;
       order?: number;
+      detailKeys?: string[];
       variants: Array<{
         name: string;
         slug: string;
@@ -566,7 +569,8 @@ async function main() {
           },
         });
 
-        const detailKeys = variantData.detailKeys ?? defaultDetailKeys;
+        const detailKeys =
+          variantData.detailKeys ?? modelData.detailKeys ?? defaultDetailKeys;
         const detailedStateIds = detailKeys.map(
           (key) => detailedIdByKey[key],
         );
