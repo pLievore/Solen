@@ -11,6 +11,7 @@ const NAV = [
   { href: "/admin/categories", label: "Categorias" },
   { href: "/admin/models", label: "Modelos" },
   { href: "/admin/variants", label: "Versoes" },
+  { href: "/admin/import", label: "Importar planilha" },
   { href: "/admin/detailed-states", label: "Estados detalhados" },
   { href: "/admin/knockout", label: "Perguntas knockout" },
   { href: "/admin/blog", label: "Blog" },
