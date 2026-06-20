@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiGet } from "@/lib/api";
@@ -25,12 +25,23 @@ export default function SelectPage() {
   const [variantId, setVariantId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadingVariants, setLoadingVariants] = useState(false);
+  const versionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     apiGet<Model[]>(`/catalog/categories/${slug}/models`)
       .then(setModels)
       .catch(() => setError("Não foi possível carregar os modelos."));
   }, [slug]);
+
+  // Ao escolher um modelo, rola suavemente ate o bloco de versoes (util no mobile).
+  useEffect(() => {
+    if (!modelId) return;
+    const t = setTimeout(
+      () => versionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      140,
+    );
+    return () => clearTimeout(t);
+  }, [modelId]);
 
   async function pickModel(id: string) {
     setModelId(id);
@@ -150,11 +161,12 @@ export default function SelectPage() {
           {modelId && (
             <motion.section
               key="variants"
+              ref={versionRef}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={ease}
-              className="mt-8"
+              className="mt-8 scroll-mt-24"
             >
               <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-muted">
                 Versão
