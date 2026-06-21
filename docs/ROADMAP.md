@@ -35,7 +35,7 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 - [x] `packages/shared`: setup do Zod e exports de tipos.
 - [x] Projeto Supabase criado (DB + Auth + bucket `catalog`).
 - [x] Auth: scaffold de login do admin (Supabase Auth) + Guard na API. _(Testado ponta a ponta.)_
-- [~] CI básico: lint + typecheck. _(workflow `.github/workflows/ci.yml` e eslint configurados; falta validar verde no GitHub.)_
+- [x] CI: typecheck, lint, testes, builds e Playwright, validado no GitHub.
 - [x] Deploy: web na **Vercel**, API no **Render**.
 - [x] `.env.example` preenchido e documentado.
 
@@ -127,11 +127,12 @@ MVP mínimo vendável = Fases 0,1,2,3,4   |   MVP completo do briefing = + Fase 
 - [x] **Aviso LGPD** — banner com opções de aceitar ou recusar persistidas em
   `localStorage`.
 - [x] SEO global: `metadataBase`, OG defaults, `robots` no root layout; `sitemap.xml` e `robots.txt` dinâmicos.
-- [ ] Sentry / monitoramento de erros. _(pode adicionar após deploy)_
+- [x] Monitoramento sintético de produção a cada 6 horas pelo GitHub Actions.
+- [ ] Sentry para erros de aplicação. _(depende da criação do projeto/DSN.)_
 - [x] Política de privacidade `/privacidade` publicada. _(revisão jurídica ainda recomendada)_
-- [ ] QA Playwright fim a fim + checklist de lançamento. _(pré-lançamento)_
+- [x] QA Playwright do fluxo público + checklist de lançamento.
 - [x] Deploy de produção + domínio `www.vendybrasil.com`.
-- [ ] Confirmar propagação do redirecionamento de `vendybrasil.com` para `www`.
+- [x] Redirecionamento 308 de `vendybrasil.com` para `www` confirmado.
 - [ ] Google Search Console e envio do sitemap.
 - [x] RLS/grants fechados no Supabase + autorização por papel administrativo.
 

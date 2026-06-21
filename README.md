@@ -18,6 +18,7 @@ O site funciona como uma **máquina de aquisição de leads**: o vendedor seleci
 | [docs/PRICING.md](docs/PRICING.md) | Motor de precificação, regras de sucata e cálculo da proposta |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Quebra em **fases** com entregáveis e critérios de aceite |
 | [docs/SECURITY.md](docs/SECURITY.md) | Modelo de autorização, RLS, grants e resposta a incidentes |
+| [docs/LAUNCH-CHECKLIST.md](docs/LAUNCH-CHECKLIST.md) | QA, monitoramento e tarefas operacionais de lançamento |
 
 **Comece por aqui:** [docs/SPEC.md](docs/SPEC.md) → [docs/ROADMAP.md](docs/ROADMAP.md).
 

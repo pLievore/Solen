@@ -36,9 +36,21 @@ type QuoteResult = {
 };
 
 // ── Toggle Sim/Não ───────────────────────────────────────────────────────────
-function Toggle({ value, onChange }: { value: Answer | null; onChange: (a: Answer) => void }) {
+function Toggle({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: Answer | null;
+  onChange: (a: Answer) => void;
+}) {
   return (
-    <div className="relative flex w-28 shrink-0 rounded-xl border border-border bg-surface p-0.5">
+    <div
+      role="group"
+      aria-label={label}
+      className="relative flex w-28 shrink-0 rounded-xl border border-border bg-surface p-0.5"
+    >
       {value && (
         <motion.div
           layoutId={undefined}
@@ -51,6 +63,8 @@ function Toggle({ value, onChange }: { value: Answer | null; onChange: (a: Answe
         <button
           key={a}
           type="button"
+          aria-label={`${label}: ${a === "NO" ? "Não" : "Sim"}`}
+          aria-pressed={value === a}
           onClick={() => onChange(a)}
           className={`relative flex-1 rounded-[9px] py-1.5 text-sm font-medium transition-colors duration-150 ${
             value === a ? "text-brand-fg" : "text-muted hover:text-fg"
@@ -76,6 +90,8 @@ function ConditionCard({
   return (
     <motion.button
       type="button"
+      aria-label={`Estado do aparelho: ${label}`}
+      aria-pressed={selected}
       onClick={onClick}
       whileHover={{ y: -1 }}
       whileTap={{ scale: 0.98 }}
@@ -440,6 +456,7 @@ export default function EvaluationPage() {
                 )}
               </div>
               <Toggle
+                label={k.question}
                 value={knockoutA[k.id] ?? null}
                 onChange={(a) => setKnockoutA((s) => ({ ...s, [k.id]: a }))}
               />
@@ -518,6 +535,7 @@ export default function EvaluationPage() {
                         )}
                       </div>
                       <Toggle
+                        label={d.question}
                         value={detailedA[d.id] ?? null}
                         onChange={(a) => setDetailedA((s) => ({ ...s, [d.id]: a }))}
                       />

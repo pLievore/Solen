@@ -18,10 +18,15 @@
     "dev:web": "pnpm --filter @vendy/web dev",
     "dev:api": "pnpm --filter @vendy/api dev",
     "build": "pnpm --filter @vendy/shared build && pnpm -r build",
+    "e2e": "playwright test",
     "lint": "pnpm -r lint",
+    "monitor:production": "node scripts/check-production.mjs",
     "typecheck": "pnpm -r typecheck",
     "db:migrate": "pnpm --filter @vendy/api prisma:migrate",
     "db:seed": "pnpm --filter @vendy/api db:seed",
     "db:studio": "pnpm --filter @vendy/api prisma:studio"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0"
   }
 }

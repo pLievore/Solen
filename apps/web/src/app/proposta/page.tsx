@@ -35,17 +35,21 @@ const STORAGE_KEY = "vendy_quote";
 
 // ── Input component ──────────────────────────────────────────────────────────
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id: string;
   label: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label className="mb-1.5 block text-sm font-medium">{label}</label>
+      <label htmlFor={id} className="mb-1.5 block text-sm font-medium">
+        {label}
+      </label>
       {children}
       <AnimatePresence>
         {error && (
@@ -277,8 +281,9 @@ export default function PropostaPage() {
           <form onSubmit={goToPickup} noValidate>
             <motion.div variants={fadeUp} transition={ease} className="mt-6 space-y-4">
 
-              <Field label="Nome completo" error={errors.name}>
+              <Field id="seller-name" label="Nome completo" error={errors.name}>
                 <input
+                  id="seller-name"
                   type="text"
                   autoComplete="name"
                   value={name}
@@ -288,8 +293,9 @@ export default function PropostaPage() {
                 />
               </Field>
 
-              <Field label="WhatsApp" error={errors.whatsapp}>
+              <Field id="seller-whatsapp" label="WhatsApp" error={errors.whatsapp}>
                 <input
+                  id="seller-whatsapp"
                   type="tel"
                   autoComplete="tel"
                   value={whatsapp}
@@ -299,9 +305,10 @@ export default function PropostaPage() {
                 />
               </Field>
 
-              <Field label="CEP" error={errors.cep}>
+              <Field id="seller-cep" label="CEP" error={errors.cep}>
                 <div className="relative">
                   <input
+                    id="seller-cep"
                     type="text"
                     inputMode="numeric"
                     autoComplete="postal-code"
@@ -321,8 +328,9 @@ export default function PropostaPage() {
               </Field>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Cidade" error={errors.city}>
+                <Field id="seller-city" label="Cidade" error={errors.city}>
                   <input
+                    id="seller-city"
                     type="text"
                     autoComplete="address-level2"
                     value={city}
@@ -331,8 +339,9 @@ export default function PropostaPage() {
                     className={`${inputBase} ${errors.city ? inputErr : inputOk}`}
                   />
                 </Field>
-                <Field label="Bairro" error={errors.neighborhood}>
+                <Field id="seller-neighborhood" label="Bairro" error={errors.neighborhood}>
                   <input
+                    id="seller-neighborhood"
                     type="text"
                     value={neighborhood}
                     onChange={(e) => setNeighborhood(e.target.value)}
@@ -344,8 +353,9 @@ export default function PropostaPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
-                  <Field label="Rua" error={errors.street}>
+                  <Field id="seller-street" label="Rua" error={errors.street}>
                     <input
+                      id="seller-street"
                       type="text"
                       autoComplete="address-line1"
                       value={street}
@@ -355,8 +365,9 @@ export default function PropostaPage() {
                     />
                   </Field>
                 </div>
-                <Field label="Nº" error={errors.number}>
+                <Field id="seller-number" label="Nº" error={errors.number}>
                   <input
+                    id="seller-number"
                     type="text"
                     value={number}
                     onChange={(e) => setNumber(e.target.value)}
