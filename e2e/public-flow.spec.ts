@@ -34,6 +34,22 @@ test("home publica catálogo e metadados essenciais", async ({ page }) => {
   await expect(canonical).toHaveAttribute("href", /localhost:3000\/?$/);
 });
 
+test("sitemap inclui os conteúdos SEO publicados", async ({ request }) => {
+  const response = await request.get("/sitemap.xml");
+  expect(response.ok()).toBeTruthy();
+  const sitemap = await response.text();
+
+  for (const slug of [
+    "quanto-vale-iphone-11-usado",
+    "onde-vender-apple-watch-usado",
+    "quanto-vale-ps5-usado",
+    "o-que-fazer-antes-de-vender-iphone-ipad",
+    "como-preparar-apple-watch-para-vender",
+  ]) {
+    expect(sitemap).toContain(`/blog/${slug}`);
+  }
+});
+
 test("política informa direitos e permite alterar cookies", async ({ page }) => {
   await page.goto("/privacidade");
 

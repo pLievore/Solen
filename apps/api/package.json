@@ -15,6 +15,7 @@
     "set-admin-role": "dotenv -e ../../.env -- ts-node scripts/set-admin-role.ts",
     "auth:check": "dotenv -e ../../.env -- ts-node scripts/check-admin-auth.ts",
     "security:check": "dotenv -e ../../.env -- ts-node scripts/check-database-security.ts",
+    "seo:publish": "dotenv -e ../../.env -- ts-node scripts/publish-seo-posts.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --test -r ts-node/register src/evaluation/pricing.engine.spec.ts src/evaluation/quote.service.spec.ts src/blog/sanitize-post-html.spec.ts src/auth/auth.guard.spec.ts",
     "lint": "eslint \"{src,scripts}/**/*.ts\""

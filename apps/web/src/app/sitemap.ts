@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { apiGet } from "@/lib/api";
 
+export const revalidate = 60;
+
 const BASE = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
 ).replace(/\/+$/, "");
