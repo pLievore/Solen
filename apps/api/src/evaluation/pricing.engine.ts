@@ -34,7 +34,13 @@ export function computeQuote(input: EngineInput): EngineResult {
       isScrap: true,
       value,
       valueFormatted: formatBRL(value),
-      breakdown: [{ type: "scrap", label: "Avaliacao de sucata", amount: value }],
+      breakdown: [
+        {
+          type: "scrap",
+          label: "Valor para aproveitamento de peças",
+          amount: value,
+        },
+      ],
     };
   }
 

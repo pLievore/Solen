@@ -267,7 +267,7 @@ export default function EvaluationPage() {
             <motion.div variants={fadeUp} transition={ease}>
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-subtle px-3 py-1 text-xs font-medium text-brand-subtle-fg">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-                {result.isScrap ? "Avaliação de sucata" : "Avaliação concluída"}
+                {result.isScrap ? "Seu aparelho ainda tem valor" : "Avaliação concluída"}
               </span>
             </motion.div>
 
@@ -282,7 +282,9 @@ export default function EvaluationPage() {
                 className="pointer-events-none absolute -right-10 -top-12 h-44 w-44 rounded-full bg-white/10 blur-2xl"
               />
               <p className="text-sm font-medium text-brand-fg/80">
-                {result.isScrap ? "Oferta pela sucata" : "Sua proposta"}
+                {result.isScrap
+                  ? "Valor para aproveitamento de peças"
+                  : "Sua proposta"}
               </p>
               <p className="mt-1 text-5xl font-extrabold tracking-tight sm:text-6xl">
                 <AnimatedPrice cents={result.value} />
@@ -321,7 +323,9 @@ export default function EvaluationPage() {
 
             {result.isScrap && (
               <motion.p variants={fadeUp} transition={ease} className="mt-4 text-sm text-muted">
-                Pelas respostas, o aparelho entra como sucata.
+                Seu aparelho pode ser vendido para retirada e reaproveitamento
+                de peças. Por isso, a proposta tem valor reduzido em relação a
+                um aparelho funcionando normalmente.
               </motion.p>
             )}
             {data.variant.manualReview && (
@@ -475,9 +479,13 @@ export default function EvaluationPage() {
               transition={easeFast}
               className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-4"
             >
-              <p className="text-sm font-semibold text-amber-700">⚠️ Avaliação como sucata</p>
+              <p className="text-sm font-semibold text-amber-700">
+                Seu aparelho ainda pode ser vendido
+              </p>
               <p className="mt-1 text-sm text-amber-600">
-                Pelas respostas acima, o aparelho será avaliado como sucata. O valor será calculado com base na versão.
+                Pelas respostas, ele poderá ser comprado para retirada e
+                reaproveitamento de peças. Nesse caso, a proposta terá um valor
+                reduzido em relação a um aparelho funcionando normalmente.
               </p>
             </motion.div>
           )}

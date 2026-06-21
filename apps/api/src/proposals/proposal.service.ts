@@ -42,7 +42,7 @@ export class ProposalService {
       : input.quote.variantId;
 
     const conditionLabel = quote.isScrap
-      ? "Sucata"
+      ? "Aproveitamento de peças"
       : input.quote.conditionStateId
         ? (
             await this.prisma.conditionState.findUnique({

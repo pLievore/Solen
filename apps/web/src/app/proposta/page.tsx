@@ -245,7 +245,9 @@ export default function PropostaPage() {
             className="rounded-2xl border border-border bg-surface p-6 text-center shadow-md"
           >
             <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-              {quote.isScrap ? "Proposta (sucata)" : "Sua proposta"}
+              {quote.isScrap
+                ? "Proposta para aproveitamento de peças"
+                : "Sua proposta"}
             </p>
             <p className="mt-0.5 text-sm text-muted">{quote.variantName}</p>
             <p className="my-3 text-5xl font-bold tracking-tight text-brand">

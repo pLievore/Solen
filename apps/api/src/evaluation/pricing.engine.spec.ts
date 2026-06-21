@@ -21,6 +21,10 @@ test("knockout tem prioridade absoluta -> sucata, ignora base/deltas", () => {
   assert.equal(r.isScrap, true);
   assert.equal(r.value, 15000);
   assert.equal(r.breakdown[0].type, "scrap");
+  assert.equal(
+    r.breakdown[0].label,
+    "Valor para aproveitamento de peças",
+  );
 });
 
 test("piso impede valor negativo (default 0)", () => {

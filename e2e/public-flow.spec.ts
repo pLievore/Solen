@@ -11,6 +11,8 @@ type Questions = {
   conditionStates: { label: string }[];
   detailedStates: { question: string }[];
 };
+type CatalogModel = { id: string };
+type CatalogVariant = { id: string };
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
@@ -78,6 +80,60 @@ test("política informa direitos e permite alterar cookies", async ({ page }) =>
       page.evaluate(() => localStorage.getItem("vendy_lgpd_accepted")),
     )
     .toBe("rejected");
+});
+
+test("explica de forma amigável quando o aparelho vai para peças", async ({
+  page,
+  request,
+}) => {
+  const modelsResponse = await request.get(
+    `${API_BASE_URL}/api/catalog/categories/iphones/models`,
+  );
+  const models = (await modelsResponse.json()) as CatalogModel[];
+  const variantsResponse = await request.get(
+    `${API_BASE_URL}/api/catalog/models/${models[0].id}/variants`,
+  );
+  const variants = (await variantsResponse.json()) as CatalogVariant[];
+  const variantId = variants[0].id;
+
+  const questionsResponse = await request.get(
+    `${API_BASE_URL}/api/evaluation/variants/${variantId}/questions`,
+  );
+  const questions = (await questionsResponse.json()) as Questions;
+
+  await page.goto(`/avaliacao/${variantId}`);
+  for (const [index, question] of questions.knockout.entries()) {
+    const answer =
+      index === 0
+        ? question.triggerAnswer === "YES"
+          ? "Sim"
+          : "Não"
+        : question.triggerAnswer === "YES"
+          ? "Não"
+          : "Sim";
+    await page
+      .getByRole("button", {
+        name: `${question.question}: ${answer}`,
+        exact: true,
+      })
+      .click();
+  }
+
+  await expect(
+    page.getByText("Seu aparelho ainda pode ser vendido"),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/retirada e reaproveitamento de peças/i),
+  ).toBeVisible();
+  await page.getByRole("button", { name: /Ver minha proposta/i }).click();
+  await expect(
+    page
+      .getByText("Valor para aproveitamento de peças", { exact: true })
+      .first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText(/a proposta tem valor reduzido/i),
+  ).toBeVisible();
 });
 
 test("avalia aparelho e chega à escolha de entrega sem criar lead", async ({
