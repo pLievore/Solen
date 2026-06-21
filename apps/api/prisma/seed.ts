@@ -619,6 +619,7 @@ async function main() {
     "home.headline": "Venda seus usados na hora",
     "scrap.defaultValue": 10000,
     notify_email: "",
+    privacy_contact_email: "",
     whatsapp_message_template:
       "Ola! Acabei de fazer a avaliacao no. {token} no site. Aparelho: {variant} - Estado: {condition}. Proposta: {value}. Ponto de coleta: {pickup}.",
   };

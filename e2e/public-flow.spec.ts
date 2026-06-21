@@ -34,6 +34,35 @@ test("home publica catálogo e metadados essenciais", async ({ page }) => {
   await expect(canonical).toHaveAttribute("href", /localhost:3000\/?$/);
 });
 
+test("política informa direitos e permite alterar cookies", async ({ page }) => {
+  await page.goto("/privacidade");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Política de Privacidade" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "9. Direitos do titular" }),
+  ).toBeVisible();
+  const contactSection = page.locator("section").filter({
+    has: page.getByRole("heading", { name: "1. Controlador e contato" }),
+  });
+  await expect(contactSection.getByText(/WhatsApp/i)).toBeVisible();
+
+  await page.getByRole("button", { name: "Autorizar analytics" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => localStorage.getItem("vendy_lgpd_accepted")),
+    )
+    .toBe("accepted");
+
+  await page.getByRole("button", { name: "Recusar analytics" }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => localStorage.getItem("vendy_lgpd_accepted")),
+    )
+    .toBe("rejected");
+});
+
 test("avalia aparelho e chega à escolha de entrega sem criar lead", async ({
   page,
   request,

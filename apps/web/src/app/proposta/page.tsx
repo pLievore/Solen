@@ -207,14 +207,12 @@ export default function PropostaPage() {
       });
       sessionStorage.removeItem(STORAGE_KEY);
       track("proposal_created", {
-        token: response.token,
         variant_id: quote.variantId,
         pickup_point: pickupId,
         value: quote.value / 100,
         is_scrap: quote.isScrap,
       });
       track("whatsapp_redirect", {
-        token: response.token,
         pickup_point: pickupId,
       });
       window.location.href = response.whatsappUrl;

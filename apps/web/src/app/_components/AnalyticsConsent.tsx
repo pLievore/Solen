@@ -9,7 +9,20 @@ export default function AnalyticsConsent({ gaId }: { gaId?: string }) {
   const [allowed, setAllowed] = useState(false);
 
   useEffect(() => {
-    const sync = () => setAllowed(localStorage.getItem(KEY) === "accepted");
+    const sync = () => {
+      const accepted = localStorage.getItem(KEY) === "accepted";
+      setAllowed(accepted);
+      if (!gaId) return;
+
+      const analyticsWindow = window as typeof window & {
+        gtag?: (...args: unknown[]) => void;
+        [key: `ga-disable-${string}`]: boolean;
+      };
+      analyticsWindow[`ga-disable-${gaId}`] = !accepted;
+      analyticsWindow.gtag?.("consent", "update", {
+        analytics_storage: accepted ? "granted" : "denied",
+      });
+    };
     sync();
     window.addEventListener("vendy-consent-changed", sync);
     window.addEventListener("storage", sync);
@@ -17,7 +30,7 @@ export default function AnalyticsConsent({ gaId }: { gaId?: string }) {
       window.removeEventListener("vendy-consent-changed", sync);
       window.removeEventListener("storage", sync);
     };
-  }, []);
+  }, [gaId]);
 
   if (!gaId || !allowed) return null;
 
@@ -28,7 +41,7 @@ export default function AnalyticsConsent({ gaId }: { gaId?: string }) {
         strategy="afterInteractive"
       />
       <Script id="vendy-ga4" strategy="afterInteractive">
-        {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','${gaId}',{anonymize_ip:true,page_path:window.location.pathname});`}
+        {`window['ga-disable-${gaId}']=false;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('consent','default',{analytics_storage:'granted'});gtag('js',new Date());gtag('config','${gaId}',{anonymize_ip:true,page_path:window.location.pathname});`}
       </Script>
     </>
   );

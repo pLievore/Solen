@@ -182,7 +182,7 @@ model Post {
 // ─────────────────────────── Configurações ───────────────────────────
 
 model Setting {
-  key   String @id // whatsapp_phone | theme.tokens | home.headline | scrap.defaultValue | notify_email | whatsapp_message_template
+  key   String @id // whatsapp_phone | theme.tokens | home.headline | scrap.defaultValue | notify_email | privacy_contact_email | whatsapp_message_template
   value Json
 
   @@map("settings")

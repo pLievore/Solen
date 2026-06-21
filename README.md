@@ -19,6 +19,7 @@ O site funciona como uma **máquina de aquisição de leads**: o vendedor seleci
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Quebra em **fases** com entregáveis e critérios de aceite |
 | [docs/SECURITY.md](docs/SECURITY.md) | Modelo de autorização, RLS, grants e resposta a incidentes |
 | [docs/LAUNCH-CHECKLIST.md](docs/LAUNCH-CHECKLIST.md) | QA, monitoramento e tarefas operacionais de lançamento |
+| [docs/SEARCH-CONSOLE.md](docs/SEARCH-CONSOLE.md) | Validação DNS e envio do sitemap ao Google |
 
 **Comece por aqui:** [docs/SPEC.md](docs/SPEC.md) → [docs/ROADMAP.md](docs/ROADMAP.md).
 

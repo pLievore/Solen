@@ -12,6 +12,11 @@ const FIELDS: { key: string; label: string; type: "text" | "money" | "email" }[]
   { key: "whatsapp_message_template", label: "Modelo da mensagem do WhatsApp", type: "text" },
   { key: "scrap.defaultValue", label: "Valor de sucata padrao (R$)", type: "money" },
   { key: "notify_email", label: "E-mail de notificacao de propostas", type: "email" },
+  {
+    key: "privacy_contact_email",
+    label: "E-mail para privacidade e direitos LGPD",
+    type: "email",
+  },
 ];
 
 export default function SettingsPage() {

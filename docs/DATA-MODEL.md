@@ -193,7 +193,7 @@ Exemplos:
 ### Setting (Configurações)
 | Campo | Tipo | Notas |
 |------|------|-------|
-| key | string (PK) | "whatsapp_phone", "theme.tokens", "home.headline", "whatsapp_message_template", "scrap.defaultValue", "notify_email" |
+| key | string (PK) | "whatsapp_phone", "theme.tokens", "home.headline", "whatsapp_message_template", "scrap.defaultValue", "notify_email", "privacy_contact_email" |
 | value | json | |
 
 ---

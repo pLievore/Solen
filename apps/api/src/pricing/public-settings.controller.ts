@@ -7,16 +7,35 @@ export class PublicSettingsController {
 
   @Get()
   async get() {
-    const headline = await this.prisma.setting.findUnique({
-      where: { key: "home.headline" },
-      select: { value: true },
+    const settings = await this.prisma.setting.findMany({
+      where: {
+        key: {
+          in: [
+            "home.headline",
+            "whatsapp_phone",
+            "privacy_contact_email",
+          ],
+        },
+      },
+      select: { key: true, value: true },
     });
+    const value = (key: string) =>
+      settings.find((setting) => setting.key === key)?.value;
+    const headline = value("home.headline");
+    const whatsappPhone = value("whatsapp_phone");
+    const privacyContactEmail = value("privacy_contact_email");
 
     return {
       homeHeadline:
-        typeof headline?.value === "string"
-          ? headline.value
-          : "Venda seus usados na hora",
+        typeof headline === "string" ? headline : "Venda seus usados na hora",
+      privacyContactWhatsapp:
+        typeof whatsappPhone === "string"
+          ? whatsappPhone.replace(/\D/g, "")
+          : null,
+      privacyContactEmail:
+        typeof privacyContactEmail === "string" && privacyContactEmail
+          ? privacyContactEmail
+          : null,
     };
   }
 }
