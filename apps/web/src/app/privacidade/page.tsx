@@ -53,9 +53,10 @@ export default async function PrivacyPage() {
           <section>
             <h2>1. Controlador e contato</h2>
             <p>
-              A Vendy, denominação utilizada pela operação disponível neste
-              domínio, atua como controladora dos dados tratados para avaliação,
-              atendimento, negociação e compra dos aparelhos.
+              A Vendy, operação inscrita no CNPJ nº 66.123.276/0001-75 e
+              disponível neste domínio, atua como controladora dos dados
+              tratados para avaliação, atendimento, negociação e compra dos
+              aparelhos.
             </p>
             <p>
               Solicitações sobre privacidade ou exercício de direitos podem ser

@@ -39,6 +39,7 @@ export default function RootLayout({
         "@id": `${SITE_URL}/#organization`,
         name: "Vendy",
         url: SITE_URL,
+        taxID: "66.123.276/0001-75",
         logo: `${SITE_URL}/icon.svg`,
       },
       {

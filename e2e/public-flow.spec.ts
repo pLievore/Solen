@@ -43,6 +43,7 @@ test("política informa direitos e permite alterar cookies", async ({ page }) =>
   await expect(
     page.getByRole("heading", { name: "9. Direitos do titular" }),
   ).toBeVisible();
+  await expect(page.getByText("66.123.276/0001-75")).toBeVisible();
   const contactSection = page.locator("section").filter({
     has: page.getByRole("heading", { name: "1. Controlador e contato" }),
   });
