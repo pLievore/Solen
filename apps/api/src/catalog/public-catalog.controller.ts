@@ -14,7 +14,7 @@ export class PublicCatalogController {
     return this.prisma.category.findMany({
       where: { active: true },
       orderBy: { order: "asc" },
-      select: { id: true, name: true, slug: true, iconUrl: true },
+      select: { id: true, name: true, slug: true, iconUrl: true, updatedAt: true },
     });
   }
 

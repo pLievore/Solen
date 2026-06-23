@@ -7,8 +7,14 @@ const BASE = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
 ).replace(/\/+$/, "");
 
-type PostRow = { slug: string; publishedAt: string };
+type PostRow = { slug: string; publishedAt: string; updatedAt?: string };
 type CategoryRow = { slug: string; updatedAt?: string };
+
+/** Usa a data de atualização (ou publicação) como lastmod. */
+function lastmod(...candidates: (string | undefined)[]): Date | undefined {
+  const value = candidates.find(Boolean);
+  return value ? new Date(value) : undefined;
+}
 
 async function getBlogSlugs(): Promise<PostRow[]> {
   try {
@@ -52,13 +58,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
     url: `${BASE}/vender/${c.slug}`,
+    lastModified: lastmod(c.updatedAt),
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
   const blogRoutes: MetadataRoute.Sitemap = posts.map((p) => ({
     url: `${BASE}/blog/${p.slug}`,
-    lastModified: new Date(p.publishedAt),
+    lastModified: lastmod(p.updatedAt, p.publishedAt),
     changeFrequency: "monthly",
     priority: 0.6,
   }));

@@ -32,6 +32,7 @@ export class PublicBlogController {
           excerpt: true,
           coverImageUrl: true,
           publishedAt: true,
+          updatedAt: true,
         },
       }),
     ]);
