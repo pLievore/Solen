@@ -436,10 +436,10 @@ export default function EvaluationPage() {
             <motion.div
               variants={fadeUp}
               transition={ease}
-              className="mt-6 text-left"
+              className="mt-6 rounded-2xl border border-border bg-surface p-5 text-left shadow-sm"
             >
-              <p className="text-sm font-semibold">Onde você quer entregar?</p>
-              <p className="mb-3 text-xs text-muted">
+              <p className="text-base font-semibold">Onde você quer entregar?</p>
+              <p className="mb-4 mt-0.5 text-sm text-muted">
                 Escolha um ponto de coleta para combinarmos pelo WhatsApp.
               </p>
 
@@ -472,14 +472,18 @@ export default function EvaluationPage() {
                 <button
                   type="button"
                   onClick={() => setPickupId("correios")}
-                  className={`flex w-full items-center gap-2 rounded-xl border border-dashed px-3 py-2.5 text-left text-sm transition ${
+                  className={`block w-full rounded-xl border border-dashed px-3 py-2.5 text-left text-sm transition ${
                     pickupId === "correios"
                       ? "border-brand bg-brand-subtle text-brand-subtle-fg"
                       : "border-border bg-surface hover:border-brand"
                   }`}
                 >
-                  <span className="font-medium">Sem ponto de coleta próximo?</span>
-                  <span className="text-xs text-muted">enviar pelos Correios</span>
+                  <span className="block font-medium leading-tight">
+                    Sem ponto de coleta próximo?
+                  </span>
+                  <span className="block text-xs text-muted">
+                    Clique para enviar pelos Correios
+                  </span>
                 </button>
               </div>
 
