@@ -15,7 +15,7 @@ type ProposalRow = {
   isScrap: boolean;
   sellerName: string;
   sellerWhatsapp: string;
-  city: string;
+  city: string | null;
   pickupPoint: string | null;
   createdAt: string;
   variant: {
@@ -432,7 +432,8 @@ function ProposalsPageContent() {
                   <td className={cls.td}>
                     <p>{proposal.sellerName}</p>
                     <p className="text-xs text-muted">
-                      {proposal.sellerWhatsapp} · {proposal.city}
+                      {proposal.sellerWhatsapp}
+                      {proposal.city ? ` · ${proposal.city}` : ""}
                     </p>
                   </td>
                   <td className={`${cls.td} font-semibold`}>

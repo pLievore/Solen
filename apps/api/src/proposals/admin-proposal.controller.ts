@@ -242,7 +242,8 @@ function proposalWhere(q: FiltersQuery): Prisma.ProposalWhereInput {
   return where;
 }
 
-function csvCell(value: string): string {
-  const safe = /^[=+\-@]/.test(value) ? `'${value}` : value;
+function csvCell(value: string | null | undefined): string {
+  const text = value ?? "";
+  const safe = /^[=+\-@]/.test(text) ? `'${text}` : text;
   return `"${safe.replace(/"/g, '""')}"`;
 }

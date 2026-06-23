@@ -1,6 +1,11 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Param, Patch, Post } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
-import { createProposalSchema, type CreateProposal } from "@vendy/shared";
+import {
+  createProposalSchema,
+  updateProposalPickupSchema,
+  type CreateProposal,
+  type UpdateProposalPickup,
+} from "@vendy/shared";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
 import { ProposalService } from "./proposal.service";
 
@@ -16,5 +21,16 @@ export class ProposalController {
     @Body(new ZodValidationPipe(createProposalSchema)) dto: CreateProposal,
   ) {
     return this.proposalService.create(dto);
+  }
+
+  /** PATCH /api/proposals/:token/pickup — grava o ponto de coleta escolhido. */
+  @Patch(":token/pickup")
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  updatePickup(
+    @Param("token") token: string,
+    @Body(new ZodValidationPipe(updateProposalPickupSchema))
+    dto: UpdateProposalPickup,
+  ) {
+    return this.proposalService.updatePickup(token, dto.pickupPointId);
   }
 }

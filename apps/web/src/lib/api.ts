@@ -32,6 +32,22 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${API_BASE_URL}/api${path}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw Object.assign(new Error(`API ${path} respondeu ${res.status}`), {
+      status: res.status,
+      body: text,
+    });
+  }
+  return res.json() as Promise<T>;
+}
+
 /** GET autenticado: envia o access token do Supabase no header Authorization. */
 export async function apiGetAuthed<T>(path: string, token: string): Promise<T> {
   return apiGet<T>(path, { headers: { Authorization: `Bearer ${token}` } });

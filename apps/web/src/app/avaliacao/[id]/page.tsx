@@ -1,15 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { apiGet, API_BASE_URL } from "@/lib/api";
+import { apiGet, apiPost, apiPatch } from "@/lib/api";
+import { PICKUP_POINTS, type PickupPointId } from "@vendy/shared";
 import PublicShell from "@/components/PublicShell";
 import { fadeUp, scaleIn, stagger, ease, easeFast } from "@/components/motion";
 import { track } from "@/lib/analytics";
-
-const QUOTE_STORAGE_KEY = "vendy_quote";
 
 type Answer = "YES" | "NO";
 type Knockout = { id: string; question: string; helpText: string | null; triggerAnswer: Answer };
@@ -143,7 +142,6 @@ function AnimatedPrice({ cents }: { cents: number }) {
 
 export default function EvaluationPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [data, setData] = useState<Questions | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -152,6 +150,16 @@ export default function EvaluationPage() {
   const [detailedA, setDetailedA] = useState<Record<string, Answer>>({});
   const [result, setResult] = useState<QuoteResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Captura nome + WhatsApp ANTES de revelar o valor (garante o lead).
+  const [phase, setPhase] = useState<"form" | "contact">("form");
+  const [name, setName] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
+  const [contactErr, setContactErr] = useState<Record<string, string>>({});
+  const [token, setToken] = useState<string | null>(null);
+  const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [pickupId, setPickupId] = useState<PickupPointId | null>(null);
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     apiGet<Questions>(`/evaluation/variants/${id}/questions`)
@@ -190,36 +198,92 @@ export default function EvaluationPage() {
     return !!conditionId && allDetailed;
   }, [data, knockoutA, scrapTriggered, conditionId, detailedA]);
 
-  async function submit() {
-    if (!data) return;
+  // Passo 1->2: das perguntas para o contato (sem revelar valor ainda).
+  function goToContact() {
+    if (!canSubmit) return;
+    setError(null);
+    setPhase("contact");
+    track("lead_form_started", { variant_id: id, is_scrap: scrapTriggered });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function validateContact(): boolean {
+    const e: Record<string, string> = {};
+    if (name.trim().length < 2) e.name = "Informe seu nome";
+    if (!/^[\d\s()+\-]{10,}$/.test(whatsapp)) e.whatsapp = "WhatsApp inválido";
+    setContactErr(e);
+    return Object.keys(e).length === 0;
+  }
+
+  // Passo 2: cria o lead (nome + WhatsApp) e só então revela o valor.
+  async function submitLead() {
+    if (!data || !validateContact()) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/quote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const resp = await apiPost<{
+        token: string;
+        value: number;
+        valueFormatted: string;
+        isScrap: boolean;
+        breakdown: QuoteResult["breakdown"];
+        whatsappUrl: string;
+      }>("/proposals", {
+        quote: {
           variantId: id,
           conditionStateId: scrapTriggered ? undefined : conditionId,
           knockoutAnswers: Object.entries(knockoutA).map(([questionId, answer]) => ({ questionId, answer })),
           detailedAnswers: scrapTriggered
             ? []
             : Object.entries(detailedA).map(([questionId, answer]) => ({ questionId, answer })),
-        }),
+        },
+        seller: { name: name.trim(), whatsapp: whatsapp.trim() },
       });
-      if (!res.ok) throw new Error("Falha no cálculo");
-      const quote = (await res.json()) as QuoteResult;
-      setResult(quote);
+      setToken(resp.token);
+      setWhatsappUrl(resp.whatsappUrl);
+      setResult({
+        isScrap: resp.isScrap,
+        value: resp.value,
+        valueFormatted: resp.valueFormatted,
+        breakdown: resp.breakdown,
+      });
       track("quote_generated", {
         variant_id: id,
-        value: quote.value / 100,
-        is_scrap: quote.isScrap,
+        value: resp.value / 100,
+        is_scrap: resp.isScrap,
       });
     } catch (e) {
-      setError((e as Error).message);
+      const status = (e as { status?: number }).status;
+      setError(
+        status === 429
+          ? "Muitas tentativas. Aguarde um instante e tente novamente."
+          : "Não foi possível enviar. Tente novamente.",
+      );
     } finally {
       setLoading(false);
     }
+  }
+
+  // Passo 3: grava o ponto de coleta e abre o WhatsApp.
+  async function sendWhatsApp() {
+    if (!pickupId) return;
+    setSending(true);
+    let url = whatsappUrl;
+    try {
+      if (token) {
+        const r = await apiPatch<{ whatsappUrl: string }>(
+          `/proposals/${token}/pickup`,
+          { pickupPointId: pickupId },
+        );
+        url = r.whatsappUrl;
+      }
+    } catch {
+      /* mantém a URL sem o ponto de coleta */
+    } finally {
+      setSending(false);
+    }
+    track("whatsapp_redirect", { variant_id: id });
+    window.location.href = url;
   }
 
   if (error && !data) {
@@ -368,46 +432,193 @@ export default function EvaluationPage() {
               ))}
             </motion.div>
 
-            <motion.div variants={fadeUp} transition={ease} className="mt-6 space-y-3">
+            {/* Ponto de coleta + envio */}
+            <motion.div
+              variants={fadeUp}
+              transition={ease}
+              className="mt-6 text-left"
+            >
+              <p className="text-sm font-semibold">Onde você quer entregar?</p>
+              <p className="mb-3 text-xs text-muted">
+                Escolha um ponto de coleta para combinarmos pelo WhatsApp.
+              </p>
+
+              <div className="space-y-3">
+                {Array.from(new Set(PICKUP_POINTS.filter((p) => p.id !== "correios").map((p) => p.region))).map((region) => (
+                  <div key={region}>
+                    <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
+                      {region}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {PICKUP_POINTS.filter((p) => p.id !== "correios" && p.region === region).map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => setPickupId(p.id)}
+                          className={`rounded-xl border px-3 py-2.5 text-left text-sm transition ${
+                            pickupId === p.id
+                              ? "border-brand bg-brand-subtle text-brand-subtle-fg shadow-sm shadow-brand/20"
+                              : "border-border bg-surface hover:border-brand"
+                          }`}
+                        >
+                          <span className="block font-medium leading-tight">{p.name}</span>
+                          <span className="block text-xs text-muted">{p.city}/{p.uf}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setPickupId("correios")}
+                  className={`flex w-full items-center gap-2 rounded-xl border border-dashed px-3 py-2.5 text-left text-sm transition ${
+                    pickupId === "correios"
+                      ? "border-brand bg-brand-subtle text-brand-subtle-fg"
+                      : "border-border bg-surface hover:border-brand"
+                  }`}
+                >
+                  <span className="font-medium">Sem ponto de coleta próximo?</span>
+                  <span className="text-xs text-muted">enviar pelos Correios</span>
+                </button>
+              </div>
+
+              <AnimatePresence>
+                {pickupId === "correios" && (
+                  <motion.p
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="mt-2 overflow-hidden rounded-xl border border-brand/30 bg-brand-subtle/40 px-3 py-2.5 text-[13px] leading-relaxed text-brand-subtle-fg"
+                  >
+                    📦 Sem problema! Você envia com segurança pelos Correios.
+                    Combinamos o endereço e a etiqueta pelo WhatsApp, e o pagamento
+                    é liberado assim que recebermos e conferirmos o aparelho.
+                  </motion.p>
+                )}
+              </AnimatePresence>
+
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.97 }}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-base font-semibold text-brand-fg shadow-brand transition hover:bg-brand-dark"
-                onClick={() => {
-                  sessionStorage.setItem(
-                    QUOTE_STORAGE_KEY,
-                    JSON.stringify({
-                      variantId: id,
-                      variantName: data.variant.name,
-                      conditionStateId: scrapTriggered ? undefined : conditionId,
-                      knockoutAnswers: Object.entries(knockoutA).map(([questionId, answer]) => ({ questionId, answer })),
-                      detailedAnswers: scrapTriggered
-                        ? []
-                        : Object.entries(detailedA).map(([questionId, answer]) => ({ questionId, answer })),
-                      value: result.value,
-                      valueFormatted: result.valueFormatted,
-                      isScrap: result.isScrap,
-                      breakdown: result.breakdown,
-                    }),
-                  );
-                  track("lead_form_started", {
-                    variant_id: id,
-                    value: result.value / 100,
-                    is_scrap: result.isScrap,
-                  });
-                  router.push("/proposta");
-                }}
+                whileHover={pickupId ? { scale: 1.02 } : undefined}
+                whileTap={pickupId ? { scale: 0.97 } : undefined}
+                disabled={!pickupId || sending}
+                onClick={sendWhatsApp}
+                className="group mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-base font-semibold text-brand-fg shadow-brand transition hover:bg-brand-dark disabled:opacity-50"
               >
-                Continuar para o WhatsApp
-                <span className="transition group-hover:translate-x-0.5">→</span>
+                {sending ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Abrindo WhatsApp...
+                  </>
+                ) : (
+                  <>
+                    Enviar no WhatsApp
+                    <span className="transition group-hover:translate-x-0.5">→</span>
+                  </>
+                )}
               </motion.button>
 
               <Link
                 href="/"
-                className="block text-center text-sm text-muted transition hover:text-brand"
+                className="mt-3 block text-center text-sm text-muted transition hover:text-brand"
               >
                 Avaliar outro aparelho
               </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+      </PublicShell>
+    );
+  }
+
+  // ── Contato (antes de revelar o valor) ────────────────────────────────────
+  if (phase === "contact") {
+    const inputBase =
+      "w-full rounded-xl border bg-surface px-4 py-3 text-sm outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/10";
+    return (
+      <PublicShell>
+        <div className="mx-auto max-w-md px-6 py-14">
+          <motion.div initial="initial" animate="animate" variants={stagger(0.06)}>
+            <motion.div variants={fadeUp} transition={ease}>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-subtle px-3 py-1 text-xs font-medium text-brand-subtle-fg">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand" /> Quase lá!
+              </span>
+              <h1 className="mt-3 text-2xl font-bold tracking-tight">
+                Sua avaliação está pronta
+              </h1>
+              <p className="mt-1 text-sm text-muted">
+                Informe seu nome e WhatsApp para ver o valor e finalizar a venda
+                de {data.variant.name}.
+              </p>
+            </motion.div>
+
+            <motion.div variants={fadeUp} transition={ease} className="mt-6 space-y-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">Nome completo</label>
+                <input
+                  type="text"
+                  autoComplete="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Seu nome"
+                  className={`${inputBase} ${contactErr.name ? "border-red-400" : "border-border"}`}
+                />
+                {contactErr.name && (
+                  <p className="mt-1 text-xs text-red-500">{contactErr.name}</p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">WhatsApp</label>
+                <input
+                  type="tel"
+                  autoComplete="tel"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value)}
+                  placeholder="(11) 99999-9999"
+                  className={`${inputBase} ${contactErr.whatsapp ? "border-red-400" : "border-border"}`}
+                />
+                {contactErr.whatsapp && (
+                  <p className="mt-1 text-xs text-red-500">{contactErr.whatsapp}</p>
+                )}
+              </div>
+
+              {error && (
+                <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                  {error}
+                </p>
+              )}
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                disabled={loading}
+                onClick={submitLead}
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-base font-semibold text-brand-fg shadow-brand transition hover:bg-brand-dark disabled:opacity-60"
+              >
+                {loading ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Calculando...
+                  </>
+                ) : (
+                  <>
+                    Ver minha avaliação
+                    <span className="transition group-hover:translate-x-0.5">→</span>
+                  </>
+                )}
+              </motion.button>
+
+              <button
+                type="button"
+                onClick={() => { setPhase("form"); setError(null); }}
+                className="block w-full text-center text-sm text-muted transition hover:text-brand"
+              >
+                ← Voltar
+              </button>
+              <p className="text-center text-[11px] text-muted">
+                🔒 Usamos seu contato apenas para enviar a proposta. Sem spam.
+              </p>
             </motion.div>
           </motion.div>
         </div>
@@ -575,22 +786,15 @@ export default function EvaluationPage() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
-                disabled={loading}
-                onClick={submit}
-                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-base font-semibold text-brand-fg shadow-brand transition hover:bg-brand-dark disabled:opacity-60"
+                onClick={goToContact}
+                className="group flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-6 py-4 text-base font-semibold text-brand-fg shadow-brand transition hover:bg-brand-dark"
               >
-                {loading ? (
-                  <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                    Calculando...
-                  </>
-                ) : (
-                  <>
-                    Ver minha proposta
-                    <span className="transition group-hover:translate-x-0.5">→</span>
-                  </>
-                )}
+                Ver minha avaliação
+                <span className="transition group-hover:translate-x-0.5">→</span>
               </motion.button>
+              <p className="mt-2 text-center text-xs text-muted">
+                Avaliação grátis e sem compromisso.
+              </p>
             </motion.div>
           )}
         </AnimatePresence>

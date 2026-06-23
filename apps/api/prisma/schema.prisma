@@ -145,11 +145,11 @@ model Proposal {
   breakdown        Json // composição do cálculo (auditoria)
   sellerName       String
   sellerWhatsapp   String
-  cep              String
-  city             String
-  neighborhood     String
-  street           String
-  number           String
+  cep              String? // endereco nao e mais coletado (mantido para historico)
+  city             String?
+  neighborhood     String?
+  street           String?
+  number           String?
   pickupPoint      String? // ponto de coleta escolhido (ou "Envio pelos Correios")
   status           String   @default("NEW") // NEW | CONTACTED | CLOSED | LOST
   createdAt        DateTime @default(now())

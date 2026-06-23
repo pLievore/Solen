@@ -19,11 +19,11 @@ type Proposal = {
   answers: { knockout: Answer[]; detailed: Answer[] };
   sellerName: string;
   sellerWhatsapp: string;
-  cep: string;
-  city: string;
-  neighborhood: string;
-  street: string;
-  number: string;
+  cep: string | null;
+  city: string | null;
+  neighborhood: string | null;
+  street: string | null;
+  number: string | null;
   pickupPoint: string | null;
   createdAt: string;
   conditionStateId: string | null;
@@ -166,12 +166,20 @@ export default function ProposalDetailPage() {
               </a>
             </dd>
           </div>
-          <div><dt className="text-muted">CEP</dt><dd>{proposal.cep}</dd></div>
-          <div><dt className="text-muted">Cidade</dt><dd>{proposal.city}</dd></div>
-          <div><dt className="text-muted">Bairro</dt><dd>{proposal.neighborhood}</dd></div>
-          <div className="col-span-2"><dt className="text-muted">Endereço</dt>
-            <dd>{proposal.street}, {proposal.number}</dd>
-          </div>
+          {proposal.city && (
+            <div><dt className="text-muted">Cidade</dt><dd>{proposal.city}</dd></div>
+          )}
+          {proposal.cep && (
+            <div><dt className="text-muted">CEP</dt><dd>{proposal.cep}</dd></div>
+          )}
+          {(proposal.street || proposal.neighborhood) && (
+            <div className="col-span-2"><dt className="text-muted">Endereço</dt>
+              <dd>
+                {[proposal.street, proposal.number].filter(Boolean).join(", ")}
+                {proposal.neighborhood ? ` — ${proposal.neighborhood}` : ""}
+              </dd>
+            </div>
+          )}
           <div className="col-span-2"><dt className="text-muted">Ponto de coleta</dt>
             <dd>{proposal.pickupPoint ?? "—"}</dd>
           </div>
