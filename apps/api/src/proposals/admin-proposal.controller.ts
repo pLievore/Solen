@@ -179,7 +179,41 @@ export class AdminProposalController {
       },
     });
     if (!proposal) throw new NotFoundException("Proposta não encontrada");
-    return proposal;
+
+    // Resolve os ids das perguntas para o texto real (em vez do hash).
+    const answers = (proposal.answers ?? {}) as {
+      knockout?: { questionId: string; answer: string }[];
+      detailed?: { questionId: string; answer: string }[];
+    };
+    const knockoutAnswers = answers.knockout ?? [];
+    const detailedAnswers = answers.detailed ?? [];
+
+    const [knockoutQuestions, detailedQuestions] = await Promise.all([
+      this.prisma.knockoutQuestion.findMany({
+        where: { id: { in: knockoutAnswers.map((a) => a.questionId) } },
+        select: { id: true, question: true },
+      }),
+      this.prisma.detailedState.findMany({
+        where: { id: { in: detailedAnswers.map((a) => a.questionId) } },
+        select: { id: true, question: true },
+      }),
+    ]);
+    const knockoutMap = new Map(knockoutQuestions.map((q) => [q.id, q.question]));
+    const detailedMap = new Map(detailedQuestions.map((q) => [q.id, q.question]));
+
+    return {
+      ...proposal,
+      answers: {
+        knockout: knockoutAnswers.map((a) => ({
+          ...a,
+          question: knockoutMap.get(a.questionId) ?? a.questionId,
+        })),
+        detailed: detailedAnswers.map((a) => ({
+          ...a,
+          question: detailedMap.get(a.questionId) ?? a.questionId,
+        })),
+      },
+    };
   }
 
   /** PATCH /api/admin/proposals/:id — atualiza status. */

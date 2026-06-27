@@ -7,7 +7,7 @@ import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
 
 type BreakdownItem = { type: string; label: string; amount: number };
-type Answer = { questionId: string; answer: string };
+type Answer = { questionId: string; question?: string; answer: string };
 
 type Proposal = {
   id: string;
@@ -209,11 +209,11 @@ export default function ProposalDetailPage() {
         {proposal.answers.knockout.length > 0 && (
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">Knockout</p>
-            <ul className="space-y-0.5 text-sm">
+            <ul className="space-y-1 text-sm">
               {proposal.answers.knockout.map((a, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-muted">{a.questionId.slice(0, 8)}…</span>
-                  <span className={a.answer === "YES" ? "text-green-600" : "text-red-600"}>
+                <li key={i} className="flex items-start justify-between gap-3">
+                  <span className="text-muted">{a.question ?? a.questionId}</span>
+                  <span className={`shrink-0 font-medium ${a.answer === "YES" ? "text-green-600" : "text-red-600"}`}>
                     {a.answer === "YES" ? "Sim" : "Não"}
                   </span>
                 </li>
@@ -224,11 +224,11 @@ export default function ProposalDetailPage() {
         {proposal.answers.detailed.length > 0 && (
           <div>
             <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">Detalhados</p>
-            <ul className="space-y-0.5 text-sm">
+            <ul className="space-y-1 text-sm">
               {proposal.answers.detailed.map((a, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-muted">{a.questionId.slice(0, 8)}…</span>
-                  <span className={a.answer === "YES" ? "text-green-600" : "text-red-600"}>
+                <li key={i} className="flex items-start justify-between gap-3">
+                  <span className="text-muted">{a.question ?? a.questionId}</span>
+                  <span className={`shrink-0 font-medium ${a.answer === "YES" ? "text-green-600" : "text-red-600"}`}>
                     {a.answer === "YES" ? "Sim" : "Não"}
                   </span>
                 </li>
