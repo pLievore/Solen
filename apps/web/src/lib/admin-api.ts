@@ -52,3 +52,33 @@ export async function uploadIcon(file: File): Promise<string> {
   const j = (await res.json()) as { url: string };
   return j.url;
 }
+
+export type RepairMedia = {
+  id: string;
+  deviceId: string;
+  slot: string;
+  kind: string;
+  path: string;
+  createdAt: string;
+  url: string | null;
+};
+
+/** Upload de comprovação (foto/vídeo) de um aparelho em assistência. */
+export async function uploadRepairMedia(
+  deviceId: string,
+  slot: string,
+  file: File,
+): Promise<RepairMedia> {
+  const form = new FormData();
+  form.append("slot", slot);
+  form.append("file", file);
+  const res = await fetch(
+    `${API_BASE_URL}/api/admin/repair-devices/${deviceId}/media`,
+    { method: "POST", headers: { ...(await authHeader()) }, body: form },
+  );
+  if (!res.ok) {
+    const j = (await res.json().catch(() => ({}))) as { message?: string };
+    throw new Error(j.message ?? "Falha no upload");
+  }
+  return res.json() as Promise<RepairMedia>;
+}

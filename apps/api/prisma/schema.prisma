@@ -201,10 +201,25 @@ model RepairDevice {
   priorDefects    String? // defeitos prévios sinalizados
   services        String? // serviços a realizar (troca de tela/bateria/câmeras...)
   status          String   @default("RECEBIDO") // RECEBIDO | EM_REPARO | CONCLUIDO | ENTREGUE
+  media           RepairMedia[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([status])
   @@index([technicianId])
   @@map("repair_devices")
+}
+
+model RepairMedia {
+  id        String       @id @default(uuid())
+  deviceId  String
+  device    RepairDevice @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  slot      String // carcaca | biometria | cameras | energia | botoes
+  kind      String // photo | video
+  path      String // caminho no bucket privado (signed url + remoção)
+  createdAt DateTime     @default(now())
+
+  @@index([deviceId])
+  @@index([createdAt])
+  @@map("repair_media")
 }

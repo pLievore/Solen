@@ -68,11 +68,14 @@ Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `
 - Front: `/admin/assistencia` (lista, role-aware), `/admin/assistencia/novo` (form admin), `/admin/assistencia/[id]` (admin edita + exclui; técnico vê leitura). Form compartilhado `_DeviceForm.tsx` (foto via `uploadIcon`, seleção de técnico via `/admin/users` filtrado).
 - Vínculo de técnico: `technicianId` (id Supabase) + `technicianEmail` (snapshot p/ exibição).
 
-### C3. Mídias de comprovação + checklist
-- Bucket **privado** novo (ex.: `assistencia`). Endpoint de upload de **vídeo** (≤10s, validar MIME/tamanho) e foto.
-- Checklist por aparelho: Carcaça (vídeo 5s: frente ligada/verso/laterais), Biometria (Face/Touch), Câmeras (vídeo 10s: traseira/ultra wide/tele/frontal/flash), Energia (foto saúde da bateria), Botões (vídeo 5s: volume/power/ação 15Pro+/silêncio antigos).
-- **Retenção 3 meses**: rotina (cron) que apaga objetos com >90 dias do bucket. Guardar `createdAt`/path para a limpeza.
-- Atenção a custo de storage (vídeo). Limite 10s ajuda; considerar compressão no app.
+### C3. Mídias de comprovação + checklist  ✅ FEITA
+- Bucket **privado** `assistencia` (auto-criado no 1º upload; env opcional `SUPABASE_ASSIST_BUCKET`). Exibição via **signed URLs** (TTL 1h).
+- Prisma `RepairMedia` (deviceId, slot, kind, path, createdAt) + migration `6_repair_media` aplicada na prod.
+- API `assistencia/repair-media.controller.ts`: `POST /admin/repair-devices/:id/media` (multipart slot+file), `GET .../media` (signed URLs), `DELETE /admin/repair-media/:id`, `POST /admin/repair-media/cleanup`. Acesso admin + técnico atribuído. Imagem ≤8MB, vídeo ≤40MB; MIME validado.
+- Checklist em `packages/shared/src/schemas/repair.ts` (`REPAIR_CHECKLIST`): carcaça (vídeo), biometria (foto), câmeras (vídeo), energia (foto), botões (vídeo). `REPAIR_VIDEO_MAX_SECONDS = 10`.
+- Front: `_MediaChecklist.tsx` no detalhe do aparelho (admin e técnico anexam). Validação de **duração ≤10s no navegador** antes do upload; preview de foto/vídeo; remover.
+- **Retenção 3 meses**: `runRetention()` apaga mídias >90 dias (storage + DB). Roda **a cada upload** (oportunista) e via `POST /admin/repair-media/cleanup`.
+  - OBS: para limpeza garantida sem depender de atividade, criar depois um cron externo (precisa de auth/secret) — hoje o endpoint exige admin.
 
 ---
 
@@ -82,8 +85,7 @@ Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `
 - [x] Fase B (4) — página passo a passo.
 - [x] Fase C1 (permissões) — RBAC admin/técnico, página /admin/permissoes, gating.
 - [x] Fase C2 (cadastro de aparelhos) — RepairDevice + páginas de assistência.
-- [ ] Fase C3 (mídias + retenção)
+- [x] Fase C3 (mídias + retenção) — bucket privado, checklist, signed URLs, retenção 90d.
 
-> Próximo passo: Fase C3 — bucket privado `assistencia`, endpoint de upload de
-> foto/vídeo (≤10s), checklist de comprovações por aparelho (carcaça, biometria,
-> câmeras, energia, botões) e rotina de retenção (apagar >90 dias).
+> TODAS as fases do PDF concluídas. Pendência opcional: cron externo para a
+> retenção rodar independente de atividade (hoje é oportunista + endpoint admin).

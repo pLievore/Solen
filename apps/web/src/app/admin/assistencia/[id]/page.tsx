@@ -6,6 +6,7 @@ import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
 import DeviceForm, { type DeviceFormValue } from "../_DeviceForm";
+import MediaChecklist from "../_MediaChecklist";
 import { STATUS_COLOR, STATUS_LABEL, type RepairDevice } from "../_shared";
 
 function toForm(d: RepairDevice): DeviceFormValue {
@@ -143,15 +144,8 @@ export default function RepairDeviceDetailPage() {
         </div>
       )}
 
-      {/* Comprovações de funcionamento (Fase C3) */}
-      <div className="rounded-xl border border-dashed border-border bg-surface p-5 text-center">
-        <p className="text-2xl">🎥</p>
-        <p className="mt-2 text-sm font-medium">Comprovações de funcionamento</p>
-        <p className="mt-1 text-xs text-muted">
-          Checklist de fotos e vídeos (carcaça, biometria, câmeras, energia,
-          botões) chega na próxima entrega.
-        </p>
-      </div>
+      {/* Comprovações de funcionamento */}
+      <MediaChecklist deviceId={device.id} />
     </div>
   );
 }
