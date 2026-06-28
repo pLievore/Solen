@@ -182,6 +182,10 @@ export class AdminProposalController {
             model: { include: { category: true } },
           },
         },
+        repairDevices: {
+          select: { id: true, model: true, status: true },
+          orderBy: { createdAt: "desc" },
+        },
       },
     });
     if (!proposal) throw new NotFoundException("Proposta não encontrada");

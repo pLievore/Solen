@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
 import { Icon } from "@/lib/icons";
@@ -33,6 +34,7 @@ type Proposal = {
     name: string;
     model: { name: string; category: { name: string } };
   };
+  repairDevices: { id: string; model: string; status: string }[];
 };
 
 const STATUS_OPTIONS = [
@@ -55,6 +57,7 @@ function fmt(cents: number) {
 
 export default function ProposalDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const router = useRouter();
   const [proposal, setProposal] = useState<Proposal | null>(null);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
@@ -62,6 +65,7 @@ export default function ProposalDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [valueReais, setValueReais] = useState("");
   const [savingValue, setSavingValue] = useState(false);
+  const [sendingRepair, setSendingRepair] = useState(false);
   const [copied, setCopied] = useState<"saudacao" | "status" | null>(null);
 
   useEffect(() => {
@@ -103,6 +107,26 @@ export default function ProposalDetailPage() {
       setTimeout(() => setCopied(null), 1800);
     } catch {
       setError("Não foi possível copiar.");
+    }
+  }
+
+  async function sendToRepair() {
+    const linked = proposal?.repairDevices[0];
+    if (linked) {
+      router.push(`/admin/assistencia/${linked.id}`);
+      return;
+    }
+    setSendingRepair(true);
+    setError(null);
+    try {
+      const device = await adminApi.post<{ id: string }>(
+        "/admin/repair-devices/from-proposal",
+        { proposalId: id },
+      );
+      router.push(`/admin/assistencia/${device.id}`);
+    } catch (e) {
+      setError((e as Error).message);
+      setSendingRepair(false);
     }
   }
 
@@ -189,6 +213,47 @@ export default function ProposalDetailPage() {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Assistência técnica */}
+      <div className={cls.card + " space-y-3"}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="font-semibold">Assistência técnica</h2>
+            <p className="text-xs text-muted">
+              {proposal.repairDevices.length > 0
+                ? "Este aparelho já foi enviado para a assistência."
+                : "Envie este aparelho para manutenção/assistência."}
+            </p>
+          </div>
+          <button
+            onClick={sendToRepair}
+            disabled={sendingRepair}
+            className={cls.btn + " disabled:opacity-50"}
+          >
+            <Icon.wrench size={15} />
+            {sendingRepair
+              ? "Enviando…"
+              : proposal.repairDevices.length > 0
+                ? "Abrir aparelho"
+                : "Enviar para assistência"}
+          </button>
+        </div>
+        {proposal.repairDevices.length > 0 && (
+          <ul className="space-y-1 text-sm">
+            {proposal.repairDevices.map((d) => (
+              <li key={d.id}>
+                <Link
+                  href={`/admin/assistencia/${d.id}`}
+                  className="inline-flex items-center gap-1 text-brand hover:underline"
+                >
+                  {d.model} <span className="text-xs text-muted">· {d.status}</span>
+                  <Icon.arrowRight size={13} />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {/* Status */}

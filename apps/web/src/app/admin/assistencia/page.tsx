@@ -84,7 +84,14 @@ export default function AssistenciaPage() {
                       ) : (
                         <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-2 text-xs">📱</span>
                       )}
-                      <span className="font-medium">{d.model}</span>
+                      <div>
+                        <span className="font-medium">{d.model}</span>
+                        {d.proposal && (
+                          <span className="ml-2 rounded bg-brand-subtle px-1.5 py-0.5 font-mono text-[10px] text-brand-subtle-fg">
+                            #{d.proposal.token}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className={cls.td + " text-muted"}>{d.technicianEmail ?? "—"}</td>

@@ -153,6 +153,7 @@ model Proposal {
   number           String?
   pickupPoint      String? // ponto de coleta escolhido (ou "Envio pelos Correios")
   status           String   @default("NEW") // NEW | CONTACTED | CLOSED | LOST
+  repairDevices    RepairDevice[] // aparelhos enviados para assistência a partir desta proposta
   createdAt        DateTime @default(now())
 
   @@index([status])
@@ -201,12 +202,15 @@ model RepairDevice {
   priorDefects    String? // defeitos prévios sinalizados
   services        String? // serviços a realizar (troca de tela/bateria/câmeras...)
   status          String   @default("RECEBIDO") // RECEBIDO | EM_REPARO | CONCLUIDO | ENTREGUE
+  proposalId      String? // proposta/lead vinculado (opcional)
+  proposal        Proposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
   media           RepairMedia[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([status])
   @@index([technicianId])
+  @@index([proposalId])
   @@map("repair_devices")
 }
 

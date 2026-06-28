@@ -1,3 +1,9 @@
+export type LinkedProposal = {
+  id: string;
+  token: string;
+  sellerName: string;
+};
+
 export type RepairDevice = {
   id: string;
   model: string;
@@ -8,8 +14,23 @@ export type RepairDevice = {
   priorDefects: string | null;
   services: string | null;
   status: string;
+  proposalId: string | null;
+  proposal: LinkedProposal | null;
   createdAt: string;
   updatedAt: string;
+};
+
+/** Proposta exibida na assistência para vinculação — sem valores. */
+export type LinkableProposal = {
+  id: string;
+  token: string;
+  sellerName: string;
+  sellerWhatsapp: string;
+  status: string;
+  isScrap: boolean;
+  createdAt: string;
+  deviceLabel: string;
+  linkedDeviceId: string | null;
 };
 
 export const STATUS_LABEL: Record<string, string> = {

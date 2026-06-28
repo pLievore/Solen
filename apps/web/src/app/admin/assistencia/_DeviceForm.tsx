@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { adminApi, uploadIcon } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
 import { Icon } from "@/lib/icons";
+import type { LinkableProposal } from "./_shared";
 
 type Tecnico = { id: string; email: string | null; role: string | null };
 
@@ -16,6 +17,7 @@ export type DeviceFormValue = {
   priorDefects: string;
   services: string;
   status: string;
+  proposalId: string | null;
 };
 
 const STATUSES: [string, string][] = [
@@ -34,6 +36,7 @@ export const EMPTY_DEVICE: DeviceFormValue = {
   priorDefects: "",
   services: "",
   status: "RECEBIDO",
+  proposalId: null,
 };
 
 export default function DeviceForm({
@@ -49,6 +52,7 @@ export default function DeviceForm({
 }) {
   const [v, setV] = useState<DeviceFormValue>(initial);
   const [tecnicos, setTecnicos] = useState<Tecnico[]>([]);
+  const [proposals, setProposals] = useState<LinkableProposal[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -57,6 +61,10 @@ export default function DeviceForm({
       .get<Tecnico[]>("/admin/users")
       .then((us) => setTecnicos(us.filter((u) => u.role && u.role !== "admin")))
       .catch(() => setTecnicos([]));
+    adminApi
+      .get<LinkableProposal[]>("/admin/repair-devices/linkable-proposals")
+      .then(setProposals)
+      .catch(() => setProposals([]));
   }, []);
 
   function set<K extends keyof DeviceFormValue>(k: K, val: DeviceFormValue[K]) {
@@ -165,6 +173,26 @@ export default function DeviceForm({
             ))}
           </select>
         </div>
+      </div>
+
+      {/* Proposta vinculada */}
+      <div className={cls.card + " space-y-1"}>
+        <label className={cls.label}>Proposta vinculada</label>
+        <select
+          value={v.proposalId ?? ""}
+          onChange={(e) => set("proposalId", e.target.value || null)}
+          className={cls.input}
+        >
+          <option value="">Sem proposta</option>
+          {proposals.map((p) => (
+            <option key={p.id} value={p.id}>
+              #{p.token} — {p.sellerName} ({p.deviceLabel})
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-muted">
+          Conecte este aparelho a uma proposta recebida no site.
+        </p>
       </div>
 
       {/* Textos */}

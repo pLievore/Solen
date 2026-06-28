@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
@@ -20,6 +21,7 @@ function toForm(d: RepairDevice): DeviceFormValue {
     priorDefects: d.priorDefects ?? "",
     services: d.services ?? "",
     status: d.status,
+    proposalId: d.proposalId,
   };
 }
 
@@ -33,6 +35,7 @@ function payload(v: DeviceFormValue) {
     priorDefects: v.priorDefects.trim() || null,
     services: v.services.trim() || null,
     status: v.status,
+    proposalId: v.proposalId,
   };
 }
 
@@ -122,6 +125,25 @@ export default function RepairDeviceDetailPage() {
         </p>
       )}
       {error && <p className="text-sm text-red-500">{error}</p>}
+
+      {device.proposal && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-2/60 px-4 py-3 text-sm">
+          <span className="flex items-center gap-2 text-muted">
+            <Icon.inbox size={15} />
+            Proposta vinculada:{" "}
+            <span className="font-mono font-medium text-fg">#{device.proposal.token}</span>
+            <span className="text-muted">· {device.proposal.sellerName}</span>
+          </span>
+          {isAdmin !== false && (
+            <Link
+              href={`/admin/proposals/${device.proposal.id}`}
+              className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+            >
+              Abrir proposta <Icon.arrowRight size={13} />
+            </Link>
+          )}
+        </div>
+      )}
 
       {isAdmin !== false ? (
         <>

@@ -17,6 +17,7 @@ function payload(v: DeviceFormValue) {
     priorDefects: v.priorDefects.trim() || null,
     services: v.services.trim() || null,
     status: v.status,
+    proposalId: v.proposalId,
   };
 }
 
