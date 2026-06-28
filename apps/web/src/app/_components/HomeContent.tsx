@@ -68,6 +68,17 @@ export default function HomeContent({
             animate="animate"
             variants={stagger(0.07)}
           >
+            <motion.div variants={fadeUp} transition={ease} className="mb-5 flex justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-mark.svg"
+                alt="Vendy"
+                width={80}
+                height={80}
+                className="h-16 w-16 drop-shadow-[0_8px_24px_rgba(0,204,10,0.35)] sm:h-20 sm:w-20"
+              />
+            </motion.div>
+
             <motion.span
               variants={fadeUp}
               transition={ease}
