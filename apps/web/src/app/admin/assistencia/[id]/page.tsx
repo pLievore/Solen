@@ -6,7 +6,7 @@ import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
 import DeviceForm, { type DeviceFormValue } from "../_DeviceForm";
-import { STATUS_COLOR, STATUS_LABEL, type RepairDevice } from "../page";
+import { STATUS_COLOR, STATUS_LABEL, type RepairDevice } from "../_shared";
 
 function toForm(d: RepairDevice): DeviceFormValue {
   return {
