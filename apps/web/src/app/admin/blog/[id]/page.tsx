@@ -6,6 +6,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { adminApi } from "@/lib/admin-api";
 import { cls, slugify } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../../_components/PageHeader";
 
 // Load TipTap editor client-side only (uses browser APIs)
 const RichEditor = dynamic(() => import("../_components/RichEditor"), { ssr: false });
@@ -107,16 +109,20 @@ export default function BlogEditPage() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/admin/blog" className="text-sm text-muted hover:text-brand">
-          ← Blog
-        </Link>
-        <span className="text-muted">/</span>
-        <span className="font-medium">{isNew ? "Novo post" : "Editar post"}</span>
-      </div>
+      <PageHeader
+        title={isNew ? "Novo post" : "Editar post"}
+        subtitle={isNew ? "Escreva um novo artigo para o blog." : form.title || undefined}
+        icon={<Icon.file size={20} />}
+        back={{ href: "/admin/blog", label: "Blog" }}
+      />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {msg && <p className="text-sm text-brand">{msg}</p>}
+      {msg && (
+        <p className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand-subtle px-3 py-2 text-sm text-brand-subtle-fg">
+          <Icon.check size={15} />
+          {msg}
+        </p>
+      )}
 
       {/* Título + Slug */}
       <div className={cls.card + " space-y-3"}>
@@ -212,12 +218,9 @@ export default function BlogEditPage() {
           {saving ? "Salvando..." : isNew ? "Criar post" : "Salvar alterações"}
         </button>
         {!isNew && (
-          <Link
-            href={`/blog/${form.slug}`}
-            target="_blank"
-            className={cls.btnGhost}
-          >
-            Ver post ↗
+          <Link href={`/blog/${form.slug}`} target="_blank" className={cls.btnGhost}>
+            Ver post
+            <Icon.external size={14} />
           </Link>
         )}
       </div>

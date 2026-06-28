@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
-import { cls, slugify } from "@/lib/ui";
+import { cls, badge, slugify } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Model = { id: string; name: string };
 type Variant = {
@@ -75,10 +77,14 @@ export default function VariantsPage() {
 
   return (
     <div className="max-w-4xl space-y-6">
-      <h1 className="text-2xl font-bold">Versoes</h1>
+      <PageHeader
+        title="Versões"
+        subtitle="Versões (armazenamento) de cada modelo e seus preços."
+        icon={<Icon.layers size={20} />}
+      />
 
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">Nova versao</p>
+        <p className="font-semibold">Nova versão</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Modelo</label>
@@ -128,11 +134,11 @@ export default function VariantsPage() {
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
         <table className="w-full min-w-[680px] border-collapse">
           <thead>
             <tr className="bg-surface-2/70">
-              <th className={cls.th}>Versao</th>
+              <th className={cls.th}>Versão</th>
               <th className={cls.th}>Modelo</th>
               <th className={cls.th}>Sucata</th>
               <th className={cls.th}>Ativa</th>
@@ -141,19 +147,26 @@ export default function VariantsPage() {
           </thead>
           <tbody>
             {items.map((v) => (
-              <tr key={v.id} className="hover:bg-surface-2/50">
-                <td className={cls.td}>{v.name}</td>
+              <tr key={v.id} className="transition hover:bg-surface-2/50">
+                <td className={cls.td + " font-medium"}>{v.name}</td>
                 <td className={cls.td + " text-muted"}>{v.model?.name}</td>
-                <td className={cls.td}>
+                <td className={cls.td + " tabular-nums"}>
                   {v.scrapPrice != null ? `R$ ${(v.scrapPrice / 100).toFixed(2)}` : "—"}
                 </td>
-                <td className={cls.td}>{v.active ? "Sim" : "Nao"}</td>
+                <td className={cls.td}>
+                  <span className={badge(v.active ? "green" : "neutral")}>
+                    {v.active ? "Ativa" : "Inativa"}
+                  </span>
+                </td>
                 <td className={cls.td}>
                   <div className="flex gap-2">
                     <Link className={cls.btnGhost} href={`/admin/variants/${v.id}`}>
-                      Precos / Estados
+                      <Icon.sliders size={14} />
+                      Preços / Estados
                     </Link>
-                    <button className={cls.btnDanger} onClick={() => remove(v.id)}>Excluir</button>
+                    <button className={cls.btnDanger} onClick={() => remove(v.id)}>
+                      <Icon.trash size={14} />
+                    </button>
                   </div>
                 </td>
               </tr>

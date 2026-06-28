@@ -1,35 +1,52 @@
 /*
  * DESIGN TOKENS — Vendy
- * Paleta provisoria: branco / preto / verde.
- * A identidade visual final entra aqui (ou via painel de Configuracoes),
- * sem precisar refatorar componentes.
+ * Paleta: branco / grafite / verde.
+ * Conteudo em fundo claro; navegacao (admin) em grafite escuro premium.
+ * A identidade visual final entra aqui sem precisar refatorar componentes.
  */
 :root {
   /* cores base */
   --color-bg: #ffffff;
   --color-fg: #0a0a0a;
   --color-muted: #6b7280;
-  --color-border: #e5e7eb;
+  --color-border: #e7e9ee;
   --color-surface: #f9fafb;       /* fundo de cards */
-  --color-surface-2: #f3f4f6;    /* hover de cards */
+  --color-surface-2: #f1f3f6;    /* hover de cards */
 
-  /* marca */
+  /* marca (escala) */
   --color-brand: #15803d;
   --color-brand-dark: #166534;
   --color-brand-fg: #ffffff;
   --color-brand-subtle: #dcfce7; /* fundo light-green */
   --color-brand-subtle-fg: #166534;
+  --color-brand-50: #f0fdf4;
+  --color-brand-100: #dcfce7;
+  --color-brand-200: #bbf7d0;
+  --color-brand-400: #4ade80;
+  --color-brand-500: #22c55e;
+  --color-brand-600: #16a34a;
+
+  /* navegacao escura (admin) */
+  --color-nav: #0f1419;          /* fundo da sidebar */
+  --color-nav-2: #161c24;        /* superficie elevada na sidebar */
+  --color-nav-fg: #e7ebf0;       /* texto principal */
+  --color-nav-muted: #8a93a3;    /* texto secundario / labels */
+  --color-nav-border: rgba(255, 255, 255, 0.07);
+  --color-nav-hover: rgba(255, 255, 255, 0.055);
+  --color-nav-active: rgba(34, 197, 94, 0.14);
 
   /* sombras */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,.06);
-  --shadow-md: 0 4px 12px rgba(0,0,0,.08), 0 1px 3px rgba(0,0,0,.06);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,.12), 0 4px 12px rgba(0,0,0,.06);
-  --shadow-brand: 0 8px 24px rgba(21,128,61,.25);
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, .05);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
+  --shadow-md: 0 4px 14px rgba(16, 24, 40, .08), 0 1px 3px rgba(16, 24, 40, .05);
+  --shadow-lg: 0 16px 48px rgba(16, 24, 40, .14), 0 4px 12px rgba(16, 24, 40, .06);
+  --shadow-brand: 0 8px 24px rgba(21, 128, 61, .25);
 
   /* forma / tipografia */
   --radius: 0.75rem;
   --radius-sm: 0.5rem;
   --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
   /* transições */
@@ -37,7 +54,7 @@
   --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
-/* Suporte futuro a tema escuro */
+/* Suporte futuro a tema escuro do conteudo */
 @media (prefers-color-scheme: dark) {
   :root[data-theme="auto"] {
     --color-bg: #0a0a0a;

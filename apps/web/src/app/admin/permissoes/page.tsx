@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { ADMIN_PAGES } from "@vendy/shared";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Role = {
   key: string;
@@ -160,16 +162,19 @@ export default function PermissoesPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Permissões</h1>
-        <p className="text-sm text-muted">
-          Crie níveis de acesso, defina o que cada um enxerga e atribua aos
-          usuários. O papel <strong>Administrador</strong> tem acesso total.
-        </p>
-      </div>
+      <PageHeader
+        title="Permissões"
+        subtitle="Crie níveis de acesso, defina o que cada um enxerga e atribua aos usuários. O papel Administrador tem acesso total."
+        icon={<Icon.shield size={20} />}
+      />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {msg && <p className="rounded bg-brand/10 px-3 py-2 text-sm text-brand">{msg}</p>}
+      {msg && (
+        <p className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand-subtle px-3 py-2 text-sm text-brand-subtle-fg">
+          <Icon.check size={15} />
+          {msg}
+        </p>
+      )}
 
       {/* Níveis de permissão */}
       <section className="space-y-3">

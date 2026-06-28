@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../../_components/PageHeader";
 
 type BreakdownItem = { type: string; label: string; amount: number };
 type Answer = { questionId: string; question?: string; answer: string };
@@ -147,33 +148,46 @@ export default function ProposalDetailPage() {
   const statusMsg =
     statusLines.join("\n") + "\n\nVocê pode falar sobre sua negociação agora?";
 
+  const statusLabel =
+    STATUS_OPTIONS.find((o) => o.value === proposal.status)?.label ?? proposal.status;
+
   return (
     <div className="max-w-2xl space-y-6">
-      <div className="flex items-center gap-3">
-        <Link href="/admin/proposals" className="text-sm text-muted hover:text-brand">
-          ← Propostas
-        </Link>
-        <span className="text-muted">/</span>
-        <span className="font-mono text-sm font-medium">{proposal.token}</span>
-      </div>
+      <PageHeader
+        title={variantLabel}
+        subtitle={new Date(proposal.createdAt).toLocaleString("pt-BR")}
+        back={{ href: "/admin/proposals", label: "Propostas" }}
+        actions={
+          <span className="font-mono text-xs font-medium text-muted">#{proposal.token}</span>
+        }
+      />
 
-      <div className="flex flex-wrap items-start gap-4">
-        <div>
-          <p className="text-xs text-muted uppercase tracking-wide">Aparelho</p>
-          <p className="font-medium">{variantLabel}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted uppercase tracking-wide">Data</p>
-          <p>{new Date(proposal.createdAt).toLocaleString("pt-BR")}</p>
-        </div>
-        <div>
-          <p className="text-xs text-muted uppercase tracking-wide">
-            {proposal.isScrap ? "Valor (sucata)" : "Valor proposto"}
-          </p>
-          <p className="text-xl font-bold text-brand">{fmt(effectiveValue)}</p>
-          {proposal.overriddenValue != null && (
-            <p className="text-xs text-muted line-through">{fmt(proposal.calculatedValue)}</p>
-          )}
+      {/* Resumo */}
+      <div className="overflow-hidden rounded-xl border border-border bg-nav text-nav-fg shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-4 p-5">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-nav-muted">
+              {proposal.isScrap ? "Valor (sucata)" : "Valor proposto"}
+            </p>
+            <p className="mt-1 text-3xl font-bold tracking-tight text-brand-400">
+              {fmt(effectiveValue)}
+            </p>
+            {proposal.overriddenValue != null && (
+              <p className="text-xs text-nav-muted">
+                original <span className="line-through">{fmt(proposal.calculatedValue)}</span>
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-xs uppercase tracking-wide text-nav-muted">Status</p>
+            <span
+              className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${
+                STATUS_COLORS[proposal.status] ?? "bg-surface-2 text-muted"
+              }`}
+            >
+              {statusLabel}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -252,10 +266,12 @@ export default function ProposalDetailPage() {
         <h2 className="font-semibold">Mensagem para o cliente</h2>
         <div className="flex flex-wrap gap-2">
           <button onClick={() => copy("saudacao", saudacao)} className={cls.btnGhost}>
-            {copied === "saudacao" ? "✓ Copiado!" : "Copiar saudação"}
+            {copied === "saudacao" ? <Icon.check size={15} /> : <Icon.copy size={15} />}
+            {copied === "saudacao" ? "Copiado!" : "Copiar saudação"}
           </button>
           <button onClick={() => copy("status", statusMsg)} className={cls.btnGhost}>
-            {copied === "status" ? "✓ Copiado!" : "Copiar status"}
+            {copied === "status" ? <Icon.check size={15} /> : <Icon.copy size={15} />}
+            {copied === "status" ? "Copiado!" : "Copiar status"}
           </button>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">

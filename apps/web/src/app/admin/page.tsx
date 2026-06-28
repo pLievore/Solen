@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
+import { PageHeader } from "./_components/PageHeader";
+import { Icon, type IconName } from "@/lib/icons";
 import { BarChart, Donut, HBar, Panel, StatCard, brl, pct, PALETTE } from "./_components/charts";
 
 type Analytics = {
@@ -56,13 +58,13 @@ const PERIODS: { label: string; value: string }[] = [
   { label: "Tudo", value: "all" },
 ];
 
-const MGMT = [
-  { href: "/admin/proposals", label: "Propostas" },
-  { href: "/admin/import", label: "Importar planilha" },
-  { href: "/admin/models", label: "Modelos" },
-  { href: "/admin/variants", label: "Versões" },
-  { href: "/admin/descontos", label: "Descontos" },
-  { href: "/admin/blog", label: "Blog" },
+const MGMT: { href: string; label: string; icon: IconName }[] = [
+  { href: "/admin/proposals", label: "Propostas", icon: "inbox" },
+  { href: "/admin/import", label: "Importar planilha", icon: "upload" },
+  { href: "/admin/models", label: "Modelos", icon: "phone" },
+  { href: "/admin/variants", label: "Versões", icon: "layers" },
+  { href: "/admin/descontos", label: "Descontos", icon: "percent" },
+  { href: "/admin/blog", label: "Blog", icon: "file" },
 ];
 
 export default function AdminDashboard() {
@@ -121,28 +123,28 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header + período */}
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Visão geral</h1>
-          <p className="text-sm text-muted">Desempenho das propostas e da operação.</p>
-        </div>
-        <div className="flex max-w-full overflow-x-auto rounded-lg border border-border bg-surface p-0.5">
-          {PERIODS.map((p) => (
-            <button
-              key={p.value}
-              onClick={() => setDays(p.value)}
-              className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                days === p.value
-                  ? "bg-brand text-brand-fg shadow-sm"
-                  : "text-muted hover:text-fg"
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        title="Visão geral"
+        subtitle="Desempenho das propostas e da operação."
+        icon={<Icon.dashboard size={20} />}
+        actions={
+          <div className="flex max-w-full overflow-x-auto rounded-lg border border-border bg-bg p-0.5 shadow-xs">
+            {PERIODS.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setDays(p.value)}
+                className={`shrink-0 rounded-md px-3 py-1.5 text-xs font-semibold transition ${
+                  days === p.value
+                    ? "bg-brand text-brand-fg shadow-sm"
+                    : "text-muted hover:bg-surface-2 hover:text-fg"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -153,7 +155,7 @@ export default function AdminDashboard() {
       {loading && !data && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-surface" />
+            <div key={i} className="h-24 animate-pulse rounded-xl border border-border bg-bg" />
           ))}
         </div>
       )}
@@ -251,16 +253,22 @@ export default function AdminDashboard() {
 
       {/* Atalhos de gestão */}
       <Panel title="Gestão">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-          {MGMT.map((m) => (
-            <Link
-              key={m.href}
-              href={m.href}
-              className="rounded-lg border border-border bg-surface px-3 py-3 text-center text-sm font-medium transition hover:border-brand hover:shadow-sm"
-            >
-              {m.label}
-            </Link>
-          ))}
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-6">
+          {MGMT.map((m) => {
+            const IconCmp = Icon[m.icon];
+            return (
+              <Link
+                key={m.href}
+                href={m.href}
+                className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-surface px-3 py-4 text-center text-sm font-medium transition hover:-translate-y-0.5 hover:border-brand hover:bg-bg hover:shadow-md"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-bg text-muted ring-1 ring-inset ring-border transition group-hover:bg-brand-subtle group-hover:text-brand-600 group-hover:ring-brand/20">
+                  <IconCmp size={18} />
+                </span>
+                {m.label}
+              </Link>
+            );
+          })}
         </div>
       </Panel>
     </div>

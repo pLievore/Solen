@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Setting = { key: string; value: unknown };
 
@@ -57,8 +59,17 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">Configuracoes</h1>
-      {msg && <p className="rounded bg-brand/10 px-3 py-2 text-sm text-brand">{msg}</p>}
+      <PageHeader
+        title="Configurações"
+        subtitle="Textos, contatos e parâmetros gerais do site."
+        icon={<Icon.settings size={20} />}
+      />
+      {msg && (
+        <p className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand-subtle px-3 py-2 text-sm text-brand-subtle-fg">
+          <Icon.check size={15} />
+          {msg}
+        </p>
+      )}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       <div className="space-y-4">

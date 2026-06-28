@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { adminApi } from "@/lib/admin-api";
-import { cls, slugify } from "@/lib/ui";
+import { cls, badge, slugify } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Category = { id: string; name: string };
 type Model = {
@@ -74,10 +76,14 @@ export default function ModelsPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Modelos</h1>
+      <PageHeader
+        title="Modelos"
+        subtitle="Modelos de aparelhos dentro de cada categoria."
+        icon={<Icon.phone size={20} />}
+      />
 
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">{draft.id ? "Editar modelo" : "Novo modelo"}</p>
+        <p className="font-semibold">{draft.id ? "Editar modelo" : "Novo modelo"}</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Categoria</label>
@@ -148,24 +154,28 @@ export default function ModelsPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
         <table className="w-full min-w-[620px] border-collapse">
           <thead>
             <tr className="bg-surface-2/70">
               <th className={cls.th}>Nome</th>
               <th className={cls.th}>Categoria</th>
-              <th className={cls.th}>Versoes</th>
+              <th className={cls.th}>Versões</th>
               <th className={cls.th}>Ativo</th>
               <th className={cls.th}></th>
             </tr>
           </thead>
           <tbody>
             {items.map((m) => (
-              <tr key={m.id} className="hover:bg-surface-2/50">
-                <td className={cls.td}>{m.name}</td>
+              <tr key={m.id} className="transition hover:bg-surface-2/50">
+                <td className={cls.td + " font-medium"}>{m.name}</td>
                 <td className={cls.td + " text-muted"}>{m.category?.name}</td>
-                <td className={cls.td}>{m._count?.variants ?? 0}</td>
-                <td className={cls.td}>{m.active ? "Sim" : "Nao"}</td>
+                <td className={cls.td + " tabular-nums"}>{m._count?.variants ?? 0}</td>
+                <td className={cls.td}>
+                  <span className={badge(m.active ? "green" : "neutral")}>
+                    {m.active ? "Ativo" : "Inativo"}
+                  </span>
+                </td>
                 <td className={cls.td}>
                   <div className="flex gap-2">
                     <button

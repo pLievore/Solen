@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type ImportSummary = {
   totalRows: number;
@@ -60,28 +62,38 @@ export default function ImportPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Importar planilha</h1>
-        <p className="text-sm text-muted">
-          Atualize modelos, versoes e os precos dos 4 estados de uma vez por planilha (CSV).
-        </p>
-      </div>
+      <PageHeader
+        title="Importar planilha"
+        subtitle="Atualize modelos, versões e os preços dos 4 estados de uma vez por planilha (CSV)."
+        icon={<Icon.upload size={20} />}
+      />
 
       {/* Passo 1 */}
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">1. Baixe a planilha atual</p>
+        <p className="flex items-center gap-2 font-semibold">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-fg">
+            1
+          </span>
+          Baixe a planilha atual
+        </p>
         <p className="text-sm text-muted">
           Vem com o catalogo de hoje preenchido. Edite os valores no Excel/Google Sheets
           e salve como CSV.
         </p>
         <button className={cls.btn} onClick={download} disabled={downloading}>
-          {downloading ? "Gerando..." : "Baixar planilha (CSV)"}
+          <Icon.upload size={15} className="rotate-180" />
+          {downloading ? "Gerando…" : "Baixar planilha (CSV)"}
         </button>
       </div>
 
       {/* Passo 2 */}
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">2. Envie a planilha preenchida</p>
+        <p className="flex items-center gap-2 font-semibold">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand text-xs font-bold text-brand-fg">
+            2
+          </span>
+          Envie a planilha preenchida
+        </p>
         <input
           type="file"
           accept=".csv,text/csv"
@@ -93,7 +105,8 @@ export default function ImportPage() {
         />
         <div>
           <button className={cls.btn} onClick={runImport} disabled={!file || importing}>
-            {importing ? "Importando..." : "Importar"}
+            <Icon.check size={15} />
+            {importing ? "Importando…" : "Importar"}
           </button>
         </div>
         {error && <p className="text-sm text-red-500">{error}</p>}
@@ -148,8 +161,8 @@ export default function ImportPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border border-border bg-surface-2/40 px-3 py-2">
-      <p className="text-lg font-bold">{value}</p>
+    <div className="rounded-lg border border-border bg-surface px-3 py-2.5">
+      <p className="text-xl font-bold tabular-nums">{value}</p>
       <p className="text-xs text-muted">{label}</p>
     </div>
   );

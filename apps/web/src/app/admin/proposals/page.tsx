@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 import { Panel, StatCard, brl, pct } from "../_components/charts";
 
 type ProposalRow = {
@@ -241,17 +243,17 @@ function ProposalsPageContent() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Propostas</h1>
-          <p className="text-sm text-muted">
-            Acompanhe, filtre e exporte os leads da operação.
-          </p>
-        </div>
-        <button className={cls.btn} onClick={exportCsv} disabled={exporting || loading}>
-          {exporting ? "Gerando CSV..." : "Exportar CSV"}
-        </button>
-      </div>
+      <PageHeader
+        title="Propostas"
+        subtitle="Acompanhe, filtre e exporte os leads da operação."
+        icon={<Icon.inbox size={20} />}
+        actions={
+          <button className={cls.btnGhost} onClick={exportCsv} disabled={exporting || loading}>
+            <Icon.upload size={15} />
+            {exporting ? "Gerando CSV…" : "Exportar CSV"}
+          </button>
+        }
+      />
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">

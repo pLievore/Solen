@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Model = { id: string; name: string; category?: { name: string } };
 type ApiItem = {
@@ -99,13 +101,11 @@ export default function ModelDiscountsPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Descontos por modelo</h1>
-        <p className="text-sm text-muted">
-          Defina o quanto cada pergunta desconta. O valor vale para{" "}
-          <strong>todas as versoes</strong> do modelo escolhido. Valores negativos = desconto.
-        </p>
-      </div>
+      <PageHeader
+        title="Descontos por modelo"
+        subtitle="Defina o quanto cada pergunta desconta. O valor vale para todas as versões do modelo escolhido. Valores negativos = desconto."
+        icon={<Icon.percent size={20} />}
+      />
 
       <div className={cls.card + " space-y-2"}>
         <label className={cls.label}>Modelo</label>
@@ -124,9 +124,14 @@ export default function ModelDiscountsPage() {
       </div>
 
       {error && <p className="text-sm text-red-500">{error}</p>}
-      {msg && <p className="rounded bg-brand/10 px-3 py-2 text-sm text-brand">{msg}</p>}
+      {msg && (
+        <p className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand-subtle px-3 py-2 text-sm text-brand-subtle-fg">
+          <Icon.check size={15} />
+          {msg}
+        </p>
+      )}
 
-      {loading && <p className="text-sm text-muted">Carregando...</p>}
+      {loading && <p className="text-sm text-muted">Carregando…</p>}
 
       {!loading && items.length > 0 && (
         <div className="space-y-3">

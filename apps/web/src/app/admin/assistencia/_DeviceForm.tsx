@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { adminApi, uploadIcon } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
 
 type Tecnico = { id: string; email: string | null; role: string | null };
 
@@ -117,7 +118,8 @@ export default function DeviceForm({
               disabled={uploading}
               className={cls.btnGhost}
             >
-              {uploading ? "Enviando..." : v.imageUrl ? "Trocar foto" : "Adicionar foto inicial"}
+              <Icon.image size={15} />
+              {uploading ? "Enviando…" : v.imageUrl ? "Trocar foto" : "Adicionar foto inicial"}
             </button>
           </div>
         </div>

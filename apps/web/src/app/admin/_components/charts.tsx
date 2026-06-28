@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { Icon } from "@/lib/icons";
 
 export function brl(cents: number): string {
   return (cents / 100).toLocaleString("pt-BR", {
@@ -44,22 +45,26 @@ export function StatCard({
   const up = typeof trend === "number" && trend >= 0;
   return (
     <div
-      className={`rounded-xl border p-4 shadow-sm ${
-        accent
-          ? "border-brand/30 bg-brand-subtle/40"
-          : "border-border bg-surface"
+      className={`group relative overflow-hidden rounded-xl border p-4 shadow-sm transition hover:shadow-md ${
+        accent ? "border-brand/30 bg-brand-subtle/50" : "border-border bg-bg"
       }`}
     >
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">{title}</p>
-      <p className="mt-1 text-2xl font-bold tracking-tight">{value}</p>
-      <div className="mt-1 flex items-center gap-2">
+      {accent && (
+        <span className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-brand/10 blur-2xl" />
+      )}
+      <p className="relative text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
+      <p className="relative mt-1.5 text-[1.7rem] font-bold leading-none tracking-tight tabular-nums">
+        {value}
+      </p>
+      <div className="relative mt-2 flex items-center gap-2">
         {typeof trend === "number" && (
           <span
-            className={`inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-xs font-semibold ${
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${
               up ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
             }`}
           >
-            {up ? "▲" : "▼"} {pct(Math.abs(trend))}
+            {up ? <Icon.trendUp size={13} /> : <Icon.trendDown size={13} />}
+            {pct(Math.abs(trend))}
           </span>
         )}
         {sub && <span className="text-xs text-muted">{sub}</span>}
@@ -245,9 +250,9 @@ export function Panel({
   className?: string;
 }) {
   return (
-    <div className={`rounded-xl border border-border bg-surface p-5 shadow-sm ${className}`}>
+    <div className={`rounded-xl border border-border bg-bg p-5 shadow-sm ${className}`}>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold">{title}</h2>
+        <h2 className="text-sm font-semibold text-fg">{title}</h2>
         {action}
       </div>
       {children}

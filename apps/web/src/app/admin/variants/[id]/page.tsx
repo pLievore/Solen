@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../../_components/PageHeader";
 
 type ConditionState = { id: string; key: string; label: string; order: number };
 type DetailedState = { id: string; question: string; yesDelta: number; noDelta: number };
@@ -111,17 +112,19 @@ export default function VariantDetailPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <div>
-        <Link href="/admin/variants" className="text-sm text-muted hover:text-brand">
-          ← Versoes
-        </Link>
-        <h1 className="text-2xl font-bold">{variant.name}</h1>
-        <p className="text-sm text-muted">
-          {variant.model.category.name} · {variant.model.name}
-        </p>
-      </div>
+      <PageHeader
+        title={variant.name}
+        subtitle={`${variant.model.category.name} · ${variant.model.name}`}
+        icon={<Icon.layers size={20} />}
+        back={{ href: "/admin/variants", label: "Versões" }}
+      />
 
-      {msg && <p className="rounded bg-brand/10 px-3 py-2 text-sm text-brand">{msg}</p>}
+      {msg && (
+        <p className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand-subtle px-3 py-2 text-sm text-brand-subtle-fg">
+          <Icon.check size={15} />
+          {msg}
+        </p>
+      )}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {/* Precos base por estado */}

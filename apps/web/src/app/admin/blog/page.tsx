@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
-import { cls } from "@/lib/ui";
+import { cls, badge } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type PostRow = {
   id: string;
@@ -39,17 +41,22 @@ export default function AdminBlogPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Blog</h1>
-        <Link href="/admin/blog/new" className={cls.btn}>
-          + Novo post
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Blog"
+        subtitle="Crie e gerencie os artigos publicados no site."
+        icon={<Icon.file size={20} />}
+        actions={
+          <Link href="/admin/blog/new" className={cls.btn}>
+            <Icon.plus size={16} />
+            Novo post
+          </Link>
+        }
+      />
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
         <table className="w-full min-w-[720px] text-sm">
           <thead>
             <tr className="bg-surface-2/70">
@@ -63,23 +70,26 @@ export default function AdminBlogPage() {
           <tbody>
             {posts.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-8 text-center text-muted">
-                  Nenhum post ainda.
+                <td colSpan={5} className="px-3 py-14 text-center">
+                  <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-surface-2 text-muted">
+                    <Icon.file size={22} />
+                  </span>
+                  <p className="text-sm font-medium">Nenhum post ainda.</p>
+                  <Link
+                    href="/admin/blog/new"
+                    className="mt-1 inline-block text-xs font-medium text-brand hover:underline"
+                  >
+                    Escrever o primeiro
+                  </Link>
                 </td>
               </tr>
             )}
             {posts.map((p) => (
-              <tr key={p.id} className="hover:bg-border/10">
+              <tr key={p.id} className="transition hover:bg-surface-2/50">
                 <td className={cls.td + " font-medium"}>{p.title}</td>
                 <td className={cls.td + " font-mono text-xs text-muted"}>{p.slug}</td>
                 <td className={cls.td}>
-                  <span
-                    className={`rounded px-2 py-0.5 text-xs font-medium ${
-                      p.status === "PUBLISHED"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }`}
-                  >
+                  <span className={badge(p.status === "PUBLISHED" ? "green" : "amber")}>
                     {p.status === "PUBLISHED" ? "Publicado" : "Rascunho"}
                   </span>
                 </td>

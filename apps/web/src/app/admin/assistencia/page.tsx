@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 import { STATUS_COLOR, STATUS_LABEL, type RepairDevice } from "./_shared";
 
 export default function AssistenciaPage() {
@@ -17,10 +19,10 @@ export default function AssistenciaPage() {
     (async () => {
       try {
         const [me, list] = await Promise.all([
-          adminApi.get<{ role: { isAdmin: boolean } }>("/admin/me"),
+          adminApi.get<{ role?: { isAdmin?: boolean } }>("/admin/me"),
           adminApi.get<RepairDevice[]>("/admin/repair-devices"),
         ]);
-        setIsAdmin(me.role.isAdmin);
+        setIsAdmin(me.role?.isAdmin ?? null);
         setDevices(list);
       } catch (e) {
         setError((e as Error).message);
@@ -33,31 +35,37 @@ export default function AssistenciaPage() {
   const canCreate = isAdmin !== false; // admin ou ainda desconhecido
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Assistência técnica</h1>
-          <p className="text-sm text-muted">
-            {isAdmin === false
-              ? "Aparelhos atribuídos a você."
-              : "Aparelhos enviados para assistência."}
-          </p>
-        </div>
-        {canCreate && (
-          <Link href="/admin/assistencia/novo" className={cls.btn}>
-            + Novo aparelho
-          </Link>
-        )}
-      </div>
+    <div className="space-y-6">
+      <PageHeader
+        title="Assistência técnica"
+        subtitle={
+          isAdmin === false
+            ? "Aparelhos atribuídos a você."
+            : "Aparelhos enviados para assistência."
+        }
+        icon={<Icon.wrench size={20} />}
+        actions={
+          canCreate ? (
+            <Link href="/admin/assistencia/novo" className={cls.btn}>
+              <Icon.plus size={16} />
+              Novo aparelho
+            </Link>
+          ) : null
+        }
+      />
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
-      {loading && <p className="text-sm text-muted">Carregando...</p>}
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+      {loading && <p className="text-sm text-muted">Carregando…</p>}
 
       {!loading && (
-        <div className="overflow-x-auto rounded-xl border border-border">
+        <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
           <table className="w-full min-w-[640px] text-sm">
             <thead>
-              <tr className="bg-border/20">
+              <tr className="bg-surface-2/70">
                 <th className={cls.th}>Aparelho</th>
                 <th className={cls.th}>Técnico</th>
                 <th className={cls.th}>Status</th>
@@ -67,7 +75,7 @@ export default function AssistenciaPage() {
             </thead>
             <tbody>
               {devices.map((d) => (
-                <tr key={d.id} className="hover:bg-border/10">
+                <tr key={d.id} className="transition hover:bg-surface-2/60">
                   <td className={cls.td}>
                     <div className="flex items-center gap-3">
                       {d.imageUrl ? (
@@ -89,16 +97,30 @@ export default function AssistenciaPage() {
                     {new Date(d.createdAt).toLocaleDateString("pt-BR")}
                   </td>
                   <td className={cls.td}>
-                    <Link href={`/admin/assistencia/${d.id}`} className="text-xs text-brand hover:underline">
-                      Abrir →
+                    <Link
+                      href={`/admin/assistencia/${d.id}`}
+                      className="inline-flex items-center gap-1 text-xs font-medium text-brand hover:underline"
+                    >
+                      Abrir <Icon.arrowRight size={13} />
                     </Link>
                   </td>
                 </tr>
               ))}
               {devices.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-3 py-8 text-center text-muted">
-                    Nenhum aparelho em assistência.
+                  <td colSpan={5} className="px-3 py-14 text-center">
+                    <span className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-surface-2 text-muted">
+                      <Icon.wrench size={22} />
+                    </span>
+                    <p className="text-sm font-medium">Nenhum aparelho em assistência.</p>
+                    {canCreate && (
+                      <Link
+                        href="/admin/assistencia/novo"
+                        className="mt-1 inline-block text-xs font-medium text-brand hover:underline"
+                      >
+                        Cadastrar o primeiro
+                      </Link>
+                    )}
                   </td>
                 </tr>
               )}

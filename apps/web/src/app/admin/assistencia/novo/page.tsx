@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
+import { PageHeader } from "../../_components/PageHeader";
+import { Icon } from "@/lib/icons";
 import DeviceForm, { EMPTY_DEVICE, type DeviceFormValue } from "../_DeviceForm";
 
 function payload(v: DeviceFormValue) {
@@ -37,16 +38,18 @@ export default function NovoAparelhoPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-5">
-      <div className="flex items-center gap-3 text-sm">
-        <Link href="/admin/assistencia" className="text-muted hover:text-brand">
-          ← Assistência
-        </Link>
-        <span className="text-muted">/</span>
-        <span className="font-medium">Novo aparelho</span>
-      </div>
-      <h1 className="text-2xl font-bold tracking-tight">Cadastrar aparelho</h1>
-      {error && <p className="text-sm text-red-500">{error}</p>}
+    <div className="max-w-2xl space-y-6">
+      <PageHeader
+        title="Cadastrar aparelho"
+        subtitle="Registre a entrada com foto inicial, técnico e serviços."
+        icon={<Icon.wrench size={20} />}
+        back={{ href: "/admin/assistencia", label: "Assistência" }}
+      />
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+          {error}
+        </p>
+      )}
       <DeviceForm initial={EMPTY_DEVICE} submitLabel="Cadastrar aparelho" busy={busy} onSubmit={create} />
     </div>
   );

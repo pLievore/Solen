@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../../_components/PageHeader";
 import DeviceForm, { type DeviceFormValue } from "../_DeviceForm";
 import MediaChecklist from "../_MediaChecklist";
 import { STATUS_COLOR, STATUS_LABEL, type RepairDevice } from "../_shared";
@@ -58,10 +59,10 @@ export default function RepairDeviceDetailPage() {
     (async () => {
       try {
         const [me, d] = await Promise.all([
-          adminApi.get<{ role: { isAdmin: boolean } }>("/admin/me"),
+          adminApi.get<{ role?: { isAdmin?: boolean } }>("/admin/me"),
           adminApi.get<RepairDevice>(`/admin/repair-devices/${id}`),
         ]);
-        setIsAdmin(me.role.isAdmin);
+        setIsAdmin(me.role?.isAdmin ?? null);
         setDevice(d);
       } catch (e) {
         setError((e as Error).message);
@@ -99,19 +100,27 @@ export default function RepairDeviceDetailPage() {
   if (!device) return <p className="text-muted">Carregando...</p>;
 
   return (
-    <div className="max-w-2xl space-y-5">
-      <div className="flex items-center gap-3 text-sm">
-        <Link href="/admin/assistencia" className="text-muted hover:text-brand">
-          ← Assistência
-        </Link>
-        <span className="text-muted">/</span>
-        <span className="font-medium">{device.model}</span>
-        <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[device.status] ?? ""}`}>
-          {STATUS_LABEL[device.status] ?? device.status}
-        </span>
-      </div>
+    <div className="max-w-2xl space-y-6">
+      <PageHeader
+        title={device.model}
+        subtitle={`Entrada em ${new Date(device.createdAt).toLocaleDateString("pt-BR")}`}
+        icon={<Icon.wrench size={20} />}
+        back={{ href: "/admin/assistencia", label: "Assistência" }}
+        actions={
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${STATUS_COLOR[device.status] ?? ""}`}
+          >
+            {STATUS_LABEL[device.status] ?? device.status}
+          </span>
+        }
+      />
 
-      {msg && <p className="rounded bg-brand/10 px-3 py-2 text-sm text-brand">{msg}</p>}
+      {msg && (
+        <p className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand-subtle px-3 py-2 text-sm text-brand-subtle-fg">
+          <Icon.check size={15} />
+          {msg}
+        </p>
+      )}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {isAdmin !== false ? (

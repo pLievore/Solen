@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { adminApi } from "@/lib/admin-api";
-import { cls } from "@/lib/ui";
+import { cls, badge } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Knockout = {
   id: string;
@@ -66,13 +68,14 @@ export default function KnockoutPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Perguntas knockout</h1>
-      <p className="text-sm text-muted">
-        Quando a resposta for o gatilho, a avaliacao vai direto para sucata. Ex.: &quot;O aparelho liga?&quot; com gatilho Nao.
-      </p>
+      <PageHeader
+        title="Perguntas knockout"
+        subtitle='Quando a resposta for o gatilho, a avaliação vai direto para sucata. Ex.: "O aparelho liga?" com gatilho Não.'
+        icon={<Icon.ban size={20} />}
+      />
 
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">{draft.id ? "Editar pergunta" : "Nova pergunta"}</p>
+        <p className="font-semibold">{draft.id ? "Editar pergunta" : "Nova pergunta"}</p>
         <div>
           <label className={cls.label}>Pergunta</label>
           <input
@@ -116,7 +119,7 @@ export default function KnockoutPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
         <table className="w-full min-w-[520px] border-collapse">
           <thead>
             <tr className="bg-surface-2/70">
@@ -127,9 +130,13 @@ export default function KnockoutPage() {
           </thead>
           <tbody>
             {items.map((k) => (
-              <tr key={k.id} className="hover:bg-surface-2/50">
-                <td className={cls.td}>{k.question}</td>
-                <td className={cls.td}>{k.triggerAnswer === "YES" ? "Sim" : "Nao"}</td>
+              <tr key={k.id} className="transition hover:bg-surface-2/50">
+                <td className={cls.td + " font-medium"}>{k.question}</td>
+                <td className={cls.td}>
+                  <span className={badge(k.triggerAnswer === "YES" ? "green" : "red")}>
+                    {k.triggerAnswer === "YES" ? "Sim" : "Não"}
+                  </span>
+                </td>
                 <td className={cls.td}>
                   <div className="flex gap-2">
                     <button

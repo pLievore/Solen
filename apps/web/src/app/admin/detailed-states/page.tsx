@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type DetailedState = {
   id: string;
@@ -70,13 +72,14 @@ export default function DetailedStatesPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Estados detalhados</h1>
-      <p className="text-sm text-muted">
-        Perguntas de desconto. Os valores sao deltas em R$ (geralmente negativos). Ex.: bateria abaixo de 85% = Nao -100.
-      </p>
+      <PageHeader
+        title="Estados detalhados"
+        subtitle="Perguntas de desconto. Os valores são deltas em R$ (geralmente negativos). Ex.: bateria abaixo de 85% = Não −100."
+        icon={<Icon.sliders size={20} />}
+      />
 
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">{draft.id ? "Editar pergunta" : "Nova pergunta"}</p>
+        <p className="font-semibold">{draft.id ? "Editar pergunta" : "Nova pergunta"}</p>
         <div>
           <label className={cls.label}>Pergunta</label>
           <input
@@ -130,22 +133,22 @@ export default function DetailedStatesPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
         <table className="w-full min-w-[580px] border-collapse">
           <thead>
             <tr className="bg-surface-2/70">
               <th className={cls.th}>Pergunta</th>
               <th className={cls.th}>Sim</th>
-              <th className={cls.th}>Nao</th>
+              <th className={cls.th}>Não</th>
               <th className={cls.th}></th>
             </tr>
           </thead>
           <tbody>
             {items.map((d) => (
-              <tr key={d.id} className="hover:bg-surface-2/50">
-                <td className={cls.td}>{d.question}</td>
-                <td className={cls.td}>{reais(d.yesDelta)}</td>
-                <td className={cls.td}>{reais(d.noDelta)}</td>
+              <tr key={d.id} className="transition hover:bg-surface-2/50">
+                <td className={cls.td + " font-medium"}>{d.question}</td>
+                <td className={cls.td + " tabular-nums text-muted"}>{reais(d.yesDelta)}</td>
+                <td className={cls.td + " tabular-nums text-muted"}>{reais(d.noDelta)}</td>
                 <td className={cls.td}>
                   <div className="flex gap-2">
                     <button

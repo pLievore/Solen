@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { adminApi, uploadIcon } from "@/lib/admin-api";
-import { cls, slugify } from "@/lib/ui";
+import { cls, badge, slugify } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
+import { PageHeader } from "../_components/PageHeader";
 
 type Category = {
   id: string;
@@ -87,10 +89,14 @@ export default function CategoriesPage() {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <h1 className="text-2xl font-bold">Categorias</h1>
+      <PageHeader
+        title="Categorias"
+        subtitle="Organize as categorias de produtos exibidas no site."
+        icon={<Icon.box size={20} />}
+      />
 
       <div className={cls.card + " space-y-3"}>
-        <p className="font-medium">{draft.id ? "Editar categoria" : "Nova categoria"}</p>
+        <p className="font-semibold">{draft.id ? "Editar categoria" : "Nova categoria"}</p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div>
             <label className={cls.label}>Nome</label>
@@ -153,7 +159,7 @@ export default function CategoriesPage() {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-bg shadow-sm">
         <table className="w-full min-w-[680px] border-collapse">
           <thead>
             <tr className="bg-surface-2/70">
@@ -167,12 +173,28 @@ export default function CategoriesPage() {
           </thead>
           <tbody>
             {items.map((c) => (
-              <tr key={c.id} className="hover:bg-surface-2/50">
-                <td className={cls.td}>{c.order}</td>
-                <td className={cls.td}>{c.name}</td>
-                <td className={cls.td + " text-muted"}>{c.slug}</td>
-                <td className={cls.td}>{c._count?.models ?? 0}</td>
-                <td className={cls.td}>{c.active ? "Sim" : "Nao"}</td>
+              <tr key={c.id} className="transition hover:bg-surface-2/50">
+                <td className={cls.td + " tabular-nums text-muted"}>{c.order}</td>
+                <td className={cls.td + " font-medium"}>
+                  <div className="flex items-center gap-2">
+                    {c.iconUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.iconUrl} alt="" className="h-7 w-7 rounded-lg object-cover" />
+                    ) : (
+                      <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-surface-2 text-muted">
+                        <Icon.box size={15} />
+                      </span>
+                    )}
+                    {c.name}
+                  </div>
+                </td>
+                <td className={cls.td + " font-mono text-xs text-muted"}>{c.slug}</td>
+                <td className={cls.td + " tabular-nums"}>{c._count?.models ?? 0}</td>
+                <td className={cls.td}>
+                  <span className={badge(c.active ? "green" : "neutral")}>
+                    {c.active ? "Ativa" : "Inativa"}
+                  </span>
+                </td>
                 <td className={cls.td}>
                   <div className="flex gap-2">
                     <button className={cls.btnGhost} onClick={() => edit(c)}>Editar</button>

@@ -11,6 +11,7 @@ import {
   type RepairMedia,
 } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
+import { Icon } from "@/lib/icons";
 
 /** Lê a duração do vídeo no navegador; em caso de falha, deixa o servidor decidir. */
 function videoDurationOk(file: File, maxSeconds: number): Promise<boolean> {
@@ -93,17 +94,34 @@ export default function MediaChecklist({ deviceId }: { deviceId: string }) {
       {!loading &&
         REPAIR_CHECKLIST.map((item) => {
           const items = media.filter((m) => m.slot === item.slot);
+          const done = items.length > 0;
           return (
-            <div key={item.slot} className="rounded-lg border border-border p-3">
+            <div
+              key={item.slot}
+              className={`rounded-lg border p-3 transition ${
+                done ? "border-brand/30 bg-brand-subtle/30" : "border-border"
+              }`}
+            >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium">
-                    {item.label}{" "}
-                    <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[10px] uppercase text-muted">
-                      {item.kind === "video" ? "vídeo" : "foto"}
-                    </span>
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted">{item.hint}</p>
+                <div className="flex items-start gap-2.5">
+                  <span
+                    className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
+                      done
+                        ? "bg-brand text-brand-fg"
+                        : "bg-surface-2 text-muted"
+                    }`}
+                  >
+                    {done ? <Icon.check size={15} /> : <Icon.image size={15} />}
+                  </span>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {item.label}{" "}
+                      <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[10px] uppercase text-muted">
+                        {item.kind === "video" ? "vídeo" : "foto"}
+                      </span>
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">{item.hint}</p>
+                  </div>
                 </div>
                 <button
                   type="button"
@@ -111,7 +129,14 @@ export default function MediaChecklist({ deviceId }: { deviceId: string }) {
                   disabled={uploading === item.slot}
                   className={cls.btnGhost + " shrink-0"}
                 >
-                  {uploading === item.slot ? "Enviando..." : "+ Anexar"}
+                  {uploading === item.slot ? (
+                    "Enviando…"
+                  ) : (
+                    <>
+                      <Icon.plus size={14} />
+                      Anexar
+                    </>
+                  )}
                 </button>
                 <input
                   ref={(el) => {
@@ -142,10 +167,10 @@ export default function MediaChecklist({ deviceId }: { deviceId: string }) {
                       <button
                         type="button"
                         onClick={() => remove(m.id)}
-                        className="absolute right-1 top-1 rounded bg-black/60 px-1.5 py-0.5 text-xs text-white opacity-0 transition group-hover:opacity-100"
+                        className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md bg-black/60 text-white opacity-0 transition hover:bg-red-600 group-hover:opacity-100"
                         aria-label="Remover"
                       >
-                        ✕
+                        <Icon.trash size={13} />
                       </button>
                     </div>
                   ))}
