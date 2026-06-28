@@ -19,9 +19,9 @@ export default function PublicShell({ children }: { children: React.ReactNode })
             <img
               src="/logo-vendy.svg"
               alt="Vendy"
-              width={120}
-              height={34}
-              className="h-8 w-auto transition-transform duration-300 group-hover:scale-105"
+              width={156}
+              height={36}
+              className="h-9 w-auto transition-transform duration-300 group-hover:scale-105"
             />
           </Link>
 
