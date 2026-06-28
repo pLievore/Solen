@@ -14,10 +14,12 @@ type NavGroup = { title: string; items: NavItem[] };
 const TECNICO_PREFIXES = ["/admin/assistencia"];
 
 function canAccess(role: Role | null, pathname: string): boolean {
-  if (role === "admin") return true;
+  // Só restringimos quando temos certeza de que é técnico. Admin ou papel ainda
+  // desconhecido (carregando/erro) passam — as APIs sensíveis já exigem admin no
+  // backend, então o gating do front é apenas de UX, nunca a barreira de segurança.
   if (role === "tecnico")
     return TECNICO_PREFIXES.some((p) => pathname.startsWith(p));
-  return false;
+  return true;
 }
 
 const NAV: NavGroup[] = [
