@@ -42,9 +42,8 @@ export default function AdminLoginPage() {
           style={{ background: "radial-gradient(circle, #22c55e, transparent 70%)" }}
         />
         <div className="relative flex items-center gap-2.5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-lg font-black text-brand-fg shadow-brand">
-            V
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mark.svg" alt="" width={40} height={40} className="h-10 w-10" />
           <div className="leading-tight">
             <p className="text-base font-bold">Vendy</p>
             <p className="text-xs text-nav-muted">Painel administrativo</p>
@@ -80,9 +79,14 @@ export default function AdminLoginPage() {
       <div className="flex flex-col justify-center bg-surface px-6 py-12 sm:px-12">
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8 text-center lg:text-left">
-            <span className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-brand text-lg font-black text-brand-fg shadow-brand lg:hidden">
-              V
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-mark.svg"
+              alt="Vendy"
+              width={44}
+              height={44}
+              className="mb-4 mx-auto h-11 w-11 lg:mx-0 lg:hidden"
+            />
             <h1 className="text-2xl font-bold tracking-tight">Bem-vindo de volta</h1>
             <p className="mt-1 text-sm text-muted">
               Entre para gerenciar o catálogo e as propostas.

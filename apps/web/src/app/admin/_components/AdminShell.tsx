@@ -169,9 +169,8 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const SidebarBody = (
     <>
       <Link href="/admin" className="flex items-center gap-2.5 px-5 py-5">
-        <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-base font-black text-brand-fg shadow-brand">
-          V
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-mark.svg" alt="" width={36} height={36} className="h-9 w-9" />
         <div className="leading-tight">
           <p className="text-sm font-bold text-nav-fg">Vendy</p>
           <p className="text-[11px] text-nav-muted">Painel administrativo</p>
