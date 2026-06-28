@@ -12,6 +12,7 @@ import { StorageModule } from "./storage/storage.module";
 import { EvaluationModule } from "./evaluation/evaluation.module";
 import { ProposalModule } from "./proposals/proposal.module";
 import { BlogModule } from "./blog/blog.module";
+import { UsersModule } from "./users/users.module";
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { BlogModule } from "./blog/blog.module";
     EvaluationModule,
     ProposalModule,
     BlogModule,
+    UsersModule,
   ],
   providers: [
     {

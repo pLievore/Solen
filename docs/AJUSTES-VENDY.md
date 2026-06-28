@@ -55,11 +55,12 @@ registradas abaixo. Mexer só onde indicado; site público e painel.
 
 Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `SupabaseService` tem a chave secreta (admin API). Upload atual: `storage/uploads.controller.ts` (imagem ≤5MB, bucket público `catalog`).
 
-### C1. Perfis/permissões (RBAC)
-- Estender auth: decorator `@Roles("admin"|"tecnico")` + guard que lê `app_metadata.role`.
-- Página admin "Permissões": admin lista usuários e troca o role (via Supabase Admin API: `auth.admin.updateUserById(id, { app_metadata: { role }})`).
-- Gating no menu (`AdminShell`): itens aparecem; ao acessar sem permissão → "seu perfil não tem permissão".
-- Técnico só enxerga a página de Assistência.
+### C1. Perfis/permissões (RBAC)  ✅ FEITA
+- `auth/roles.decorator.ts` (`@Roles("admin"|"tecnico")`); `SupabaseAuthGuard` lê o metadado via `Reflector` e, sem `@Roles`, exige `admin` (mantém todas as rotas existentes admin-only).
+- `users/admin-users.controller.ts`: `GET /admin/me` (admin+tecnico), `GET /admin/users`, `POST /admin/users` (cria com papel), `PATCH /admin/users/:id/role` — via Supabase Admin API (service role).
+- Front: página `/admin/permissoes` (criar usuário + trocar papel) e placeholder `/admin/assistencia`.
+- `AdminShell`: busca `/admin/me`, gating por página (`canAccess`) — técnico só acessa `/admin/assistencia`, demais mostram "Seu perfil não tem permissão"; técnico é redirecionado de `/admin` para `/admin/assistencia`. Menu mostra todos os itens (conforme PDF).
+- Papéis: `admin` (tudo), `tecnico` (só Assistência).
 
 ### C2. Cadastro de aparelhos em assistência
 - Prisma: `RepairDevice` (foto inicial, técnico vinculado, defeitos prévios, serviços a realizar, status, createdAt). Técnico = usuário com role `tecnico` (ou tabela própria).
@@ -77,8 +78,9 @@ Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `
 - [x] Fase A (1, 2, 3) — implementada e no ar.
 - [x] Analytics usando valor efetivo (negociado).
 - [x] Fase B (4) — página passo a passo.
-- [ ] Fase C1 (permissões)
+- [x] Fase C1 (permissões) — RBAC admin/técnico, página /admin/permissoes, gating.
 - [ ] Fase C2 (cadastro de aparelhos)
 - [ ] Fase C3 (mídias + retenção)
 
-> Próximo passo sugerido: Fase C1 (RBAC admin/técnico) — ver detalhamento acima.
+> Próximo passo: Fase C2 — modelo `RepairDevice` + página `/admin/assistencia`
+> (cadastro, vínculo de técnico, defeitos prévios, serviços). Depois C3 (mídias).

@@ -4,9 +4,21 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { adminApi } from "@/lib/admin-api";
 
+type Role = "admin" | "tecnico";
 type NavItem = { href: string; label: string };
 type NavGroup = { title: string; items: NavItem[] };
+
+// Técnico só acessa a área de Assistência (demais páginas mostram "sem permissão").
+const TECNICO_PREFIXES = ["/admin/assistencia"];
+
+function canAccess(role: Role | null, pathname: string): boolean {
+  if (role === "admin") return true;
+  if (role === "tecnico")
+    return TECNICO_PREFIXES.some((p) => pathname.startsWith(p));
+  return false;
+}
 
 const NAV: NavGroup[] = [
   {
@@ -38,8 +50,15 @@ const NAV: NavGroup[] = [
     items: [{ href: "/admin/blog", label: "Blog" }],
   },
   {
+    title: "Assistência",
+    items: [{ href: "/admin/assistencia", label: "Assistência técnica" }],
+  },
+  {
     title: "Sistema",
-    items: [{ href: "/admin/settings", label: "Configurações" }],
+    items: [
+      { href: "/admin/permissoes", label: "Permissões" },
+      { href: "/admin/settings", label: "Configurações" },
+    ],
   },
 ];
 
@@ -51,6 +70,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const isLogin = pathname === "/admin/login";
   const [ready, setReady] = useState(false);
   const [email, setEmail] = useState<string | null>(null);
+  const [role, setRole] = useState<Role | null>(null);
 
   useEffect(() => {
     if (isLogin) {
@@ -66,12 +86,23 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         return;
       }
       setEmail(data.session.user.email ?? null);
-      setReady(true);
+      try {
+        const me = await adminApi.get<{ role: Role }>("/admin/me");
+        if (!active) return;
+        setRole(me.role);
+        // Técnico cai direto na Assistência ao abrir a raiz do painel.
+        if (me.role === "tecnico" && pathname === "/admin") {
+          router.replace("/admin/assistencia");
+        }
+      } catch {
+        if (active) setRole(null);
+      }
+      if (active) setReady(true);
     })();
     return () => {
       active = false;
     };
-  }, [isLogin, router]);
+  }, [isLogin, router, pathname]);
 
   if (isLogin) return <>{children}</>;
 
@@ -183,7 +214,30 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
             </select>
           </div>
         </header>
-        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">{children}</main>
+        <main className="flex-1 px-4 py-5 sm:px-6 sm:py-6 lg:px-8">
+          {canAccess(role, pathname) ? (
+            children
+          ) : (
+            <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+              <p className="text-4xl">🔒</p>
+              <h2 className="mt-3 text-lg font-semibold">
+                Seu perfil não tem permissão
+              </h2>
+              <p className="mt-1 max-w-sm text-sm text-muted">
+                Esta página é restrita ao seu perfil. Fale com um administrador
+                se precisar de acesso.
+              </p>
+              {role === "tecnico" && (
+                <Link
+                  href="/admin/assistencia"
+                  className="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-fg transition hover:bg-brand-dark"
+                >
+                  Ir para Assistência →
+                </Link>
+              )}
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );
