@@ -10,6 +10,13 @@ CREATE TABLE IF NOT EXISTS "repair_media" (
 );
 CREATE INDEX IF NOT EXISTS "repair_media_deviceId_idx" ON "repair_media" ("deviceId");
 CREATE INDEX IF NOT EXISTS "repair_media_createdAt_idx" ON "repair_media" ("createdAt");
-ALTER TABLE "repair_media"
-  ADD CONSTRAINT "repair_media_deviceId_fkey"
-  FOREIGN KEY ("deviceId") REFERENCES "repair_devices"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'repair_media_deviceId_fkey'
+  ) THEN
+    ALTER TABLE "repair_media"
+      ADD CONSTRAINT "repair_media_deviceId_fkey"
+      FOREIGN KEY ("deviceId") REFERENCES "repair_devices"("id")
+      ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
