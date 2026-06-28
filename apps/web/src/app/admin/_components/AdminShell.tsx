@@ -6,20 +6,42 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { adminApi } from "@/lib/admin-api";
 
-type Role = "admin" | "tecnico";
+type Role = { key: string; label: string; isAdmin: boolean; pages: string[] };
 type NavItem = { href: string; label: string };
 type NavGroup = { title: string; items: NavItem[] };
 
-// Técnico só acessa a área de Assistência (demais páginas mostram "sem permissão").
-const TECNICO_PREFIXES = ["/admin/assistencia"];
+// Cada prefixo de rota do painel mapeia para uma "página" de permissão.
+const PAGE_BY_HREF: [string, string][] = [
+  ["/admin/proposals", "propostas"],
+  ["/admin/categories", "catalogo"],
+  ["/admin/models", "catalogo"],
+  ["/admin/variants", "catalogo"],
+  ["/admin/import", "catalogo"],
+  ["/admin/detailed-states", "regras"],
+  ["/admin/descontos", "regras"],
+  ["/admin/knockout", "regras"],
+  ["/admin/blog", "blog"],
+  ["/admin/assistencia", "assistencia"],
+  ["/admin/permissoes", "permissoes"],
+  ["/admin/settings", "settings"],
+  ["/admin", "dashboard"],
+];
+
+function pageForPath(pathname: string): string {
+  for (const [prefix, page] of PAGE_BY_HREF) {
+    if (pathname === prefix || pathname.startsWith(prefix + "/")) return page;
+  }
+  return "dashboard";
+}
 
 function canAccess(role: Role | null, pathname: string): boolean {
-  // Só restringimos quando temos certeza de que é técnico. Admin ou papel ainda
-  // desconhecido (carregando/erro) passam — as APIs sensíveis já exigem admin no
-  // backend, então o gating do front é apenas de UX, nunca a barreira de segurança.
-  if (role === "tecnico")
-    return TECNICO_PREFIXES.some((p) => pathname.startsWith(p));
-  return true;
+  // Papel ainda desconhecido (carregando/erro): não bloqueia — a segurança real
+  // está no backend; o gating do front é só de UX.
+  if (!role) return true;
+  if (role.isAdmin) return true;
+  const page = pageForPath(pathname);
+  if (page === "permissoes") return false; // gestão de permissões é só do admin
+  return role.pages.includes(page);
 }
 
 const NAV: NavGroup[] = [
@@ -92,9 +114,10 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         const me = await adminApi.get<{ role: Role }>("/admin/me");
         if (!active) return;
         setRole(me.role);
-        // Técnico cai direto na Assistência ao abrir a raiz do painel.
-        if (me.role === "tecnico" && pathname === "/admin") {
-          router.replace("/admin/assistencia");
+        // Não-admin que cai numa página sem permissão vai para a 1ª página acessível.
+        if (!me.role.isAdmin && !canAccess(me.role, pathname)) {
+          const landing = ALL_ITEMS.find((i) => canAccess(me.role, i.href));
+          if (landing) router.replace(landing.href);
         }
       } catch {
         if (active) setRole(null);
@@ -229,14 +252,19 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 Esta página é restrita ao seu perfil. Fale com um administrador
                 se precisar de acesso.
               </p>
-              {role === "tecnico" && (
-                <Link
-                  href="/admin/assistencia"
-                  className="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-fg transition hover:bg-brand-dark"
-                >
-                  Ir para Assistência →
-                </Link>
-              )}
+              {role &&
+                !role.isAdmin &&
+                (() => {
+                  const landing = ALL_ITEMS.find((i) => canAccess(role, i.href));
+                  return landing ? (
+                    <Link
+                      href={landing.href}
+                      className="mt-4 rounded-lg bg-brand px-4 py-2 text-sm font-medium text-brand-fg transition hover:bg-brand-dark"
+                    >
+                      Ir para {landing.label} →
+                    </Link>
+                  ) : null;
+                })()}
             </div>
           )}
         </main>

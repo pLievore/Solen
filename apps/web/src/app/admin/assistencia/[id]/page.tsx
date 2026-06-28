@@ -49,7 +49,7 @@ export default function RepairDeviceDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [device, setDevice] = useState<RepairDevice | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -58,10 +58,10 @@ export default function RepairDeviceDetailPage() {
     (async () => {
       try {
         const [me, d] = await Promise.all([
-          adminApi.get<{ role: string }>("/admin/me"),
+          adminApi.get<{ role: { isAdmin: boolean } }>("/admin/me"),
           adminApi.get<RepairDevice>(`/admin/repair-devices/${id}`),
         ]);
-        setRole(me.role);
+        setIsAdmin(me.role.isAdmin);
         setDevice(d);
       } catch (e) {
         setError((e as Error).message);
@@ -114,7 +114,7 @@ export default function RepairDeviceDetailPage() {
       {msg && <p className="rounded bg-brand/10 px-3 py-2 text-sm text-brand">{msg}</p>}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      {role === "admin" ? (
+      {isAdmin !== false ? (
         <>
           <DeviceForm initial={toForm(device)} submitLabel="Salvar alterações" busy={busy} onSubmit={save} />
           <button onClick={remove} className={cls.btnDanger}>

@@ -55,7 +55,14 @@ registradas abaixo. Mexer só onde indicado; site público e painel.
 
 Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `SupabaseService` tem a chave secreta (admin API). Upload atual: `storage/uploads.controller.ts` (imagem ≤5MB, bucket público `catalog`).
 
-### C1. Perfis/permissões (RBAC)  ✅ FEITA
+### C1b. Permissões DINÂMICAS (evolução do C1)  ✅ FEITA
+- Tabela `Role` (key, label, isAdmin, builtin, pages[]) — migration `7_roles` (seed admin + tecnico).
+- Páginas concedíveis em `@vendy/shared` `ADMIN_PAGES` (dashboard, propostas, catalogo, regras, blog, assistencia, settings). "permissoes" é sempre só admin.
+- Guard (`auth.guard.ts`) passou a checar **por página** (mapa caminho→página). `admin` embutido = acesso total; papéis custom liberados conforme `pages[]`. `@Roles` removido.
+- API (`admin-users.controller`): `/admin/me` retorna `{role:{key,label,isAdmin,pages}}`; CRUD de papéis `GET/POST/PATCH/DELETE /admin/roles`; criar/editar usuário valida a chave do papel.
+- Front: página `/admin/permissoes` gerencia níveis (criar/editar páginas/excluir) e atribui papéis; `AdminShell` faz gating por página (fail-open enquanto carrega); assistência usa `isAdmin` do `/admin/me`.
+
+### C1. Perfis/permissões (RBAC)  ✅ FEITA (base, ver C1b para a versão dinâmica)
 - `auth/roles.decorator.ts` (`@Roles("admin"|"tecnico")`); `SupabaseAuthGuard` lê o metadado via `Reflector` e, sem `@Roles`, exige `admin` (mantém todas as rotas existentes admin-only).
 - `users/admin-users.controller.ts`: `GET /admin/me` (admin+tecnico), `GET /admin/users`, `POST /admin/users` (cria com papel), `PATCH /admin/users/:id/role` — via Supabase Admin API (service role).
 - Front: página `/admin/permissoes` (criar usuário + trocar papel) e placeholder `/admin/assistencia`.

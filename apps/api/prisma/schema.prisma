@@ -223,3 +223,17 @@ model RepairMedia {
   @@index([createdAt])
   @@map("repair_media")
 }
+
+// ─────────────────────────── Papéis / permissões ───────────────────────────
+
+model Role {
+  key       String   @id // admin | tecnico | <custom>
+  label     String
+  isAdmin   Boolean  @default(false) // acesso total (não editável)
+  builtin   Boolean  @default(false) // não pode ser excluído
+  pages     Json     @default("[]") // string[] de páginas permitidas
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("roles")
+}

@@ -8,7 +8,8 @@ import { STATUS_COLOR, STATUS_LABEL, type RepairDevice } from "./_shared";
 
 export default function AssistenciaPage() {
   const [devices, setDevices] = useState<RepairDevice[]>([]);
-  const [role, setRole] = useState<string | null>(null);
+  // null = ainda carregando (fail-open: mostra o botão de incluir por padrão)
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -16,10 +17,10 @@ export default function AssistenciaPage() {
     (async () => {
       try {
         const [me, list] = await Promise.all([
-          adminApi.get<{ role: string }>("/admin/me"),
+          adminApi.get<{ role: { isAdmin: boolean } }>("/admin/me"),
           adminApi.get<RepairDevice[]>("/admin/repair-devices"),
         ]);
-        setRole(me.role);
+        setIsAdmin(me.role.isAdmin);
         setDevices(list);
       } catch (e) {
         setError((e as Error).message);
@@ -29,18 +30,20 @@ export default function AssistenciaPage() {
     })();
   }, []);
 
+  const canCreate = isAdmin !== false; // admin ou ainda desconhecido
+
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Assistência técnica</h1>
           <p className="text-sm text-muted">
-            {role === "tecnico"
+            {isAdmin === false
               ? "Aparelhos atribuídos a você."
               : "Aparelhos enviados para assistência."}
           </p>
         </div>
-        {role === "admin" && (
+        {canCreate && (
           <Link href="/admin/assistencia/novo" className={cls.btn}>
             + Novo aparelho
           </Link>

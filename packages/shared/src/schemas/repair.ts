@@ -38,3 +38,20 @@ export const REPAIR_SLOTS: string[] = REPAIR_CHECKLIST.map((c) => c.slot);
 
 /** Limite de duração de vídeo (segundos) para as comprovações. */
 export const REPAIR_VIDEO_MAX_SECONDS = 10;
+
+/**
+ * Páginas do painel que podem ser concedidas a um papel personalizado.
+ * "permissoes" e a gestão de usuários ficam de fora (sempre admin).
+ */
+export const ADMIN_PAGES = [
+  { key: "dashboard", label: "Visão geral" },
+  { key: "propostas", label: "Propostas" },
+  { key: "catalogo", label: "Catálogo" },
+  { key: "regras", label: "Regras de preço" },
+  { key: "blog", label: "Blog" },
+  { key: "assistencia", label: "Assistência técnica" },
+  { key: "settings", label: "Configurações" },
+] as const;
+
+export type AdminPageKey = (typeof ADMIN_PAGES)[number]["key"];
+export const ADMIN_PAGE_KEYS: string[] = ADMIN_PAGES.map((p) => p.key);

@@ -12,7 +12,6 @@ import {
 } from "@nestjs/common";
 import { z } from "zod";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
-import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
 import { PrismaService } from "../prisma/prisma.service";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
@@ -43,21 +42,19 @@ export class RepairDeviceController {
 
   /** GET /admin/repair-devices — admin vê todos; técnico vê só os seus. */
   @Get()
-  @Roles("admin", "tecnico")
   list(@CurrentUser() user: AuthUser) {
     return this.prisma.repairDevice.findMany({
-      where: user.role === "tecnico" ? { technicianId: user.id } : {},
+      where: user.role !== "admin" ? { technicianId: user.id } : {},
       orderBy: { createdAt: "desc" },
     });
   }
 
   /** GET /admin/repair-devices/:id — detalhe (técnico só do próprio). */
   @Get(":id")
-  @Roles("admin", "tecnico")
   async detail(@Param("id") id: string, @CurrentUser() user: AuthUser) {
     const device = await this.prisma.repairDevice.findUnique({ where: { id } });
     if (!device) throw new NotFoundException("Aparelho não encontrado");
-    if (user.role === "tecnico" && device.technicianId !== user.id) {
+    if (user.role !== "admin" && device.technicianId !== user.id) {
       throw new ForbiddenException("Sem acesso a este aparelho");
     }
     return device;

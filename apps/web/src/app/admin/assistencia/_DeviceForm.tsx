@@ -54,7 +54,7 @@ export default function DeviceForm({
   useEffect(() => {
     adminApi
       .get<Tecnico[]>("/admin/users")
-      .then((us) => setTecnicos(us.filter((u) => u.role === "tecnico")))
+      .then((us) => setTecnicos(us.filter((u) => u.role && u.role !== "admin")))
       .catch(() => setTecnicos([]));
   }, []);
 

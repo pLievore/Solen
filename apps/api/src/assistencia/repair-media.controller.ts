@@ -15,7 +15,6 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import { REPAIR_SLOTS } from "@vendy/shared";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
-import { Roles } from "../auth/roles.decorator";
 import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
 import { PrismaService } from "../prisma/prisma.service";
 import { SupabaseService } from "../auth/supabase.service";
@@ -53,7 +52,6 @@ export class RepairMediaController {
 
   /** POST /admin/repair-devices/:id/media — anexa foto/vídeo a um slot. */
   @Post("repair-devices/:id/media")
-  @Roles("admin", "tecnico")
   @UseInterceptors(FileInterceptor("file", { limits: { fileSize: MAX_VIDEO, files: 1 } }))
   async upload(
     @Param("id") deviceId: string,
@@ -105,7 +103,6 @@ export class RepairMediaController {
 
   /** GET /admin/repair-devices/:id/media — lista as comprovações (URLs assinadas). */
   @Get("repair-devices/:id/media")
-  @Roles("admin", "tecnico")
   async list(@Param("id") deviceId: string, @CurrentUser() user: AuthUser) {
     await this.assertAccess(deviceId, user);
     const items = await this.prisma.repairMedia.findMany({
@@ -119,14 +116,13 @@ export class RepairMediaController {
 
   /** DELETE /admin/repair-media/:mediaId — remove uma comprovação. */
   @Delete("repair-media/:mediaId")
-  @Roles("admin", "tecnico")
   async remove(@Param("mediaId") id: string, @CurrentUser() user: AuthUser) {
     const media = await this.prisma.repairMedia.findUnique({
       where: { id },
       include: { device: { select: { technicianId: true } } },
     });
     if (!media) throw new NotFoundException("Mídia não encontrada");
-    if (user.role === "tecnico" && media.device.technicianId !== user.id) {
+    if (user.role !== "admin" && media.device.technicianId !== user.id) {
       throw new ForbiddenException("Sem acesso a esta mídia");
     }
     await this.supabase.client.storage.from(this.bucket).remove([media.path]);
@@ -147,7 +143,7 @@ export class RepairMediaController {
       select: { id: true, technicianId: true },
     });
     if (!device) throw new NotFoundException("Aparelho não encontrado");
-    if (user.role === "tecnico" && device.technicianId !== user.id) {
+    if (user.role !== "admin" && device.technicianId !== user.id) {
       throw new ForbiddenException("Sem acesso a este aparelho");
     }
     return device;
