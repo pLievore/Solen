@@ -188,3 +188,23 @@ model Setting {
 
   @@map("settings")
 }
+
+// ─────────────────────────── Assistência técnica ───────────────────────────
+
+model RepairDevice {
+  id              String   @id @default(uuid())
+  model           String // descrição/modelo do aparelho
+  imageUrl        String? // foto inicial do aparelho
+  technicianId    String? // id do usuário técnico (Supabase Auth)
+  technicianEmail String? // snapshot do e-mail do técnico (exibição)
+  accessNotes     String? // como acessar o aparelho (senha/instruções)
+  priorDefects    String? // defeitos prévios sinalizados
+  services        String? // serviços a realizar (troca de tela/bateria/câmeras...)
+  status          String   @default("RECEBIDO") // RECEBIDO | EM_REPARO | CONCLUIDO | ENTREGUE
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([technicianId])
+  @@map("repair_devices")
+}

@@ -62,9 +62,11 @@ Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `
 - `AdminShell`: busca `/admin/me`, gating por página (`canAccess`) — técnico só acessa `/admin/assistencia`, demais mostram "Seu perfil não tem permissão"; técnico é redirecionado de `/admin` para `/admin/assistencia`. Menu mostra todos os itens (conforme PDF).
 - Papéis: `admin` (tudo), `tecnico` (só Assistência).
 
-### C2. Cadastro de aparelhos em assistência
-- Prisma: `RepairDevice` (foto inicial, técnico vinculado, defeitos prévios, serviços a realizar, status, createdAt). Técnico = usuário com role `tecnico` (ou tabela própria).
-- CRUD no painel (página "Aparelhos em Assistência Técnica").
+### C2. Cadastro de aparelhos em assistência  ✅ FEITA
+- Prisma: `RepairDevice` (model, imageUrl foto inicial, technicianId/Email, accessNotes, priorDefects, services, status RECEBIDO|EM_REPARO|CONCLUIDO|ENTREGUE). Migration `5_repair_devices` aplicada na prod.
+- API: `assistencia/repair-device.controller.ts` — `GET /admin/repair-devices` (admin: todos; técnico: só os seus, `@Roles admin,tecnico`), `GET/:id` (técnico só do próprio), `POST`/`PATCH`/`DELETE` (admin).
+- Front: `/admin/assistencia` (lista, role-aware), `/admin/assistencia/novo` (form admin), `/admin/assistencia/[id]` (admin edita + exclui; técnico vê leitura). Form compartilhado `_DeviceForm.tsx` (foto via `uploadIcon`, seleção de técnico via `/admin/users` filtrado).
+- Vínculo de técnico: `technicianId` (id Supabase) + `technicianEmail` (snapshot p/ exibição).
 
 ### C3. Mídias de comprovação + checklist
 - Bucket **privado** novo (ex.: `assistencia`). Endpoint de upload de **vídeo** (≤10s, validar MIME/tamanho) e foto.
@@ -79,8 +81,9 @@ Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `
 - [x] Analytics usando valor efetivo (negociado).
 - [x] Fase B (4) — página passo a passo.
 - [x] Fase C1 (permissões) — RBAC admin/técnico, página /admin/permissoes, gating.
-- [ ] Fase C2 (cadastro de aparelhos)
+- [x] Fase C2 (cadastro de aparelhos) — RepairDevice + páginas de assistência.
 - [ ] Fase C3 (mídias + retenção)
 
-> Próximo passo: Fase C2 — modelo `RepairDevice` + página `/admin/assistencia`
-> (cadastro, vínculo de técnico, defeitos prévios, serviços). Depois C3 (mídias).
+> Próximo passo: Fase C3 — bucket privado `assistencia`, endpoint de upload de
+> foto/vídeo (≤10s), checklist de comprovações por aparelho (carcaça, biometria,
+> câmeras, energia, botões) e rotina de retenção (apagar >90 dias).
