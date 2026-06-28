@@ -157,13 +157,37 @@ export default function MediaChecklist({ deviceId }: { deviceId: string }) {
               {items.length > 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
                   {items.map((m) => (
-                    <div key={m.id} className="group relative overflow-hidden rounded-lg border border-border bg-surface-2">
+                    <div
+                      key={m.id}
+                      className="group relative overflow-hidden rounded-lg border border-border bg-black/5"
+                    >
                       {m.kind === "video" ? (
-                        <video src={m.url ?? ""} controls className="h-28 w-full object-cover" />
+                        <video
+                          src={m.url ?? ""}
+                          controls
+                          playsInline
+                          preload="metadata"
+                          className="h-32 w-full bg-black object-contain"
+                        />
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={m.url ?? ""} alt="" className="h-28 w-full object-cover" />
+                        <img src={m.url ?? ""} alt="" className="h-32 w-full object-cover" />
                       )}
+
+                      {/* Abrir/baixar em nova aba — funciona mesmo quando o player embutido
+                          nao reproduz o codec (ex.: video .mov/HEVC do iPhone). */}
+                      {m.url && (
+                        <a
+                          href={m.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="absolute bottom-1 left-1 inline-flex items-center gap-1 rounded-md bg-black/65 px-1.5 py-0.5 text-[11px] font-medium text-white opacity-0 transition hover:bg-black/85 group-hover:opacity-100"
+                        >
+                          <Icon.external size={12} />
+                          {m.kind === "video" ? "Abrir vídeo" : "Abrir"}
+                        </a>
+                      )}
+
                       <button
                         type="button"
                         onClick={() => remove(m.id)}
