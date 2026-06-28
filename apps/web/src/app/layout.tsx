@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import LgpdBanner from "./_components/LgpdBanner";
 import AnalyticsConsent from "./_components/AnalyticsConsent";
+import { Analytics } from "@vercel/analytics/next";
 
 const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.vendybrasil.com"
@@ -66,6 +67,7 @@ export default function RootLayout({
         {children}
         <AnalyticsConsent gaId={gaId} />
         <LgpdBanner />
+        <Analytics />
       </body>
     </html>
   );
