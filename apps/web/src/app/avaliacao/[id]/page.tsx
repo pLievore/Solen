@@ -444,13 +444,34 @@ export default function EvaluationPage() {
               </p>
 
               <div className="space-y-3">
-                {Array.from(new Set(PICKUP_POINTS.filter((p) => p.id !== "correios").map((p) => p.region))).map((region) => (
+                {/* Coleta a domicílio — destaque */}
+                <button
+                  type="button"
+                  onClick={() => setPickupId("domicilio")}
+                  className={`flex w-full items-start gap-3 rounded-xl border px-3 py-3 text-left transition ${
+                    pickupId === "domicilio"
+                      ? "border-brand bg-brand-subtle text-brand-subtle-fg shadow-sm shadow-brand/20"
+                      : "border-brand/40 bg-brand-subtle/30 hover:border-brand"
+                  }`}
+                >
+                  <span className="text-lg leading-none">🚚</span>
+                  <span>
+                    <span className="block text-sm font-semibold leading-tight">
+                      Coleta a domicílio · grátis
+                    </span>
+                    <span className="block text-xs text-muted">
+                      Vamos até você e o pagamento é na hora.
+                    </span>
+                  </span>
+                </button>
+
+                {Array.from(new Set(PICKUP_POINTS.filter((p) => p.id !== "correios" && p.id !== "domicilio").map((p) => p.region))).map((region) => (
                   <div key={region}>
                     <p className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted">
                       {region}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
-                      {PICKUP_POINTS.filter((p) => p.id !== "correios" && p.region === region).map((p) => (
+                      {PICKUP_POINTS.filter((p) => p.id !== "correios" && p.id !== "domicilio" && p.region === region).map((p) => (
                         <button
                           key={p.id}
                           type="button"

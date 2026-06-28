@@ -15,6 +15,7 @@ type Proposal = {
   status: string;
   isScrap: boolean;
   calculatedValue: number;
+  overriddenValue: number | null;
   breakdown: BreakdownItem[];
   answers: { knockout: Answer[]; detailed: Answer[] };
   sellerName: string;
@@ -58,6 +59,9 @@ export default function ProposalDetailPage() {
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [valueReais, setValueReais] = useState("");
+  const [savingValue, setSavingValue] = useState(false);
+  const [copied, setCopied] = useState<"saudacao" | "status" | null>(null);
 
   useEffect(() => {
     adminApi
@@ -65,9 +69,41 @@ export default function ProposalDetailPage() {
       .then((p) => {
         setProposal(p);
         setStatus(p.status);
+        setValueReais(((p.overriddenValue ?? p.calculatedValue) / 100).toFixed(2));
       })
       .catch((e) => setError(e.message));
   }, [id]);
+
+  async function saveValue(reais: string | null) {
+    setSavingValue(true);
+    setMsg(null);
+    setError(null);
+    try {
+      const value = reais === null ? null : Math.round(Number(reais) * 100);
+      const r = await adminApi.patch<{ calculatedValue: number; overriddenValue: number | null }>(
+        `/admin/proposals/${id}/value`,
+        { value },
+      );
+      setProposal((p) => (p ? { ...p, overriddenValue: r.overriddenValue } : p));
+      setValueReais(((r.overriddenValue ?? r.calculatedValue) / 100).toFixed(2));
+      setMsg(reais === null ? "Valor restaurado." : "Valor atualizado.");
+      setTimeout(() => setMsg(null), 2000);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setSavingValue(false);
+    }
+  }
+
+  async function copy(kind: "saudacao" | "status", text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(kind);
+      setTimeout(() => setCopied(null), 1800);
+    } catch {
+      setError("Não foi possível copiar.");
+    }
+  }
 
   async function saveStatus() {
     setSaving(true);
@@ -89,6 +125,27 @@ export default function ProposalDetailPage() {
 
   const { variant } = proposal;
   const variantLabel = `${variant.model.category.name} › ${variant.model.name} › ${variant.name}`;
+  const effectiveValue = proposal.overriddenValue ?? proposal.calculatedValue;
+
+  // ── Mensagens cópia-e-cola ──────────────────────────────────────────────
+  const firstName = proposal.sellerName.trim().split(/\s+/)[0] || "";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+  const saudacao =
+    `${greeting}, ${firstName}! Tudo bem?\n` +
+    `Estou entrando em contato para falar da avaliação feita na Vendy.`;
+
+  const modelName = variant.name.startsWith(variant.model.name)
+    ? variant.name
+    : `${variant.model.name} ${variant.name}`;
+  const base = proposal.breakdown.find((b) => b.type === "base");
+  const deltas = proposal.breakdown.filter((b) => b.type !== "base");
+  const statusLines = [`📱 ${modelName}`];
+  if (base) statusLines.push(base.label, fmt(base.amount));
+  for (const d of deltas) statusLines.push(d.label, fmt(d.amount));
+  statusLines.push("Total", `💰 ${fmt(effectiveValue)}`);
+  const statusMsg =
+    statusLines.join("\n") + "\n\nVocê pode falar sobre sua negociação agora?";
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -113,7 +170,10 @@ export default function ProposalDetailPage() {
           <p className="text-xs text-muted uppercase tracking-wide">
             {proposal.isScrap ? "Valor (sucata)" : "Valor proposto"}
           </p>
-          <p className="text-xl font-bold text-brand">{fmt(proposal.calculatedValue)}</p>
+          <p className="text-xl font-bold text-brand">{fmt(effectiveValue)}</p>
+          {proposal.overriddenValue != null && (
+            <p className="text-xs text-muted line-through">{fmt(proposal.calculatedValue)}</p>
+          )}
         </div>
       </div>
 
@@ -146,6 +206,65 @@ export default function ProposalDetailPage() {
           </button>
           {msg && <span className="text-sm text-brand">{msg}</span>}
           {error && <span className="text-sm text-red-500">{error}</span>}
+        </div>
+      </div>
+
+      {/* Ajuste de valor */}
+      <div className={cls.card + " space-y-3"}>
+        <h2 className="font-semibold">Valor da proposta</h2>
+        <p className="text-xs text-muted">
+          Original gerado pelo site: <strong>{fmt(proposal.calculatedValue)}</strong>.
+          Ajuste o valor negociado abaixo (o original é preservado).
+        </p>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted">R$</span>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={valueReais}
+              onChange={(e) => setValueReais(e.target.value)}
+              className={cls.input + " w-36"}
+            />
+          </div>
+          <button
+            onClick={() => saveValue(valueReais)}
+            disabled={savingValue}
+            className={cls.btn + " disabled:opacity-50"}
+          >
+            {savingValue ? "Salvando..." : "Salvar valor"}
+          </button>
+          {proposal.overriddenValue != null && (
+            <button
+              onClick={() => saveValue(null)}
+              disabled={savingValue}
+              className={cls.btnGhost}
+            >
+              Restaurar original
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Mensagens cópia-e-cola */}
+      <div className={cls.card + " space-y-3"}>
+        <h2 className="font-semibold">Mensagem para o cliente</h2>
+        <div className="flex flex-wrap gap-2">
+          <button onClick={() => copy("saudacao", saudacao)} className={cls.btnGhost}>
+            {copied === "saudacao" ? "✓ Copiado!" : "Copiar saudação"}
+          </button>
+          <button onClick={() => copy("status", statusMsg)} className={cls.btnGhost}>
+            {copied === "status" ? "✓ Copiado!" : "Copiar status"}
+          </button>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <pre className="whitespace-pre-wrap rounded-lg border border-border bg-surface-2 p-3 text-xs text-muted">
+            {saudacao}
+          </pre>
+          <pre className="whitespace-pre-wrap rounded-lg border border-border bg-surface-2 p-3 text-xs text-muted">
+            {statusMsg}
+          </pre>
         </div>
       </div>
 

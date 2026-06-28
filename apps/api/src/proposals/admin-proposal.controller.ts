@@ -20,6 +20,12 @@ const patchStatusSchema = z.object({
 });
 type PatchStatus = z.infer<typeof patchStatusSchema>;
 
+const patchValueSchema = z.object({
+  // centavos; null limpa o ajuste e volta ao valor original
+  value: z.number().int().min(0).nullable(),
+});
+type PatchValue = z.infer<typeof patchValueSchema>;
+
 const filtersQuerySchema = z.object({
   status: z.enum(["NEW", "CONTACTED", "CLOSED", "LOST"]).optional(),
   token: z.string().optional(),
@@ -228,6 +234,24 @@ export class AdminProposalController {
       where: { id },
       data: { status: dto.status },
       select: { id: true, status: true },
+    });
+  }
+
+  /** PATCH /api/admin/proposals/:id/value — ajusta o valor (preserva o original). */
+  @Patch(":id/value")
+  async updateValue(
+    @Param("id") id: string,
+    @Body(new ZodValidationPipe(patchValueSchema)) dto: PatchValue,
+  ) {
+    const exists = await this.prisma.proposal.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!exists) throw new NotFoundException("Proposta não encontrada");
+    return this.prisma.proposal.update({
+      where: { id },
+      data: { overriddenValue: dto.value },
+      select: { id: true, calculatedValue: true, overriddenValue: true },
     });
   }
 

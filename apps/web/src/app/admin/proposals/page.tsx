@@ -12,6 +12,7 @@ type ProposalRow = {
   token: string;
   status: string;
   calculatedValue: number;
+  overriddenValue: number | null;
   isScrap: boolean;
   sellerName: string;
   sellerWhatsapp: string;
@@ -437,7 +438,12 @@ function ProposalsPageContent() {
                     </p>
                   </td>
                   <td className={`${cls.td} font-semibold`}>
-                    {brl(proposal.calculatedValue)}
+                    {brl(proposal.overriddenValue ?? proposal.calculatedValue)}
+                    {proposal.overriddenValue != null && (
+                      <span className="ml-1.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">
+                        ajustado
+                      </span>
+                    )}
                     {proposal.isScrap && (
                       <span className="ml-1.5 rounded bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">
                         sucata

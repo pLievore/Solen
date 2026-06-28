@@ -141,7 +141,8 @@ model Proposal {
   conditionStateId String? // nulo se sucata
   isScrap          Boolean  @default(false)
   answers          Json // snapshot das respostas
-  calculatedValue  Int // centavos
+  calculatedValue  Int // centavos (valor original gerado pelo site)
+  overriddenValue  Int? // centavos: valor ajustado manualmente no painel (preserva o original)
   breakdown        Json // composição do cálculo (auditoria)
   sellerName       String
   sellerWhatsapp   String

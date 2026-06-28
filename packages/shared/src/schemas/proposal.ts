@@ -19,8 +19,9 @@ export const sellerSchema = z.object({
 });
 export type Seller = z.infer<typeof sellerSchema>;
 
-/** Pontos de coleta disponíveis (+ opção de envio pelos Correios). */
+/** Pontos de coleta disponíveis (+ coleta a domicílio e envio pelos Correios). */
 export const PICKUP_POINTS = [
+  { id: "domicilio", name: "Coleta a domicílio (grátis)", city: "", uf: "", region: "Coleta a domicílio" },
   { id: "sp-pinheiros", name: "Estação Pinheiros", city: "São Paulo", uf: "SP", region: "São Paulo" },
   { id: "sp-morumbi", name: "Estação Morumbi", city: "São Paulo", uf: "SP", region: "São Paulo" },
   { id: "pg-centro", name: "Centro", city: "Ponta Grossa", uf: "PR", region: "Ponta Grossa" },
@@ -29,6 +30,9 @@ export const PICKUP_POINTS = [
 ] as const;
 
 export type PickupPointId = (typeof PICKUP_POINTS)[number]["id"];
+
+/** Pontos "especiais" que não entram no agrupamento por cidade. */
+export const SPECIAL_PICKUP_IDS = ["domicilio", "correios"] as const;
 
 const pickupPointIds = PICKUP_POINTS.map((p) => p.id) as [
   PickupPointId,
@@ -39,7 +43,7 @@ const pickupPointIds = PICKUP_POINTS.map((p) => p.id) as [
 export function pickupPointLabel(id: string): string {
   const p = PICKUP_POINTS.find((x) => x.id === id);
   if (!p) return id;
-  if (p.id === "correios") return "Envio pelos Correios";
+  if (p.id === "correios" || p.id === "domicilio") return p.name;
   return `${p.name} — ${p.city}/${p.uf}`;
 }
 
