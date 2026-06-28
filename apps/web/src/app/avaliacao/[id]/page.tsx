@@ -545,6 +545,12 @@ export default function EvaluationPage() {
               </motion.button>
 
               <Link
+                href="/coleta-passo-a-passo"
+                className="mt-4 flex items-center justify-center gap-1.5 text-sm font-medium text-brand transition hover:underline"
+              >
+                📋 Como preparar seu aparelho para a coleta
+              </Link>
+              <Link
                 href="/"
                 className="mt-3 block text-center text-sm text-muted transition hover:text-brand"
               >

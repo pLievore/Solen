@@ -23,10 +23,16 @@ type Row = {
   status: string;
   isScrap: boolean;
   calculatedValue: number;
+  overriddenValue: number | null;
   pickupPoint: string | null;
   createdAt: Date;
   variant: { model: { name: string; category: { name: string } } };
 };
+
+/** Valor efetivo: o ajustado manualmente (se houver) ou o original. */
+function effective(r: { calculatedValue: number; overriddenValue: number | null }): number {
+  return r.overriddenValue ?? r.calculatedValue;
+}
 
 @Controller("admin/analytics")
 @UseGuards(SupabaseAuthGuard)
@@ -49,6 +55,7 @@ export class AdminAnalyticsController {
         status: true,
         isScrap: true,
         calculatedValue: true,
+        overriddenValue: true,
         pickupPoint: true,
         createdAt: true,
         variant: {
@@ -66,9 +73,9 @@ export class AdminAnalyticsController {
 
     // ── KPIs ────────────────────────────────────────────────────────────────
     const totalLeads = inRange.length;
-    const pipelineValue = sum(inRange.map((r) => r.calculatedValue));
+    const pipelineValue = sum(inRange.map(effective));
     const closed = inRange.filter((r) => r.status === "CLOSED");
-    const wonValue = sum(closed.map((r) => r.calculatedValue));
+    const wonValue = sum(closed.map(effective));
     const avgTicket = totalLeads ? Math.round(pipelineValue / totalLeads) : 0;
     const conversionRate = totalLeads ? closed.length / totalLeads : 0;
     const scrapRate = totalLeads
@@ -93,7 +100,7 @@ export class AdminAnalyticsController {
       const k = dayKey(r.createdAt);
       const cur = tsMap.get(k) ?? { count: 0, value: 0 };
       cur.count += 1;
-      cur.value += r.calculatedValue;
+      cur.value += effective(r);
       tsMap.set(k, cur);
     }
     const timeseries = Array.from(tsMap.entries())
@@ -135,8 +142,8 @@ export class AdminAnalyticsController {
     const byValueBracket = VALUE_BRACKETS.map((b) => {
       const items = inRange.filter(
         (r) =>
-          r.calculatedValue >= b.min &&
-          (b.max === null || r.calculatedValue < b.max),
+          effective(r) >= b.min &&
+          (b.max === null || effective(r) < b.max),
       );
       return {
         label: b.label,
@@ -187,7 +194,9 @@ function groupCountValue<T>(
     const k = keyFn(r);
     const cur = m.get(k) ?? { count: 0, value: 0 };
     cur.count += 1;
-    cur.value += (r as unknown as { calculatedValue: number }).calculatedValue;
+    cur.value += effective(
+      r as unknown as { calculatedValue: number; overriddenValue: number | null },
+    );
     m.set(k, cur);
   }
   return Array.from(m.entries());

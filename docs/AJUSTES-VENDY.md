@@ -28,7 +28,7 @@ registradas abaixo. Mexer só onde indicado; site público e painel.
 - Front detalhe: card "Valor da proposta" (input em R$, Salvar, Restaurar original); cabeçalho mostra valor efetivo + original riscado.
 - Lista: mostra `overriddenValue ?? calculatedValue` + selo "ajustado".
 - Valor efetivo = `overriddenValue ?? calculatedValue`.
-- PENDÊNCIA conhecida: o **analytics** (`admin-analytics.controller`) ainda soma `calculatedValue`. Se quiser pipeline pelo valor negociado, trocar lá depois.
+- Analytics: já usa o valor efetivo (pipeline, ticket, série, categorias, modelos, faixas) — helper `effective(r)` em `admin-analytics.controller`.
 
 ### 2. Coleta a domicílio grátis  ✅
 - `PICKUP_POINTS` ganhou `domicilio` (+ `SPECIAL_PICKUP_IDS`). `pickupPointLabel` trata domicilio/correios.
@@ -42,12 +42,12 @@ registradas abaixo. Mexer só onde indicado; site público e painel.
 
 ---
 
-## FASE B — conteúdo  ⏳ PENDENTE
+## FASE B — conteúdo  ✅ FEITA
 
-### 4. Página "passo a passo para coleta"
-- Página estática própria no site (sugestão de rota: `/coleta-passo-a-passo`), bem diagramada (não via blog do DB).
-- Conteúdo já está no PDF (remover iCloud/formatar; passos 1..6 de configuração sem iCloud/senha; enviar fotos ao avaliador).
-- Linkar dela: na tela de resultado e na mensagem "status" (opcional).
+### 4. Página "passo a passo para coleta"  ✅
+- Página estática `apps/web/src/app/coleta-passo-a-passo/page.tsx` (rota `/coleta-passo-a-passo`), diagramada (hero, callout, passos numerados, telas finais, CTA).
+- Adicionada ao `sitemap.ts` (indexável).
+- Linkada na tela de resultado (`/avaliacao`): "📋 Como preparar seu aparelho para a coleta".
 
 ---
 
@@ -74,10 +74,11 @@ Base já existente: `SupabaseAuthGuard` exige `app_metadata.role === "admin"`. `
 ---
 
 ## STATUS
-- [x] Fase A (1, 2, 3) — implementada, typecheck OK. **Falta commit/push.**
-- [ ] Fase B (4)
+- [x] Fase A (1, 2, 3) — implementada e no ar.
+- [x] Analytics usando valor efetivo (negociado).
+- [x] Fase B (4) — página passo a passo.
 - [ ] Fase C1 (permissões)
 - [ ] Fase C2 (cadastro de aparelhos)
 - [ ] Fase C3 (mídias + retenção)
 
-> Próximo passo sugerido: commit/push da Fase A; depois Fase B (página passo a passo).
+> Próximo passo sugerido: Fase C1 (RBAC admin/técnico) — ver detalhamento acima.
