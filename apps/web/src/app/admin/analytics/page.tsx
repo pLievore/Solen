@@ -133,11 +133,11 @@ function Dashboard({
       {/* Storytelling */}
       <div className="rounded-2xl border border-border bg-surface/60 p-5">
         <p className="text-[15px] leading-relaxed">
-          Nos últimos <strong>{periodLabel}</strong>, o site teve{" "}
-          <strong className="text-brand">{intl(story.visitantes)}</strong> visitantes
-          (em {intl(data.totals.pageViews)} visitas) e{" "}
+          Nos últimos <strong>{periodLabel}</strong>,{" "}
+          <strong className="text-brand">{intl(story.visitantes)}</strong> pessoas
+          visitaram o site e{" "}
           <strong className="text-brand">{intl(story.leads)}</strong> viraram leads no
-          WhatsApp — conversão de <strong>{pctFmt(story.conv)}</strong>.
+          WhatsApp — uma conversão de <strong>{pctFmt(story.conv)}</strong>.
           {story.worstIdx > 0 && (
             <>
               {" "}
