@@ -203,7 +203,11 @@ export default function EvaluationPage() {
     if (!canSubmit) return;
     setError(null);
     setPhase("contact");
-    track("lead_form_started", { variant_id: id, is_scrap: scrapTriggered });
+    track("avancou_etapa", {
+      etapa: "dados_contato",
+      variant_id: id,
+      is_scrap: scrapTriggered,
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -247,9 +251,9 @@ export default function EvaluationPage() {
         valueFormatted: resp.valueFormatted,
         breakdown: resp.breakdown,
       });
-      track("quote_generated", {
+      track("enviou_avaliacao", {
         variant_id: id,
-        value: resp.value / 100,
+        valor: resp.value / 100,
         is_scrap: resp.isScrap,
       });
     } catch (e) {
@@ -282,7 +286,7 @@ export default function EvaluationPage() {
     } finally {
       setSending(false);
     }
-    track("whatsapp_redirect", { variant_id: id });
+    track("lead", { variant_id: id });
     window.location.href = url;
   }
 

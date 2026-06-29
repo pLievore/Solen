@@ -46,10 +46,10 @@ export default function SelectPage() {
 
   async function pickModel(id: string) {
     const selectedModel = models.find((model) => model.id === id);
-    track("model_selected", {
-      category: slug,
-      model_id: id,
-      model_name: selectedModel?.name,
+    track("selecionou_modelo", {
+      categoria: slug,
+      modelo_id: id,
+      modelo_nome: selectedModel?.name,
     });
     setModelId(id);
     setVariantId(null);
@@ -200,11 +200,12 @@ export default function SelectPage() {
                       whileTap={{ scale: 0.97 }}
                       onClick={() => {
                         setVariantId(v.id);
-                        track("variant_selected", {
-                          category: slug,
-                          model_id: modelId ?? undefined,
+                        track("avancou_etapa", {
+                          etapa: "versao",
+                          categoria: slug,
+                          modelo_id: modelId ?? undefined,
                           variant_id: v.id,
-                          variant_name: v.name,
+                          variant_nome: v.name,
                         });
                       }}
                       className={`rounded-xl border px-4 py-3.5 text-sm font-medium text-left shadow-sm transition-all duration-200 ${
@@ -246,9 +247,10 @@ export default function SelectPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => {
-                  track("evaluation_started", {
-                    category: slug,
-                    model_id: modelId ?? undefined,
+                  track("avancou_etapa", {
+                    etapa: "iniciou_questionario",
+                    categoria: slug,
+                    modelo_id: modelId ?? undefined,
                     variant_id: variantId ?? undefined,
                   });
                   router.push(`/avaliacao/${variantId}`);

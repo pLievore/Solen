@@ -172,9 +172,9 @@ export default function HomeContent({
                 <Link
                   href={`/vender/${c.slug}`}
                   onClick={() =>
-                    track("category_selected", {
-                      category: c.slug,
-                      category_name: c.name,
+                    track("iniciou_avaliacao", {
+                      categoria: c.slug,
+                      categoria_nome: c.name,
                     })
                   }
                   className="group flex h-full min-h-[220px] flex-col items-center overflow-hidden rounded-2xl border border-border/80 bg-bg shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-brand/70 hover:shadow-[0_16px_40px_rgba(22,163,74,0.14)] active:scale-[0.98]"
