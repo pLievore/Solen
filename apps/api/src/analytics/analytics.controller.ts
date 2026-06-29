@@ -9,24 +9,20 @@ const querySchema = z.object({
 });
 type AnalyticsQuery = z.infer<typeof querySchema>;
 
-// Funil canonico (ordem do fluxo). page_view e automatico do GA4.
-// Cada etapa soma o nome novo + os antigos equivalentes, para o historico
-// (anterior a padronizacao dos eventos) aparecer junto.
-const FUNNEL_STEPS: { key: string; label: string; events: string[] }[] = [
-  { key: "page_view", label: "Visitas ao site", events: ["page_view"] },
-  {
-    key: "iniciou_avaliacao",
-    label: "Iniciou avaliação",
-    events: ["iniciou_avaliacao", "category_selected"],
-  },
+// Etapas do funil (raso -> profundo). Cada nome novo soma os antigos
+// equivalentes (historico anterior a padronizacao). O funil e medido por
+// USUARIOS UNICOS que chegaram PELO MENOS ate cada etapa (uniao cumulativa
+// dos eventos a partir dela) — garante um funil sempre decrescente, mesmo
+// com quem entra direto numa pagina mais funda (deep link).
+const FUNNEL_STAGES: { key: string; label: string; events: string[] }[] = [
   {
     key: "selecionou_modelo",
-    label: "Selecionou modelo",
+    label: "Escolheu aparelho",
     events: ["selecionou_modelo", "model_selected"],
   },
   {
     key: "avancou_etapa",
-    label: "Avançou etapa",
+    label: "Avançou no formulário",
     events: ["avancou_etapa", "variant_selected", "evaluation_started", "lead_form_started"],
   },
   {
@@ -37,7 +33,10 @@ const FUNNEL_STEPS: { key: string; label: string; events: string[] }[] = [
   { key: "lead", label: "Lead (WhatsApp)", events: ["lead", "whatsapp_redirect"] },
 ];
 
-const FUNNEL_EVENT_NAMES = [...new Set(FUNNEL_STEPS.flatMap((s) => s.events))];
+// Para cada etapa, a uniao cumulativa de eventos dela e das seguintes.
+const FUNNEL_UNIONS = FUNNEL_STAGES.map((_, i) =>
+  FUNNEL_STAGES.slice(i).flatMap((s) => s.events),
+);
 
 // Exclui todo o trafego do painel administrativo (/admin) das metricas.
 const EXCLUDE_ADMIN = {
@@ -63,8 +62,16 @@ export class AnalyticsController {
 
     const dateRanges = [{ startDate: `${q.days}daysAgo`, endDate: "today" }];
 
-    const [totals, timeseries, byPage, funnel, byDevice, byChannel, byCity, byRegion] =
-      await Promise.all([
+    const [
+      totals,
+      timeseries,
+      byPage,
+      byDevice,
+      byChannel,
+      byCity,
+      byRegion,
+      ...stageReports
+    ] = await Promise.all([
         this.ga4.runReport({
           dateRanges,
           metrics: [
@@ -89,24 +96,6 @@ export class AnalyticsController {
           orderBys: [{ metric: { metricName: "screenPageViews" }, desc: true }],
           dimensionFilter: EXCLUDE_ADMIN,
           limit: 12,
-        }),
-        this.ga4.runReport({
-          dateRanges,
-          dimensions: [{ name: "eventName" }],
-          metrics: [{ name: "eventCount" }],
-          dimensionFilter: {
-            andGroup: {
-              expressions: [
-                {
-                  filter: {
-                    fieldName: "eventName",
-                    inListFilter: { values: FUNNEL_EVENT_NAMES },
-                  },
-                },
-                EXCLUDE_ADMIN,
-              ],
-            },
-          },
         }),
         this.ga4.runReport({
           dateRanges,
@@ -139,6 +128,26 @@ export class AnalyticsController {
           dimensionFilter: EXCLUDE_ADMIN,
           limit: 20,
         }),
+        // Etapas do funil: usuarios unicos por uniao cumulativa de eventos.
+        ...FUNNEL_UNIONS.map((events) =>
+          this.ga4.runReport({
+            dateRanges,
+            metrics: [{ name: "totalUsers" }],
+            dimensionFilter: {
+              andGroup: {
+                expressions: [
+                  {
+                    filter: {
+                      fieldName: "eventName",
+                      inListFilter: { values: events },
+                    },
+                  },
+                  EXCLUDE_ADMIN,
+                ],
+              },
+            },
+          }),
+        ),
       ]);
 
     const totalRow = totals.rows?.[0]?.metricValues ?? [];
@@ -162,7 +171,14 @@ export class AnalyticsController {
         views: num(row.metricValues?.[0]?.value),
         users: num(row.metricValues?.[1]?.value),
       })),
-      funnel: buildFunnel(funnel),
+      funnel: [
+        { key: "visitantes", label: "Visitantes", count: num(totalRow[1]?.value) },
+        ...FUNNEL_STAGES.map((stage, i) => ({
+          key: stage.key,
+          label: stage.label,
+          count: num(stageReports[i]?.rows?.[0]?.metricValues?.[0]?.value),
+        })),
+      ],
       byDevice: simpleRows(byDevice),
       byChannel: simpleRows(byChannel),
       byCity: (byCity.rows ?? [])
@@ -175,19 +191,6 @@ export class AnalyticsController {
       byRegion: simpleRows(byRegion).filter((r) => r.label && r.label !== "(not set)"),
     };
   }
-}
-
-function buildFunnel(report: GaReport) {
-  const counts = new Map<string, number>();
-  for (const row of report.rows ?? []) {
-    const event = row.dimensionValues?.[0]?.value ?? "";
-    counts.set(event, num(row.metricValues?.[0]?.value));
-  }
-  return FUNNEL_STEPS.map((step) => ({
-    key: step.key,
-    label: step.label,
-    count: step.events.reduce((sum, name) => sum + (counts.get(name) ?? 0), 0),
-  }));
 }
 
 function simpleRows(report: GaReport) {

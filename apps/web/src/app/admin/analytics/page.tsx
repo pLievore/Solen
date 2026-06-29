@@ -107,9 +107,9 @@ function Dashboard({
 }) {
   const story = useMemo(() => {
     const find = (k: string) => data.funnel.find((s) => s.key === k)?.count ?? 0;
-    const visits = data.totals.pageViews;
+    const visitantes = data.totals.users;
     const leads = find("lead");
-    const conv = visits > 0 ? leads / visits : 0;
+    const conv = visitantes > 0 ? leads / visitantes : 0;
 
     let worstIdx = -1;
     let worstDrop = 0;
@@ -123,7 +123,7 @@ function Dashboard({
         }
       }
     }
-    return { visits, leads, conv, worstIdx, worstDrop };
+    return { visitantes, leads, conv, worstIdx, worstDrop };
   }, [data]);
 
   const periodLabel = PERIODS.find((p) => p.value === days)?.label ?? `${days} dias`;
@@ -133,10 +133,11 @@ function Dashboard({
       {/* Storytelling */}
       <div className="rounded-2xl border border-border bg-surface/60 p-5">
         <p className="text-[15px] leading-relaxed">
-          Nos últimos <strong>{periodLabel}</strong>, o site recebeu{" "}
-          <strong className="text-brand">{intl(story.visits)}</strong> visitas que geraram{" "}
-          <strong className="text-brand">{intl(story.leads)}</strong> leads no WhatsApp —{" "}
-          uma conversão de <strong>{pctFmt(story.conv)}</strong>.
+          Nos últimos <strong>{periodLabel}</strong>, o site teve{" "}
+          <strong className="text-brand">{intl(story.visitantes)}</strong> visitantes
+          (em {intl(data.totals.pageViews)} visitas) e{" "}
+          <strong className="text-brand">{intl(story.leads)}</strong> viraram leads no
+          WhatsApp — conversão de <strong>{pctFmt(story.conv)}</strong>.
           {story.worstIdx > 0 && (
             <>
               {" "}
@@ -153,16 +154,15 @@ function Dashboard({
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <KpiCard icon="trendUp" label="Visitas" value={intl(data.totals.pageViews)} sub={`${intl(data.totals.sessions)} sessões`} />
         <KpiCard icon="user" label="Usuários" value={intl(data.totals.users)} sub={`${pctFmt(data.totals.engagementRate)} engajamento`} />
-        <KpiCard icon="inbox" label="Leads (WhatsApp)" value={intl(story.leads)} sub="enviados pelo fluxo" />
-        <KpiCard icon="percent" label="Conversão" value={pctFmt(story.conv)} sub="visita → lead" highlight />
+        <KpiCard icon="inbox" label="Leads (WhatsApp)" value={intl(story.leads)} sub="visitantes que viraram lead" />
+        <KpiCard icon="percent" label="Conversão" value={pctFmt(story.conv)} sub="visitante → lead" highlight />
       </div>
 
       {/* Funil */}
       <Panel title="Funil de conversão">
         <FunnelChart steps={data.funnel} />
         <p className="mt-3 text-[11px] text-muted">
-          Contagens de eventos (não usuários únicos). “Avançou etapa” soma os
-          sub-passos do questionário, por isso pode superar a etapa anterior.
+          Usuários únicos que chegaram pelo menos até cada etapa (no período).
         </p>
       </Panel>
 
