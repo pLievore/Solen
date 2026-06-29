@@ -13,6 +13,7 @@ import { ProposalModule } from "./proposals/proposal.module";
 import { BlogModule } from "./blog/blog.module";
 import { UsersModule } from "./users/users.module";
 import { AssistenciaModule } from "./assistencia/assistencia.module";
+import { AnalyticsModule } from "./analytics/analytics.module";
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AssistenciaModule } from "./assistencia/assistencia.module";
     BlogModule,
     UsersModule,
     AssistenciaModule,
+    AnalyticsModule,
   ],
   providers: [
     {

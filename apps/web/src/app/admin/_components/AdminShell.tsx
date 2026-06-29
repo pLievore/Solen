@@ -16,6 +16,7 @@ type NavGroup = { title: string; items: NavItem[] };
 // Cada prefixo de rota do painel mapeia para uma "página" de permissão.
 const PAGE_BY_HREF: [string, string][] = [
   ["/admin/proposals", "propostas"],
+  ["/admin/analytics", "dashboard"],
   ["/admin/categories", "catalogo"],
   ["/admin/models", "catalogo"],
   ["/admin/variants", "catalogo"],
@@ -53,6 +54,7 @@ const NAV: NavGroup[] = [
     items: [
       { href: "/admin", label: "Visão geral", icon: "dashboard" },
       { href: "/admin/proposals", label: "Propostas", icon: "inbox" },
+      { href: "/admin/analytics", label: "Analytics", icon: "trendUp" },
     ],
   },
   {
