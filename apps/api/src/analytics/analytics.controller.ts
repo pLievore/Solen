@@ -10,14 +10,34 @@ const querySchema = z.object({
 type AnalyticsQuery = z.infer<typeof querySchema>;
 
 // Funil canonico (ordem do fluxo). page_view e automatico do GA4.
-const FUNNEL_STEPS: { key: string; label: string }[] = [
-  { key: "page_view", label: "Visitas (page_view)" },
-  { key: "iniciou_avaliacao", label: "Iniciou avaliacao" },
-  { key: "selecionou_modelo", label: "Selecionou modelo" },
-  { key: "avancou_etapa", label: "Avancou etapa" },
-  { key: "enviou_avaliacao", label: "Enviou avaliacao" },
-  { key: "lead", label: "Lead (WhatsApp)" },
+// Cada etapa soma o nome novo + os antigos equivalentes, para o historico
+// (anterior a padronizacao dos eventos) aparecer junto.
+const FUNNEL_STEPS: { key: string; label: string; events: string[] }[] = [
+  { key: "page_view", label: "Visitas (page_view)", events: ["page_view"] },
+  {
+    key: "iniciou_avaliacao",
+    label: "Iniciou avaliacao",
+    events: ["iniciou_avaliacao", "category_selected"],
+  },
+  {
+    key: "selecionou_modelo",
+    label: "Selecionou modelo",
+    events: ["selecionou_modelo", "model_selected"],
+  },
+  {
+    key: "avancou_etapa",
+    label: "Avancou etapa",
+    events: ["avancou_etapa", "variant_selected", "evaluation_started", "lead_form_started"],
+  },
+  {
+    key: "enviou_avaliacao",
+    label: "Enviou avaliacao",
+    events: ["enviou_avaliacao", "quote_generated"],
+  },
+  { key: "lead", label: "Lead (WhatsApp)", events: ["lead", "whatsapp_redirect"] },
 ];
+
+const FUNNEL_EVENT_NAMES = [...new Set(FUNNEL_STEPS.flatMap((s) => s.events))];
 
 @Controller("admin/analytics")
 @UseGuards(SupabaseAuthGuard)
@@ -62,7 +82,7 @@ export class AnalyticsController {
         dimensionFilter: {
           filter: {
             fieldName: "eventName",
-            inListFilter: { values: FUNNEL_STEPS.map((s) => s.key) },
+            inListFilter: { values: FUNNEL_EVENT_NAMES },
           },
         },
       }),
@@ -101,7 +121,7 @@ function buildFunnel(report: GaReport) {
   return FUNNEL_STEPS.map((step) => ({
     key: step.key,
     label: step.label,
-    count: counts.get(step.key) ?? 0,
+    count: step.events.reduce((sum, name) => sum + (counts.get(name) ?? 0), 0),
   }));
 }
 
