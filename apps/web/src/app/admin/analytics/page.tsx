@@ -41,7 +41,7 @@ export default function AnalyticsPage() {
     setLoading(true);
     setError(null);
     try {
-      setData(await adminApi.get<AnalyticsData>(`/admin/analytics?days=${days}`));
+      setData(await adminApi.get<AnalyticsData>(`/admin/ga-analytics?days=${days}`));
     } catch (e) {
       setError((e as Error).message);
     } finally {

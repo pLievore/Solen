@@ -39,7 +39,7 @@ const FUNNEL_STEPS: { key: string; label: string; events: string[] }[] = [
 
 const FUNNEL_EVENT_NAMES = [...new Set(FUNNEL_STEPS.flatMap((s) => s.events))];
 
-@Controller("admin/analytics")
+@Controller("admin/ga-analytics")
 @UseGuards(SupabaseAuthGuard)
 export class AnalyticsController {
   constructor(private readonly ga4: Ga4Service) {}
