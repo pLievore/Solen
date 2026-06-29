@@ -63,7 +63,7 @@ export class AnalyticsController {
 
     const dateRanges = [{ startDate: `${q.days}daysAgo`, endDate: "today" }];
 
-    const [totals, timeseries, byPage, funnel, byDevice, byChannel] =
+    const [totals, timeseries, byPage, funnel, byDevice, byChannel, byCity, byRegion] =
       await Promise.all([
         this.ga4.runReport({
           dateRanges,
@@ -123,6 +123,22 @@ export class AnalyticsController {
           dimensionFilter: EXCLUDE_ADMIN,
           limit: 6,
         }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "city" }, { name: "region" }],
+          metrics: [{ name: "totalUsers" }],
+          orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }],
+          dimensionFilter: EXCLUDE_ADMIN,
+          limit: 15,
+        }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "region" }],
+          metrics: [{ name: "totalUsers" }],
+          orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }],
+          dimensionFilter: EXCLUDE_ADMIN,
+          limit: 20,
+        }),
       ]);
 
     const totalRow = totals.rows?.[0]?.metricValues ?? [];
@@ -149,6 +165,14 @@ export class AnalyticsController {
       funnel: buildFunnel(funnel),
       byDevice: simpleRows(byDevice),
       byChannel: simpleRows(byChannel),
+      byCity: (byCity.rows ?? [])
+        .map((row) => ({
+          city: row.dimensionValues?.[0]?.value ?? "—",
+          region: row.dimensionValues?.[1]?.value ?? "",
+          value: num(row.metricValues?.[0]?.value),
+        }))
+        .filter((r) => r.city && r.city !== "(not set)"),
+      byRegion: simpleRows(byRegion).filter((r) => r.label && r.label !== "(not set)"),
     };
   }
 }

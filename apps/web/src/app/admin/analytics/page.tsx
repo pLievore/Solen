@@ -8,6 +8,7 @@ import { PageHeader } from "../_components/PageHeader";
 import { Panel } from "../_components/charts";
 import {
   BarList,
+  BrazilBubbleMap,
   DonutChart,
   FunnelChart,
   KpiCard,
@@ -29,6 +30,8 @@ type AnalyticsData =
       funnel: FunnelStep[];
       byDevice: { label: string; value: number }[];
       byChannel: { label: string; value: number }[];
+      byCity: { city: string; region: string; value: number }[];
+      byRegion: { label: string; value: number }[];
     };
 
 const PERIODS = [
@@ -182,12 +185,33 @@ function Dashboard({
         </Panel>
       </div>
 
+      {/* Localização */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="Usuários por estado">
+          <BrazilBubbleMap regions={data.byRegion} />
+        </Panel>
+        <Panel title="Principais cidades">
+          <BarList
+            rows={data.byCity.slice(0, 8).map((c) => ({
+              label: c.region ? `${c.city} · ${ufShort(c.region)}` : c.city,
+              value: c.value,
+            }))}
+            unit="usu."
+          />
+        </Panel>
+      </div>
+
       {/* Páginas */}
       <Panel title="Páginas mais visitadas">
         <BarList rows={data.byPage.map((p) => ({ label: p.path, value: p.views }))} />
       </Panel>
     </>
   );
+}
+
+// "State of Sao Paulo" -> "Sao Paulo" (encurta o rótulo da cidade).
+function ufShort(region: string): string {
+  return region.replace(/^State of /i, "");
 }
 
 function NotConfigured() {
