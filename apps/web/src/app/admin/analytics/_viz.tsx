@@ -7,6 +7,59 @@ import { Icon } from "@/lib/icons";
 export const intl = (n: number) => Math.round(n).toLocaleString("pt-BR");
 export const pctFmt = (n: number) =>
   `${(n * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+export const fmtDuration = (s: number) => {
+  const m = Math.floor(s / 60);
+  const sec = Math.round(s % 60);
+  return m > 0 ? `${m}m ${sec}s` : `${sec}s`;
+};
+
+// ── Barras verticais (hora / dia da semana) com rótulos ─────────────────────
+export function VBars({
+  data,
+  labels,
+}: {
+  data: number[];
+  labels: string[];
+}) {
+  const max = Math.max(1, ...data);
+  const peak = data.indexOf(max);
+  const dense = data.length > 12;
+  return (
+    <div>
+      <div className="flex h-32 items-end gap-1">
+        {data.map((v, i) => (
+          <div key={i} className="flex flex-1 flex-col items-center justify-end gap-1">
+            <span className="text-[9px] tabular-nums text-muted">
+              {v > 0 && (!dense || i === peak) ? intl(v) : ""}
+            </span>
+            <div
+              className={`w-full rounded-t ${i === peak ? "bg-brand" : "bg-brand/55"}`}
+              style={{ height: `${Math.max((v / max) * 100, v > 0 ? 4 : 0)}%` }}
+              title={`${labels[i]}: ${intl(v)}`}
+            />
+          </div>
+        ))}
+      </div>
+      <div className="mt-1 flex gap-1">
+        {labels.map((l, i) => (
+          <span key={i} className="flex-1 text-center text-[9px] text-muted">
+            {l}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Mini-stat inline ────────────────────────────────────────────────────────
+export function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex-1">
+      <p className="text-2xl font-bold tabular-nums">{value}</p>
+      <p className="text-xs text-muted">{label}</p>
+    </div>
+  );
+}
 
 const SERIES_COLORS = ["#16a34a", "#0ea5e9", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
 

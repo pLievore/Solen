@@ -12,10 +12,16 @@ import {
   DonutChart,
   FunnelChart,
   KpiCard,
+  MiniStat,
   TrendArea,
+  VBars,
+  fmtDuration,
   intl,
   pctFmt,
 } from "./_viz";
+
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const HOUR_LABELS = Array.from({ length: 24 }, (_, h) => (h % 3 === 0 ? `${h}h` : ""));
 
 type FunnelStep = { key: string; label: string; count: number };
 
@@ -24,12 +30,25 @@ type AnalyticsData =
   | {
       configured: true;
       range: { days: number };
-      totals: { pageViews: number; users: number; sessions: number; engagementRate: number };
+      totals: {
+        pageViews: number;
+        users: number;
+        sessions: number;
+        engagementRate: number;
+        newUsers: number;
+        avgSessionDuration: number;
+        bounceRate: number;
+      };
       timeseries: { date: string; count: number; users: number }[];
       byPage: { path: string; views: number; users: number }[];
       funnel: FunnelStep[];
       byDevice: { label: string; value: number }[];
       byChannel: { label: string; value: number }[];
+      byHour: number[];
+      byWeekday: number[];
+      bySource: { label: string; value: number }[];
+      byOS: { label: string; value: number }[];
+      byLanding: { label: string; value: number }[];
       byCity: { city: string; region: string; value: number }[];
       byRegion: { label: string; value: number }[];
     };
@@ -171,7 +190,30 @@ function Dashboard({
         <TrendArea data={data.timeseries} />
       </Panel>
 
-      {/* Dispositivos + Canais */}
+      {/* Engajamento */}
+      <Panel title="Engajamento">
+        <div className="flex flex-wrap gap-6">
+          <MiniStat
+            label="Novos visitantes"
+            value={pctFmt(data.totals.users > 0 ? data.totals.newUsers / data.totals.users : 0)}
+          />
+          <MiniStat label="Duração média da sessão" value={fmtDuration(data.totals.avgSessionDuration)} />
+          <MiniStat label="Taxa de engajamento" value={pctFmt(data.totals.engagementRate)} />
+          <MiniStat label="Taxa de rejeição" value={pctFmt(data.totals.bounceRate)} />
+        </div>
+      </Panel>
+
+      {/* Picos de acesso */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="Acessos por horário">
+          <VBars data={data.byHour} labels={HOUR_LABELS} />
+        </Panel>
+        <Panel title="Acessos por dia da semana">
+          <VBars data={data.byWeekday} labels={WEEKDAYS} />
+        </Panel>
+      </div>
+
+      {/* Dispositivos + Sistema */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="Dispositivos">
           <DonutChart
@@ -180,8 +222,22 @@ function Dashboard({
             centerLabel="sessões"
           />
         </Panel>
+        <Panel title="Sistema (iPhone × Android)">
+          <DonutChart
+            segments={data.byOS}
+            centerValue={intl(data.byOS.reduce((a, s) => a + s.value, 0))}
+            centerLabel="usuários"
+          />
+        </Panel>
+      </div>
+
+      {/* Canais + Origem detalhada */}
+      <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="Canais de aquisição">
           <BarList rows={data.byChannel} unit="ses." />
+        </Panel>
+        <Panel title="Origem detalhada (fonte / mídia)">
+          <BarList rows={data.bySource} unit="ses." />
         </Panel>
       </div>
 
@@ -202,9 +258,14 @@ function Dashboard({
       </div>
 
       {/* Páginas */}
-      <Panel title="Páginas mais visitadas">
-        <BarList rows={data.byPage.map((p) => ({ label: p.path, value: p.views }))} />
-      </Panel>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Panel title="Páginas mais visitadas">
+          <BarList rows={data.byPage.map((p) => ({ label: p.path, value: p.views }))} />
+        </Panel>
+        <Panel title="Páginas de entrada">
+          <BarList rows={data.byLanding} unit="ses." />
+        </Panel>
+      </div>
     </>
   );
 }

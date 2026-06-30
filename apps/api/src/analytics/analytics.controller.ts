@@ -48,6 +48,16 @@ const EXCLUDE_ADMIN = {
   },
 };
 
+// Para relatorios por landingPage, filtra pela propria pagina de entrada.
+const EXCLUDE_ADMIN_LANDING = {
+  notExpression: {
+    filter: {
+      fieldName: "landingPage",
+      stringFilter: { matchType: "BEGINS_WITH", value: "/admin" },
+    },
+  },
+};
+
 @Controller("admin/ga-analytics")
 @UseGuards(SupabaseAuthGuard)
 export class AnalyticsController {
@@ -70,6 +80,11 @@ export class AnalyticsController {
       byChannel,
       byCity,
       byRegion,
+      byHour,
+      byWeekday,
+      bySource,
+      byOS,
+      byLanding,
       ...stageReports
     ] = await Promise.all([
         this.ga4.runReport({
@@ -79,6 +94,9 @@ export class AnalyticsController {
             { name: "totalUsers" },
             { name: "sessions" },
             { name: "engagementRate" },
+            { name: "newUsers" },
+            { name: "averageSessionDuration" },
+            { name: "bounceRate" },
           ],
           dimensionFilter: EXCLUDE_ADMIN,
         }),
@@ -128,6 +146,44 @@ export class AnalyticsController {
           dimensionFilter: EXCLUDE_ADMIN,
           limit: 20,
         }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "hour" }],
+          metrics: [{ name: "sessions" }],
+          orderBys: [{ dimension: { dimensionName: "hour" } }],
+          dimensionFilter: EXCLUDE_ADMIN,
+        }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "dayOfWeek" }],
+          metrics: [{ name: "sessions" }],
+          orderBys: [{ dimension: { dimensionName: "dayOfWeek" } }],
+          dimensionFilter: EXCLUDE_ADMIN,
+        }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "sessionSourceMedium" }],
+          metrics: [{ name: "sessions" }],
+          orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+          dimensionFilter: EXCLUDE_ADMIN,
+          limit: 8,
+        }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "operatingSystem" }],
+          metrics: [{ name: "totalUsers" }],
+          orderBys: [{ metric: { metricName: "totalUsers" }, desc: true }],
+          dimensionFilter: EXCLUDE_ADMIN,
+          limit: 6,
+        }),
+        this.ga4.runReport({
+          dateRanges,
+          dimensions: [{ name: "landingPage" }],
+          metrics: [{ name: "sessions" }],
+          orderBys: [{ metric: { metricName: "sessions" }, desc: true }],
+          dimensionFilter: EXCLUDE_ADMIN_LANDING,
+          limit: 8,
+        }),
         // Etapas do funil: usuarios unicos por uniao cumulativa de eventos.
         ...FUNNEL_UNIONS.map((events) =>
           this.ga4.runReport({
@@ -160,6 +216,9 @@ export class AnalyticsController {
         users: num(totalRow[1]?.value),
         sessions: num(totalRow[2]?.value),
         engagementRate: num(totalRow[3]?.value),
+        newUsers: num(totalRow[4]?.value),
+        avgSessionDuration: num(totalRow[5]?.value),
+        bounceRate: num(totalRow[6]?.value),
       },
       timeseries: (timeseries.rows ?? []).map((row) => ({
         date: formatDate(row.dimensionValues?.[0]?.value ?? ""),
@@ -181,6 +240,11 @@ export class AnalyticsController {
       ],
       byDevice: simpleRows(byDevice),
       byChannel: simpleRows(byChannel),
+      byHour: fillSeries(byHour, 24),
+      byWeekday: fillSeries(byWeekday, 7),
+      bySource: simpleRows(bySource).filter((r) => r.label && r.label !== "(not set)"),
+      byOS: simpleRows(byOS),
+      byLanding: simpleRows(byLanding).filter((r) => r.label && r.label !== "(not set)"),
       byCity: (byCity.rows ?? [])
         .map((row) => ({
           city: row.dimensionValues?.[0]?.value ?? "—",
@@ -198,6 +262,15 @@ function simpleRows(report: GaReport) {
     label: row.dimensionValues?.[0]?.value ?? "—",
     value: num(row.metricValues?.[0]?.value),
   }));
+}
+
+// Preenche uma serie indexada (hora 0-23 / dia 0-6) com zeros nos buracos.
+function fillSeries(report: GaReport, size: number): number[] {
+  const map = new Map<number, number>();
+  for (const row of report.rows ?? []) {
+    map.set(Number(row.dimensionValues?.[0]?.value), num(row.metricValues?.[0]?.value));
+  }
+  return Array.from({ length: size }, (_, i) => map.get(i) ?? 0);
 }
 
 function num(value: string | undefined): number {
