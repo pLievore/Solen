@@ -33,8 +33,11 @@ export function VBars({
               {v > 0 && (!dense || i === peak) ? intl(v) : ""}
             </span>
             <div
-              className={`w-full shrink-0 rounded-t ${i === peak ? "bg-brand" : "bg-brand/55"}`}
-              style={{ height: `${Math.max((v / max) * 100, v > 0 ? 4 : 0)}%` }}
+              className="w-full shrink-0 rounded-t bg-brand"
+              style={{
+                height: `${Math.max((v / max) * 100, v > 0 ? 4 : 0)}%`,
+                opacity: i === peak ? 1 : 0.5,
+              }}
               title={`${labels[i]}: ${intl(v)}`}
             />
           </div>
