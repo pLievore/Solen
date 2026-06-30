@@ -5,7 +5,7 @@ import { adminApi } from "@/lib/admin-api";
 import { cls } from "@/lib/ui";
 import { Icon } from "@/lib/icons";
 import { PageHeader } from "../_components/PageHeader";
-import { Panel } from "../_components/charts";
+import { Panel, brl } from "../_components/charts";
 import {
   BarList,
   BrazilBubbleMap,
@@ -51,6 +51,15 @@ type AnalyticsData =
       byLanding: { label: string; value: number }[];
       byCity: { city: string; region: string; value: number }[];
       byRegion: { label: string; value: number }[];
+      sales: {
+        total: number;
+        novas: number;
+        emContato: number;
+        fechadas: number;
+        perdidas: number;
+        valorFechado: number;
+        ticket: number;
+      };
     };
 
 const PERIODS = [
@@ -182,6 +191,26 @@ function Dashboard({
         <FunnelChart steps={data.funnel} />
         <p className="mt-3 text-[11px] text-muted">
           Usuários únicos que chegaram pelo menos até cada etapa (no período).
+        </p>
+      </Panel>
+
+      {/* Da avaliação à venda (banco de propostas) */}
+      <Panel title="Da avaliação à venda (propostas)">
+        <div className="flex flex-wrap gap-x-8 gap-y-4">
+          <MiniStat label="Propostas recebidas" value={intl(data.sales.total)} />
+          <MiniStat label="Em contato" value={intl(data.sales.emContato)} />
+          <MiniStat label="Fechadas" value={intl(data.sales.fechadas)} />
+          <MiniStat label="Perdidas" value={intl(data.sales.perdidas)} />
+          <MiniStat
+            label="Taxa de fechamento"
+            value={pctFmt(data.sales.total > 0 ? data.sales.fechadas / data.sales.total : 0)}
+          />
+          <MiniStat label="Valor fechado" value={brl(data.sales.valorFechado)} />
+          <MiniStat label="Ticket médio" value={brl(data.sales.ticket)} />
+        </div>
+        <p className="mt-3 text-[11px] text-muted">
+          Fecha o ciclo: do comportamento no site (acima) ao resultado real das
+          propostas no período.
         </p>
       </Panel>
 

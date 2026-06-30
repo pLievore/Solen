@@ -2,6 +2,7 @@ import { Controller, Get, Query, UseGuards } from "@nestjs/common";
 import { z } from "zod";
 import { SupabaseAuthGuard } from "../auth/auth.guard";
 import { ZodValidationPipe } from "../common/zod-validation.pipe";
+import { PrismaService } from "../prisma/prisma.service";
 import { Ga4Service, type GaReport } from "./ga4.service";
 
 const querySchema = z.object({
@@ -61,7 +62,10 @@ const EXCLUDE_ADMIN_LANDING = {
 @Controller("admin/ga-analytics")
 @UseGuards(SupabaseAuthGuard)
 export class AnalyticsController {
-  constructor(private readonly ga4: Ga4Service) {}
+  constructor(
+    private readonly ga4: Ga4Service,
+    private readonly prisma: PrismaService,
+  ) {}
 
   /** GET /admin/ga-analytics — visao geral do trafego e funil (GA4). */
   @Get()
@@ -208,6 +212,28 @@ export class AnalyticsController {
 
     const totalRow = totals.rows?.[0]?.metricValues ?? [];
 
+    // ── Resultado comercial (banco de propostas) ──────────────────────────
+    const since = new Date(Date.now() - q.days * 86_400_000);
+    const [statusGroups, closedRows] = await Promise.all([
+      this.prisma.proposal.groupBy({
+        by: ["status"],
+        where: { createdAt: { gte: since } },
+        _count: { _all: true },
+      }),
+      this.prisma.proposal.findMany({
+        where: { createdAt: { gte: since }, status: "CLOSED" },
+        select: { calculatedValue: true, overriddenValue: true },
+      }),
+    ]);
+    const statusCount = (s: string) =>
+      statusGroups.find((g) => g.status === s)?._count._all ?? 0;
+    const salesTotal = statusGroups.reduce((a, g) => a + g._count._all, 0);
+    const closedValue = closedRows.reduce(
+      (a, p) => a + (p.overriddenValue ?? p.calculatedValue),
+      0,
+    );
+    const closedCount = closedRows.length;
+
     return {
       configured: true as const,
       range: { days: q.days },
@@ -253,6 +279,15 @@ export class AnalyticsController {
         }))
         .filter((r) => r.city && r.city !== "(not set)"),
       byRegion: simpleRows(byRegion).filter((r) => r.label && r.label !== "(not set)"),
+      sales: {
+        total: salesTotal,
+        novas: statusCount("NEW"),
+        emContato: statusCount("CONTACTED"),
+        fechadas: closedCount,
+        perdidas: statusCount("LOST"),
+        valorFechado: closedValue,
+        ticket: closedCount > 0 ? Math.round(closedValue / closedCount) : 0,
+      },
     };
   }
 }
