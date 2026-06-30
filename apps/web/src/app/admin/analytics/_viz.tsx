@@ -26,14 +26,14 @@ export function VBars({
   const dense = data.length > 12;
   return (
     <div>
-      <div className="flex h-32 items-end gap-1">
+      <div className="flex h-32 items-stretch gap-1">
         {data.map((v, i) => (
-          <div key={i} className="flex flex-1 flex-col items-center justify-end gap-1">
+          <div key={i} className="flex h-full flex-1 flex-col items-center justify-end gap-1">
             <span className="text-[9px] tabular-nums text-muted">
               {v > 0 && (!dense || i === peak) ? intl(v) : ""}
             </span>
             <div
-              className={`w-full rounded-t ${i === peak ? "bg-brand" : "bg-brand/55"}`}
+              className={`w-full shrink-0 rounded-t ${i === peak ? "bg-brand" : "bg-brand/55"}`}
               style={{ height: `${Math.max((v / max) * 100, v > 0 ? 4 : 0)}%` }}
               title={`${labels[i]}: ${intl(v)}`}
             />
