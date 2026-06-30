@@ -214,7 +214,7 @@ export class AnalyticsController {
 
     // ── Resultado comercial (banco de propostas) ──────────────────────────
     const since = new Date(Date.now() - q.days * 86_400_000);
-    const [statusGroups, closedRows] = await Promise.all([
+    const [statusGroups, closedRows, answerRows, detailedStates] = await Promise.all([
       this.prisma.proposal.groupBy({
         by: ["status"],
         where: { createdAt: { gte: since } },
@@ -224,6 +224,11 @@ export class AnalyticsController {
         where: { createdAt: { gte: since }, status: "CLOSED" },
         select: { calculatedValue: true, overriddenValue: true },
       }),
+      this.prisma.proposal.findMany({
+        where: { createdAt: { gte: since } },
+        select: { answers: true, isScrap: true },
+      }),
+      this.prisma.detailedState.findMany({ select: { id: true, question: true } }),
     ]);
     const statusCount = (s: string) =>
       statusGroups.find((g) => g.status === s)?._count._all ?? 0;
@@ -233,6 +238,28 @@ export class AnalyticsController {
       0,
     );
     const closedCount = closedRows.length;
+
+    // Perfil do estoque: agrega as respostas detalhadas das avaliacoes.
+    const detailedMap = new Map(detailedStates.map((d) => [d.id, d.question]));
+    const answerAgg = new Map<string, { question: string; yes: number; no: number }>();
+    let scrapCount = 0;
+    for (const row of answerRows) {
+      if (row.isScrap) scrapCount++;
+      const detailed =
+        ((row.answers as { detailed?: { questionId: string; answer: string }[] })
+          ?.detailed) ?? [];
+      for (const ans of detailed) {
+        const question = detailedMap.get(ans.questionId);
+        if (!question) continue;
+        const entry = answerAgg.get(ans.questionId) ?? { question, yes: 0, no: 0 };
+        if (ans.answer === "YES") entry.yes++;
+        else entry.no++;
+        answerAgg.set(ans.questionId, entry);
+      }
+    }
+    const inventoryQuestions = [...answerAgg.values()]
+      .map((e) => ({ ...e, total: e.yes + e.no }))
+      .sort((a, b) => b.total - a.total);
 
     return {
       configured: true as const,
@@ -287,6 +314,10 @@ export class AnalyticsController {
         perdidas: statusCount("LOST"),
         valorFechado: closedValue,
         ticket: closedCount > 0 ? Math.round(closedValue / closedCount) : 0,
+      },
+      inventory: {
+        scrapRate: answerRows.length > 0 ? scrapCount / answerRows.length : 0,
+        questions: inventoryQuestions,
       },
     };
   }

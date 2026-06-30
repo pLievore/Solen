@@ -51,6 +51,29 @@ export function VBars({
   );
 }
 
+// ── Barra Sim/Não (perfil do estoque) ───────────────────────────────────────
+export function SplitBar({ label, yes, no }: { label: string; yes: number; no: number }) {
+  const total = Math.max(1, yes + no);
+  const yp = (yes / total) * 100;
+  return (
+    <div>
+      <div className="mb-1 flex items-baseline justify-between gap-2 text-xs">
+        <span className="truncate" title={label}>
+          {label}
+        </span>
+        <span className="shrink-0 tabular-nums text-muted">
+          Sim <strong className="text-brand">{pctFmt(yes / total)}</strong> · Não{" "}
+          <strong className="text-red-500">{pctFmt(no / total)}</strong>
+        </span>
+      </div>
+      <div className="flex h-3 overflow-hidden rounded-full bg-surface-2">
+        <div className="bg-brand" style={{ width: `${yp}%` }} title={`Sim: ${yes}`} />
+        <div className="bg-red-400" style={{ width: `${100 - yp}%` }} title={`Não: ${no}`} />
+      </div>
+    </div>
+  );
+}
+
 // ── Mini-stat inline ────────────────────────────────────────────────────────
 export function MiniStat({ label, value }: { label: string; value: string }) {
   return (

@@ -13,6 +13,7 @@ import {
   FunnelChart,
   KpiCard,
   MiniStat,
+  SplitBar,
   TrendArea,
   VBars,
   fmtDuration,
@@ -59,6 +60,10 @@ type AnalyticsData =
         perdidas: number;
         valorFechado: number;
         ticket: number;
+      };
+      inventory: {
+        scrapRate: number;
+        questions: { question: string; yes: number; no: number; total: number }[];
       };
     };
 
@@ -213,6 +218,24 @@ function Dashboard({
           propostas no período.
         </p>
       </Panel>
+
+      {/* Perfil do estoque */}
+      {data.inventory.questions.length > 0 && (
+        <Panel title="Perfil do estoque (respostas das avaliações)">
+          <p className="mb-4 text-sm">
+            <strong className="text-brand">{pctFmt(data.inventory.scrapRate)}</strong> das
+            avaliações no período caíram em <strong>sucata</strong>.
+          </p>
+          <div className="space-y-3">
+            {data.inventory.questions.map((q) => (
+              <SplitBar key={q.question} label={q.question} yes={q.yes} no={q.no} />
+            ))}
+          </div>
+          <p className="mt-3 text-[11px] text-muted">
+            Distribuição das respostas Sim/Não — o perfil dos aparelhos que chegam.
+          </p>
+        </Panel>
+      )}
 
       {/* Tendência */}
       <Panel title={`Visitas por dia — ${periodLabel}`}>
