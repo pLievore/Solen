@@ -65,6 +65,12 @@ type AnalyticsData =
         scrapRate: number;
         questions: { question: string; yes: number; no: number; total: number }[];
       };
+      repairs: {
+        total: number;
+        avgDays: number;
+        byStatus: { label: string; value: number }[];
+        byTechnician: { label: string; value: number }[];
+      };
     };
 
 const PERIODS = [
@@ -318,6 +324,29 @@ function Dashboard({
           <BarList rows={data.byLanding} unit="ses." />
         </Panel>
       </div>
+
+      {/* Assistência técnica */}
+      {data.repairs.total > 0 && (
+        <Panel title="Assistência técnica">
+          <div className="mb-4 flex flex-wrap gap-x-8 gap-y-4">
+            <MiniStat label="Aparelhos no período" value={intl(data.repairs.total)} />
+            <MiniStat
+              label="Tempo médio de reparo"
+              value={`${data.repairs.avgDays.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} dias`}
+            />
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Por status</p>
+              <BarList rows={data.repairs.byStatus} />
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Por técnico</p>
+              <BarList rows={data.repairs.byTechnician} />
+            </div>
+          </div>
+        </Panel>
+      )}
     </>
   );
 }

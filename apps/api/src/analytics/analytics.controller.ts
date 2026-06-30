@@ -214,7 +214,8 @@ export class AnalyticsController {
 
     // ── Resultado comercial (banco de propostas) ──────────────────────────
     const since = new Date(Date.now() - q.days * 86_400_000);
-    const [statusGroups, closedRows, answerRows, detailedStates] = await Promise.all([
+    const [statusGroups, closedRows, answerRows, detailedStates, repairRows] =
+      await Promise.all([
       this.prisma.proposal.groupBy({
         by: ["status"],
         where: { createdAt: { gte: since } },
@@ -229,6 +230,10 @@ export class AnalyticsController {
         select: { answers: true, isScrap: true },
       }),
       this.prisma.detailedState.findMany({ select: { id: true, question: true } }),
+      this.prisma.repairDevice.findMany({
+        where: { createdAt: { gte: since } },
+        select: { status: true, technicianEmail: true, createdAt: true, updatedAt: true },
+      }),
     ]);
     const statusCount = (s: string) =>
       statusGroups.find((g) => g.status === s)?._count._all ?? 0;
@@ -260,6 +265,28 @@ export class AnalyticsController {
     const inventoryQuestions = [...answerAgg.values()]
       .map((e) => ({ ...e, total: e.yes + e.no }))
       .sort((a, b) => b.total - a.total);
+
+    // Assistencia tecnica: status, tecnico e tempo medio de reparo.
+    const REPAIR_LABELS: Record<string, string> = {
+      RECEBIDO: "Recebido",
+      EM_REPARO: "Em reparo",
+      CONCLUIDO: "Concluído",
+      ENTREGUE: "Entregue",
+    };
+    const repairStatus = new Map<string, number>();
+    const repairTech = new Map<string, number>();
+    let repairDoneDaysSum = 0;
+    let repairDoneCount = 0;
+    for (const r of repairRows) {
+      repairStatus.set(r.status, (repairStatus.get(r.status) ?? 0) + 1);
+      const tech = r.technicianEmail ?? "Sem técnico";
+      repairTech.set(tech, (repairTech.get(tech) ?? 0) + 1);
+      if (r.status === "CONCLUIDO" || r.status === "ENTREGUE") {
+        repairDoneDaysSum +=
+          (r.updatedAt.getTime() - r.createdAt.getTime()) / 86_400_000;
+        repairDoneCount++;
+      }
+    }
 
     return {
       configured: true as const,
@@ -318,6 +345,17 @@ export class AnalyticsController {
       inventory: {
         scrapRate: answerRows.length > 0 ? scrapCount / answerRows.length : 0,
         questions: inventoryQuestions,
+      },
+      repairs: {
+        total: repairRows.length,
+        avgDays: repairDoneCount > 0 ? repairDoneDaysSum / repairDoneCount : 0,
+        byStatus: [...repairStatus.entries()].map(([key, value]) => ({
+          label: REPAIR_LABELS[key] ?? key,
+          value,
+        })),
+        byTechnician: [...repairTech.entries()]
+          .map(([label, value]) => ({ label, value }))
+          .sort((a, b) => b.value - a.value),
       },
     };
   }
