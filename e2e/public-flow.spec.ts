@@ -211,8 +211,8 @@ test("explica quando o aparelho vai para pecas", async ({
 
   await page.getByRole("button", { name: /Ver minha avalia/i }).click();
   await expect(page.getByRole("heading", { name: /Sua avalia/i })).toBeVisible();
-  await page.getByLabel("Nome completo").fill("Teste Vendy");
-  await page.getByLabel("WhatsApp").fill("(11) 99999-9999");
+  await page.getByPlaceholder("Seu nome").fill("Teste Vendy");
+  await page.getByPlaceholder("(11) 99999-9999").fill("(11) 99999-9999");
   await page.getByRole("button", { name: /Ver minha avalia/i }).click();
 
   await expect(
@@ -277,8 +277,8 @@ test("avalia aparelho e chega a escolha de entrega sem lead real", async ({
 
   await page.getByRole("button", { name: /Ver minha avalia/i }).click();
   await expect(page.getByRole("heading", { name: /Sua avalia/i })).toBeVisible();
-  await page.getByLabel("Nome completo").fill("Teste Vendy");
-  await page.getByLabel("WhatsApp").fill("(11) 99999-9999");
+  await page.getByPlaceholder("Seu nome").fill("Teste Vendy");
+  await page.getByPlaceholder("(11) 99999-9999").fill("(11) 99999-9999");
   await page.getByRole("button", { name: /Ver minha avalia/i }).click();
 
   await expect(page.getByText("Sua proposta", { exact: true })).toBeVisible();
